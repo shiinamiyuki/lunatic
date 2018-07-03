@@ -65,8 +65,10 @@ struct State {
 		callInfo = nullptr;
 		ok = true;
 	}
-	inline void updateReg(){registers = locals.data() + bp;}
-	inline void push(){
+	inline void updateReg() {
+		registers = locals.data() + bp;
+	}
+	inline void push() {
 		sp++;
 	}
 	inline void call(int addr ,int n) {
@@ -79,7 +81,7 @@ struct State {
 	}
 	inline void ret(){
 		if(callInfo){
-			pc = callInfo->pc + 1;
+			pc = callInfo->pc;
 			bp = callInfo->bp;
 			sp = callInfo->sp;
 			auto prev = callInfo->prev;

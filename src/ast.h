@@ -278,5 +278,12 @@ public:
 	}
 	void accept(Visitor*);
 };
+class Empty:public AST{
+public:
+	const std::string type()const{
+		return S("Empty");
+	}
+	void accept(Visitor*);
+};
 SPEKA_END
 #endif /* AST_H_ */

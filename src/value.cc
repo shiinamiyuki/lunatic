@@ -40,10 +40,28 @@ void Value::mul(Value* a, Value* b, Value* c) {
 }
 
 void Value::mod(Value* a, Value* b, Value* c) {
-
+	c->setInt(a->getInt()% b->getInt());
 }
 void Value::div(Value* a, Value* b, Value* c) {
 	c->setFloat(a->getFloat() / b->getFloat());
+}
+void Value::logicAnd(Value* a, Value* b, Value* c) {
+	c->setInt(a->toBool() && b->toBool());
+}
+
+void Value::logicOr(Value* a, Value* b, Value* c) {
+	c->setInt(a->toBool() || b->toBool());
+}
+void Value::neg(Value* a, Value* b) {
+	if(a->isInt()){
+		b->setInt(-a->getInt());
+	}else{
+		b->setFloat(-a->getFloat());
+	}
+}
+
+void Value::logicNot(Value* a, Value* b) {
+	b->setInt(!a->toBool());
 }
 
 void Value::idiv(Value* a, Value* b, Value* c) {
@@ -257,6 +275,41 @@ Value List::get(int i) {
 
 void List::set(int i, const Value&v) {
 	at(i)= v;
+}
+
+void Value::checkInt() {
+	if(!isInt())
+		throw std::runtime_error("int object expected!");
+}
+
+void Value::checkFloat() {
+	if(!isFloat() && !isInt()){
+		throw std::runtime_error("float object expected!");
+	}
+}
+
+void Value::checkClosure() {
+	if(!isClosure()){
+		throw std::runtime_error("closure object expected!");
+	}
+}
+
+void Value::checkTable() {
+	if(!isTable()){
+		throw std::runtime_error("table object expected!");
+	}
+}
+
+void Value::checkList() {
+	if(!isList()){
+		throw std::runtime_error("list object expected!");
+	}
+}
+
+void Value::checkString() {
+	if(!isString()){
+		throw std::runtime_error("string object expected!");
+	}
 }
 SPEKA_END
 

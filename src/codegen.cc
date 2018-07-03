@@ -122,6 +122,8 @@ void CodeGen::visit(BinaryExpression*node) {
 			o = Opcode::Mul;
 		} else if (op == "/") {
 			o = Opcode::Div;
+		}  else if (op == "%") {
+			o = Opcode::Mod;
 		} else if (op == ">") {
 			o = Opcode::GT;
 		} else if (op == ">=") {
@@ -134,6 +136,10 @@ void CodeGen::visit(BinaryExpression*node) {
 			o = Opcode::EQ;
 		} else if (op == "!=") {
 			o = Opcode::NE;
+		} else if (op == "and") {
+			o = Opcode::And;
+		} else if (op == "or") {
+			o = Opcode::Or;
 		} else {
 			error("unsupported operator", node->getToken().line,
 					node->getToken().col);
@@ -190,6 +196,14 @@ void CodeGen::visit(UnaryExpression* expr) {
 		emit(Instruction(Opcode::GetValue, r, s, findReg()));
 		int n = arg->size();
 		emit(Instruction(Opcode::fCall, popReg(), n, 1));
+	}else if(op.tok == "-"){
+		expr->first()->accept(this);
+		int r = popReg();
+		emit(Instruction(Opcode::Neg,r,findReg()));
+	}else if(op.tok == "not"){
+		expr->first()->accept(this);
+		int r = popReg();
+		emit(Instruction(Opcode::Not,r,findReg()));
 	}
 }
 void CodeGen::visit(ExprListList*list) {
@@ -212,10 +226,10 @@ void CodeGen::visit(ExprList*list) {
 	for (auto iter = list->begin(); iter != list->end(); iter++) {
 		auto& node = *iter;
 		node->accept(this);
-		auto v = popReg();
 		int key;
 		emit(Instruction(Opcode::LoadInt, findReg(), idx));
 		key = popReg();
+		auto v = popReg();
 		emit(Instruction(Opcode::StoreValue, i, key, v));
 		idx++;
 	}

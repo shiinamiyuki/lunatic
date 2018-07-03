@@ -31,13 +31,9 @@ Value Table::get(const std::string &s) {
 void Table::set(int int1, const Value&v) {
 	auto iter = iMap.find(int1);
 	if (iter == iMap.end()) {
-	//	std::cout<<"here"<<std::endl;
 		iMap.insert(std::make_pair(int1, v));
-	//	std::cout<<"there"<<std::endl;
 	} else {
-	//	std::cout<<"what's next"<<std::endl;
 		iMap[int1] = v;
-	//	std::cout<<"heh?"<<std::endl;
 	}
 }
 

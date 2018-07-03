@@ -69,6 +69,7 @@ AST_ACCEPT(Method)
 AST_ACCEPT(Self)
 AST_ACCEPT(ExprListList)
 AST_ACCEPT(Import)
+AST_ACCEPT(Empty)
 SPEKA_END
 
 

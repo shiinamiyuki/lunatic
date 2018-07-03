@@ -14,7 +14,12 @@ enum class Opcode {
 	Sub, //ABC
 	Mul, //ABC
 	Div, //ABC
+	Mod,//ABC
 	iDiv, //ABC
+	And,
+	Or,
+	Not,
+	Neg,
 	LT,
 	GT,
 	LE,

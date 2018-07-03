@@ -20,7 +20,7 @@ void readFile(const char* filename,std::string&s){
 SPEKA_BEGIN
 void ScriptEngine::execString(const std::string& s) {
 	compileString(s);
-	vm.eval(&state);
+
 }
 
 void ScriptEngine::execFile(const std::string& s) {
@@ -40,14 +40,18 @@ void ScriptEngine::compileString(const std::string& s) {
 		ast->link();
 		//std::cout <<ast->str()<<std::endl;
 		ast->accept(&gen);
-		//gen.print();
+	//	gen.print();
 		vm.loadProgram(gen.getProgram());
 		vm.loadStringPool(gen.getStringPool());
+		vm.eval(&state);
 	}catch(ParserException & e){
 		std::cerr << e.what() <<std::endl;
 		recover(len);
 	}catch(CompilerException&e){
 		std::cerr << e.what() << std::endl;
+		recover(len);
+	}catch(std::runtime_error &e){
+		std::cerr<<e.what()<<std::endl;
 		recover(len);
 	}
 }
@@ -61,8 +65,25 @@ void ScriptEngine::recover(int i) {
 		gen.program.pop_back();
 }
 void ScriptEngine::loadLib() {
-	addNative("list_length",ListLength);
-	addNative("print",print);
+	addNative("list_append", ListAppend);
+	addNative("list_length", ListLength);
+	addNative("str2list", StringtoList);
+	addNative("list2str", ListtoString);
+	addNative("math_sin",MathLib::sin);
+	addNative("math_cos",MathLib::cos);
+	addNative("math_tan", MathLib::tan);
+	addNative("math_sqrt", MathLib::sqrt);
+	addNative("test_run", run);
+	/*
+	addNative("gl_init",GLLib::init);
+	addNative("gl_displayfunc",GLLib::setRenderFunc);
+	addNative("gl_setwindowpos",GLLib::setWindowPos);
+	addNative("gl_setwindowsize",GLLib::setWindowSize);
+	addNative("gl_begin",GLLib::glBegin);
+	addNative("gl_end",GLLib::glEnd);
+	addNative("gl_color",GLLib::glColor);
+	addNative("gl_vertex",GLLib::glVertex);*/
+	addNative("print", print);
 }
 
 ScriptEngine::ScriptEngine() {

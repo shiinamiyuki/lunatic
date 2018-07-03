@@ -380,11 +380,14 @@ AST* Parser::parseStmt() {
 		return parseConst();
 	} else if (has("import")) {
 		return parseImport();
-	}else if (has("native")) {
+	} else if (has("native")) {
 		return parseNative();
 	} else if (has("class")) {
 		return parseClass();
-	}else {
+	} else if (has(";")) {
+		consume();
+		return new Empty();
+	} else {
 		auto e = parseExpr(0);
 		expect(";");
 		return e;

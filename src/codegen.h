@@ -41,6 +41,7 @@ public:
 	virtual void visit(Self*)=0;
 	virtual void visit(Method*)=0;
 	virtual void visit(Import*)=0;
+	virtual void visit(Empty*)=0;
 	virtual ~Visitor(){}
 };
 
@@ -139,6 +140,7 @@ class CodeGen: public Visitor{
 	void visit(Self*);
 	void visit(Method*);
 	void visit(Import*);
+	void visit(Empty*){}
 	void assign(AST*, bool b = false);
 	int getLocalAddress(const Token&var);
 	void createGlobal(const Token&var, bool isConst = false);

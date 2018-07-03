@@ -30,6 +30,8 @@ void VM::eval(State* state) {
 	cur = state;
 	int i32;
 	double f64;
+	if(state->selfStack.size() == 0)
+		state->selfStack.push_back(Value());
 	while (state->pc < program.size() && state->ok) {
 		auto&i = program[state->pc];
 	//	std::cout << i.str() <<std::endl;
@@ -58,6 +60,35 @@ void VM::eval(State* state) {
 			break;
 		case Opcode::Mul:
 			DO_ARITH(Value::mul, "__mul")
+			break;
+		case Opcode::Mod:
+			DO_ARITH(Value::mod, "__mod")
+			break;
+		case Opcode::Neg:
+			a = GetReg(i.getA());
+			b = GetReg(i.getB());
+			if(this->checkArithmetic(a,b)){
+				Value::neg(a,b);
+			}else{
+				invokeMetaMethod("__neg");
+			}
+			state->next();
+			break;
+		case Opcode::Not:
+			a = GetReg(i.getA());
+			b = GetReg(i.getB());
+			if (this->checkArithmetic(a, b)) {
+				Value::logicNot(a, b);
+			} else {
+				invokeMetaMethod("__not");
+			}
+			state->next();
+			break;
+		case Opcode::And:
+			DO_ARITH(Value::logicAnd, "__and")
+			break;
+		case Opcode::Or:
+			DO_ARITH(Value::logicOr, "__or")
 			break;
 		case Opcode::LT:
 			DO_ARITH(Value::lt, "__lt")
@@ -187,6 +218,7 @@ void VM::eval(State* state) {
 			break;
 		case Opcode::fCall:
 			a = GetReg(i.getA());
+			state->next();
 			if (!a->isClosure()) {
 				invokeMetaMethod("__call");
 			} else {
@@ -198,8 +230,8 @@ void VM::eval(State* state) {
 			break;
 		case Opcode::invoke:
 			i32 = i.getInt();
-			natives[i32](this);
 			state->next();
+			natives[i32](this);
 			break;
 		default:
 			std::cerr << "unknown opcode " << std::endl;

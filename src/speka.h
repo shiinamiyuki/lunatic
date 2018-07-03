@@ -25,6 +25,7 @@
 #include <exception>
 #include <cassert>
 #include <functional>
+#include <cmath>
 namespace speka{}
 void readFile(const char* filename,std::string&s);
 #endif /* SPEKA_H_ */

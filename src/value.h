@@ -46,6 +46,8 @@ public:
 	static void mul(Value*a, Value*b, Value *c);
 	static void mod(Value*a, Value*b, Value*c);
 	static void div(Value*a, Value*b, Value*c);
+	static void logicAnd(Value*a, Value*b, Value*c);
+	static void logicOr(Value*a, Value*b, Value*c);
 	static void idiv(Value*a, Value*b, Value*c);
 	static void lt(Value*a, Value*b, Value*c);
 	static void gt(Value*a, Value*b, Value*c);
@@ -53,6 +55,8 @@ public:
 	static void ge(Value*a, Value*b, Value*c);
 	static void eq(Value*a, Value*b, Value*c);
 	static void ne(Value*a, Value*b, Value*c);
+	static void neg(Value*a,Value*b);
+	static void logicNot(Value*a,Value*b);
 	static void clone(Value *a,Value* b);
 	static void setProto(Value*a,Value*v);
 	Value get(Value&);
@@ -128,6 +132,12 @@ public:
 	inline const std::string& getString()const{
 		return *asObject.get<std::string>();
 	}
+	void checkInt();
+	void checkFloat();
+	void checkClosure();
+	void checkTable();
+	void checkList();
+	void checkString();
 };
 SPEKA_END
 #endif /* VALUE_H_ */
