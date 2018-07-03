@@ -12,13 +12,11 @@ SPEKA_BEGIN
 void GCPtr::dec() {
 	if (!refCount)
 		return;
-	//std::cout<<"5"<<std::endl;
 	*refCount = *refCount - 1;
 
 	if (*refCount < 0) {// must be < , not <=
 		if(data)
-			delete data;//here!
-	//	std::cout<<"5.5"<<std::endl;
+			delete data;
 		data = nullptr;
 		delete refCount;
 		refCount = nullptr;

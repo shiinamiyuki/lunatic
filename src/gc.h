@@ -15,7 +15,6 @@ public:
 
 	}
 	virtual ~_Ptr() {
-		//std::cout<<"5.7"<<std::endl;
 	}
 	virtual inline void * get() const {
 		throw std::runtime_error("should not reach here");
@@ -83,24 +82,19 @@ public:
 	}
 
 	inline void reset() {
-	//	std::cout<<"4"<<std::endl;
 		dec();
-	//	std::cout<<"6"<<std::endl;
 		refCount = nullptr;
 		data = nullptr;
 	}
 	inline GCPtr& operator =(const GCPtr& rhs) {
 		//std::cout<<"copy"<<std::endl;
 		if (!rhs.isNull()) {
-		//	std::cout<<"1"<<std::endl;
 			dec();
 			data = rhs.data;
 			refCount = rhs.refCount;
 			inc();
 		} else {
-		//	std::cout<<"2"<<std::endl;
 			reset();
-		//	std::cout<<"3"<<std::endl;
 		}
 		return *this;
 	}
