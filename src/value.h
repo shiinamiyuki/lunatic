@@ -7,9 +7,10 @@
 
 #ifndef VALUE_H_
 #define VALUE_H_
-#include "speka.h"
+#include "lunatic.h"
 #include "gc.h"
-SPEKA_BEGIN
+#include "closure.h"
+namespace lunatic{
 class Table;
 class Value;
 class List:public std::vector<Value>
@@ -31,11 +32,14 @@ class Value{
 	ValueType type;
 public:
 	Value();
+	Value(int);
+	Value(float);
+	Value(double);
 	void setNil();
 	void setInt(int);
 	void setFloat(double);
 	void setTable(Table*);
-	void setClosure(int);
+    void setClosure(Closure*);
 	void setBool(bool);
 	void setString(GCPtr);
 	void setUserData(void*);
@@ -66,6 +70,9 @@ public:
 	void set(int i,const Value&);
 	void set(const std::string&,const Value&);
 	std::string str() const;
+    inline Closure& getClosure()const{
+        return *asObject.get<Closure>();
+    }
 	inline Table& getTable() const {
 		return *asObject.get<Table>();
 	}
@@ -73,7 +80,7 @@ public:
 		return *asObject.get<List>();
 	}
 	inline int getClosureAddr() const {
-		return data.asInt;
+        return getClosure().getAddress();
 	}
 	inline bool isString() const{
 		return type == string;
@@ -128,16 +135,23 @@ public:
 		type = v.type;
 		data = v.data;
 		asObject = v.asObject;
+		return *this;
 	}
 	inline const std::string& getString()const{
 		return *asObject.get<std::string>();
 	}
-	void checkInt();
-	void checkFloat();
-	void checkClosure();
-	void checkTable();
-	void checkList();
-	void checkString();
+    inline void setArgCount(int i){asObject.get<Closure>()->setArgCount(i);}
+	inline bool isManaged()const{return isList() || isTable() || isString();}
+	void checkInt()const;
+	void checkFloat()const;
+	void checkClosure()const;
+	void checkTable()const;
+	void checkList()const;
+	void checkString()const;
+	void mark();
+	void collect();
+	void resetMark();
+	~Value();
 };
-SPEKA_END
+}
 #endif /* VALUE_H_ */

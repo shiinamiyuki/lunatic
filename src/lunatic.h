@@ -8,8 +8,7 @@
 #ifndef SPEKA_H_
 #define SPEKA_H_
 
-#define SPEKA_BEGIN namespace speka{
-#define SPEKA_END }
+
 #define REG_MAX 256
 
 #include <vector>
@@ -26,6 +25,6 @@
 #include <cassert>
 #include <functional>
 #include <cmath>
-namespace speka{}
+
 void readFile(const char* filename,std::string&s);
 #endif /* SPEKA_H_ */

@@ -7,7 +7,7 @@
 
 #include "table.h"
 
-SPEKA_BEGIN
+namespace lunatic{
 Value Table::get(int i) {
 	auto iter = iMap.find(i);
 	if (iter != iMap.end())
@@ -47,6 +47,6 @@ void Table::set(const std::string& s, const Value&v) {
 }
 
 
-SPEKA_END
+}
 
 

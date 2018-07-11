@@ -7,7 +7,7 @@
 #include "vm.h"
 #include "table.h"
 #include "value.h"
-SPEKA_BEGIN
+namespace lunatic{
 
 
 void VM::reset() {
@@ -30,11 +30,18 @@ void VM::eval(State* state) {
 	cur = state;
 	int i32;
 	double f64;
+	int gcCycle = 0;
 	if(state->selfStack.size() == 0)
 		state->selfStack.push_back(Value());
-	while (state->pc < program.size() && state->ok) {
+	int size = program.size();
+	while (state->pc < size && state->ok) {
 		auto&i = program[state->pc];
-	//	std::cout << i.str() <<std::endl;
+		gcCycle ++;
+		if(gcCycle > 10000000)
+		{
+			gcCycle = 0;
+		}
+    //  std::cout << i.str() <<std::endl;
 	//	system("pause");
 		switch (i.opcode) {
 		case Opcode::LoadInt:
@@ -65,23 +72,15 @@ void VM::eval(State* state) {
 			DO_ARITH(Value::mod, "__mod")
 			break;
 		case Opcode::Neg:
+            a = GetReg(i.getA());
+            b = GetReg(i.getB());
+            Value::neg(a,b);
+            state->next();
+            break;
+        case Opcode::Not:
 			a = GetReg(i.getA());
 			b = GetReg(i.getB());
-			if(this->checkArithmetic(a,b)){
-				Value::neg(a,b);
-			}else{
-				invokeMetaMethod("__neg");
-			}
-			state->next();
-			break;
-		case Opcode::Not:
-			a = GetReg(i.getA());
-			b = GetReg(i.getB());
-			if (this->checkArithmetic(a, b)) {
-				Value::logicNot(a, b);
-			} else {
-				invokeMetaMethod("__not");
-			}
+            Value::logicNot(a,b);
 			state->next();
 			break;
 		case Opcode::And:
@@ -106,7 +105,7 @@ void VM::eval(State* state) {
 			DO_ARITH(Value::eq, "__eq")
 			break;
 		case Opcode::NE:
-			DO_ARITH(Value::eq, "__ne")
+            DO_ARITH(Value::ne, "__ne")
 			break;
 		case Opcode::NewList:
 			a = GetReg(i.getA());
@@ -137,7 +136,6 @@ void VM::eval(State* state) {
 		case Opcode::LoadStr:
 			a = GetReg(i.getA());
 			i32 = i.getBx();
-		//	a->setString(new std::string(stringPool[i32]));
 			a->setString(stringPool[i32]);
 			state->next();
 			break;
@@ -202,13 +200,19 @@ void VM::eval(State* state) {
 			a = GetRet(i.getA());
 			b = GetReg(i.getB());
 			*b = *a;
+			a->setNil();
 			state->next();
 			break;
 		case Opcode::MakeClosure:
 			a = GetReg(i.getA());
-			a->setClosure(i.getInt());
+            a->setClosure(new Closure(i.getInt(),0));
 			state->next();
 			break;
+        case Opcode::SetArgCount:
+            a = GetReg(i.getA());
+            a->setArgCount(i.getInt());
+            state->next();
+            break;
 		case Opcode::Push:
 			a = GetReg(i.getA());
 			b = GetReg(REG_MAX + state->sp);
@@ -285,5 +289,20 @@ void VM::call(int addr,int n) {
 	state->call(addr,n);
 }
 
-SPEKA_END
+void VM::fullGC() {
+	for(auto&i:globals)
+		i.resetMark();
+	for(auto&i:stringPool)
+	{
+		i.resetMark();
+	}
+	for(auto& i :cur->locals)
+		i.resetMark();
+
+}
+
+}
+
+
+
 

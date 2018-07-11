@@ -7,8 +7,8 @@
 
 #ifndef OPCODE_H_
 #define OPCODE_H_
-#include "speka.h"
-SPEKA_BEGIN
+#include "lunatic.h"
+namespace lunatic{
 enum class Opcode {
 	Add, //ABC
 	Sub, //ABC
@@ -47,6 +47,7 @@ enum class Opcode {
 	invoke,//A Bx
 	Ret,
 	MakeClosure,
+    SetArgCount,// A i32
 	NewTable,
 	NewList,
 	ListAppend,
@@ -93,5 +94,5 @@ struct Instruction{
 	}
 	std::string str()const;
 };
-SPEKA_END
+}
 #endif /* OPCODE_H_ */

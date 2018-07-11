@@ -8,7 +8,7 @@
 #include "ast.h"
 #include "codegen.h"
 
-SPEKA_BEGIN
+namespace lunatic{
 AST::AST() {
 }
 
@@ -60,17 +60,15 @@ AST_ACCEPT(Return)
 AST_ACCEPT(BoolConstant)
 AST_ACCEPT(Func)
 AST_ACCEPT(FuncArg)
-AST_ACCEPT(Let)
+AST_ACCEPT(Local)
 AST_ACCEPT(Const)
 AST_ACCEPT(Native)
 AST_ACCEPT(ExprList)
-AST_ACCEPT(Class)
-AST_ACCEPT(Method)
-AST_ACCEPT(Self)
 AST_ACCEPT(ExprListList)
-AST_ACCEPT(Import)
 AST_ACCEPT(Empty)
-SPEKA_END
+AST_ACCEPT(Method)
+AST_ACCEPT(Colon)
+}
 
 
 

@@ -7,8 +7,8 @@
 
 #ifndef GC_H_
 #define GC_H_
-#include "speka.h"
-SPEKA_BEGIN
+#include "lunatic.h"
+namespace lunatic{
 class _Ptr {
 public:
 	_Ptr(){
@@ -20,6 +20,7 @@ public:
 		throw std::runtime_error("should not reach here");
 		return nullptr;
 	}
+	virtual void collect(){}
 };
 template<class _T>
 class GCPtr_Ptr: public _Ptr {
@@ -32,11 +33,14 @@ public:
 	}
 	~GCPtr_Ptr() override {
 	//	std::cout<<"destroyed"<<std::endl;
-		if(data)
-			delete data;
+		collect();
 	}
 	inline void * get() const override {
 		return data;
+	}
+	void collect(){
+		if(data)
+					delete data;
 	}
 };
 class GCPtr {
@@ -51,16 +55,32 @@ class GCPtr {
 		if (refCount)
 			*refCount = *refCount + 1;
 	}
-
+	bool marked;
 public:
+	inline void resetMark(){
+		marked = false;
+	}
+	inline void mark(){
+		marked = true;
+	}
+	inline void collectIfNeeded() {
+		if (!marked) {
+			if (!data)
+				return;
+			data->collect();
+			data = nullptr;
+		}
+	}
 	GCPtr() {
 		refCount = nullptr;
 		data = nullptr;
+		marked = false;
 	}
 	GCPtr(const GCPtr&rhs) {
 		data = rhs.data;
 		refCount = rhs.refCount;
 		inc();
+		marked = false;
 	}
 	template<typename T>
 	inline T* get() const {
@@ -103,6 +123,6 @@ public:
 	}
 	~GCPtr();
 };
-SPEKA_END
+}
 
 #endif /* GC_H_ */

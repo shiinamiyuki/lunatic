@@ -9,13 +9,14 @@
 #define CODEGEN_H_
 #include "ast.h"
 #include "opcode.h"
-#include "speka.h"
-SPEKA_BEGIN
+#include "lunatic.h"
+namespace lunatic{
 class AST;
 class ScriptEngine;
-class Visitor{
+class Visitor {
 public:
-	void visit(AST*){}
+	void visit(AST*) {
+	}
 	virtual void visit(BinaryExpression*)=0;
 	virtual void visit(Identifier*)=0;
 	virtual void visit(Number*)=0;
@@ -32,28 +33,23 @@ public:
 	virtual void visit(BoolConstant*)=0;
 	virtual void visit(Func*)=0;
 	virtual void visit(FuncArg*)=0;
-	virtual void visit(Let*)=0;
+    virtual void visit(Local*)=0;
 	virtual void visit(Const*)=0;
 	virtual void visit(Native*)=0;
 	virtual void visit(ExprList*)=0;
 	virtual void visit(ExprListList*)=0;
-	virtual void visit(Class*)=0;
-	virtual void visit(Self*)=0;
-	virtual void visit(Method*)=0;
-	virtual void visit(Import*)=0;
 	virtual void visit(Empty*)=0;
-	virtual ~Visitor(){}
+	virtual ~Visitor() {
+	}
 };
 
-
-
-struct RegState{
+struct RegState {
 	bool reg[REG_MAX];
 	RegState() {
 		reset();
 	}
-	void reset(int k=0) {
-		for(int i = 0;i<k;i++)
+	void reset(int k = 0) {
+		for (int i = 0; i < k; i++)
 			reg[i] = false;
 		for (int i = k; i < REG_MAX; i++)
 			reg[i] = true;
@@ -67,15 +63,15 @@ struct RegState{
 		}
 		return -1;
 	}
-	void free(int i){
+	void free(int i) {
 		reg[i] = true;
 	}
-	void set(int i){
+	void set(int i) {
 		reg[i] = false;
 	}
 };
 
-struct VarInfo{
+struct VarInfo {
 	bool isConst;
 	int addr;
 	VarInfo(int i, bool c = false) {
@@ -87,27 +83,28 @@ struct VarInfo{
 		isConst = false;
 	}
 };
-typedef std::unordered_map<std::string,VarInfo> Dict;
-struct Scope{
+typedef std::unordered_map<std::string, VarInfo> Dict;
+struct Scope {
 	int offset;
 	Dict dict;
 };
-class CompilerException{
+class CompilerException {
 	std::string msg;
 public:
-	CompilerException(const std::string& message,int line,int col){
+	CompilerException(const std::string& message, int line, int col) {
 		std::ostringstream out;
-		out <<"CompilerException: "<< message << " at line "<<line << ":"<<col<<std::endl;
+		out << "CompilerException: " << message << " at line " << line << ":"
+				<< col << std::endl;
 		msg = out.str();
 	}
-	const char* what(){
+	const char* what() {
 		return msg.c_str();
 	}
 
 };
-class CodeGen: public Visitor{
+class CodeGen: public Visitor {
 	std::vector<Scope> locals;
-	Scope global;
+    Scope globals;
 	std::vector<int> reg;
 	std::vector<Instruction> program;
 	std::vector<std::string> strPool;
@@ -129,18 +126,15 @@ class CodeGen: public Visitor{
 	void visit(BoolConstant*);
 	void visit(Func*);
 	void visit(FuncArg*);
-	void visit(Let*);
+    void visit(Local*);
 	void visit(Const*);
 	void visit(Cond*);
 	void visit(Native*);
 	void visit(String*);
 	void visit(ExprList*);
 	void visit(ExprListList*);
-	void visit(Class*);
-	void visit(Self*);
-	void visit(Method*);
-	void visit(Import*);
-	void visit(Empty*){}
+	void visit(Empty*) {
+	}
 	void assign(AST*, bool b = false);
 	int getLocalAddress(const Token&var);
 	void createGlobal(const Token&var, bool isConst = false);
@@ -156,7 +150,10 @@ class CodeGen: public Visitor{
 	void syncRegState();
 	void addString(const std::string&);
 	void addClass(const std::string&);
-	bool isClass(const std::string&s){return classSet.find(s) != classSet.end();}
+	bool isClass(const std::string&s) {
+		return classSet.find(s) != classSet.end();
+	}
+    bool hasVar(const std::string&s);
 public:
 	friend class ScriptEngine;
 
@@ -167,17 +164,17 @@ public:
 	const std::vector<Instruction>&getProgram() const {
 		return program;
 	}
-	const std::vector<std::string>& getStringPool()const{
+	const std::vector<std::string>& getStringPool() const {
 		return strPool;
 	}
 	int popReg() {
-		if(reg.size() ==0){
+		if (reg.size() == 0) {
 			throw std::runtime_error("reg underflow");
 		}
 		int i = reg.back();
 		reg.pop_back();
-		regState.free(i);
-		//td::cout<< "pop reg "<< i << std::endl;
+        if (locals.size() > 0u &&i > locals.back().offset + locals.back().dict.size())
+			regState.free(i);
 		return i;
 	}
 	int findReg() {
@@ -186,12 +183,14 @@ public:
 		reg.push_back(i);
 		return i;
 	}
-	void pushReg(int i){
+	void pushReg(int i) {
 		reg.push_back(i);
 	}
-	void addNative(const std::string&,int i = -1);
+	void addNative(const std::string&, int i = -1);
+    void addLib(const std::string&);
+    void addLibMethod(const std::string&,const std::string&,int i = -1);
 };
 
-SPEKA_END
+}
 
 #endif /* CODEGEN_H_ */

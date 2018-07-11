@@ -8,8 +8,8 @@
 #ifndef PARSE_H_
 #define PARSE_H_
 #include "ast.h"
-#include "speka.h"
-SPEKA_BEGIN
+#include "lunatic.h"
+namespace lunatic{
 class AST;
 struct Token;
 class Scanner {
@@ -75,13 +75,10 @@ public:
 	AST* parseStmt();
 	AST* parseFunc();
 	AST* parseFuncArg();
-	AST* parseLet();
+	AST* parseLocal();
 	AST* parseConst();
 	AST* parseExprList();
 	AST* parseExprListList();
-	AST* parseClass();
-	AST* parseMethod();
-	AST* parseImport();
 	void expect(const std::string&token);
 	bool has(const std::string&token);
 	void skip();
@@ -99,6 +96,6 @@ public:
 		return msg.c_str();
 	}
 };
-SPEKA_END
+}
 
 #endif /* PARSE_H_ */

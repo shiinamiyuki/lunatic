@@ -7,10 +7,10 @@
 
 #ifndef TABLE_H_
 #define TABLE_H_
-#include "speka.h"
+#include "lunatic.h"
 #include "value.h"
 #include "gc.h"
-SPEKA_BEGIN
+namespace lunatic{
 class Value;
 class Table;
 class Table{
@@ -26,7 +26,7 @@ public:
 	Table():sMap(),iMap(){}
 };
 
-SPEKA_END
+}
 
 
 #endif /* TABLE_H_ */

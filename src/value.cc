@@ -6,7 +6,7 @@
  */
 #include "value.h"
 #include "table.h"
-SPEKA_BEGIN
+namespace lunatic{
 
 bool Value::operator ==(const Value& rhs) {
 	if (rhs.type != type) {
@@ -164,6 +164,7 @@ Value::Value() {
 
 void Value::setNil() {
 	type = nil;
+	asObject.reset();
 }
 
 void Value::setUserData(void*p) {
@@ -208,7 +209,7 @@ std::string Value::str() const {
 
 void Value::lt(Value* a, Value* b, Value* c) {
 	if (a->isInt() && b->isInt()) {
-		c->setBool(a->getInt() < b->getInt());
+		c->setInt(a->getInt() < b->getInt());
 	} else {
 		c->setInt(a->getFloat() < b->getFloat());
 	}
@@ -265,8 +266,8 @@ void Value::setProto(Value* a, Value* b) {
 	}
 }
 
-void Value::setClosure(int i) {
-	data.asInt = i;
+void Value::setClosure(Closure*c) {
+    asObject.reset(c);
 	type = closure;
 }
 Value List::get(int i) {
@@ -277,40 +278,114 @@ void List::set(int i, const Value&v) {
 	at(i)= v;
 }
 
-void Value::checkInt() {
+void Value::checkInt()const {
 	if(!isInt())
 		throw std::runtime_error("int object expected!");
 }
 
-void Value::checkFloat() {
+void Value::checkFloat()const {
 	if(!isFloat() && !isInt()){
 		throw std::runtime_error("float object expected!");
 	}
 }
 
-void Value::checkClosure() {
+void Value::checkClosure() const{
 	if(!isClosure()){
 		throw std::runtime_error("closure object expected!");
 	}
 }
 
-void Value::checkTable() {
+void Value::checkTable()const {
 	if(!isTable()){
 		throw std::runtime_error("table object expected!");
 	}
 }
 
-void Value::checkList() {
+void Value::checkList()const {
 	if(!isList()){
 		throw std::runtime_error("list object expected!");
 	}
 }
 
-void Value::checkString() {
+Value::Value(int int1) {
+	setInt(int1);
+}
+
+Value::Value(float float1) {
+	setFloat(float1);
+}
+
+Value::Value(double double1) {
+	setFloat(double1);
+}
+
+void Value::checkString()const {
 	if(!isString()){
 		throw std::runtime_error("string object expected!");
 	}
 }
-SPEKA_END
+Value::~Value() {
+	asObject.reset();
+}
+void Value::mark() {
+	if (isManaged()) {
+		asObject.mark();
+		if(isTable()){
+			auto&tab = getTable();
+			for(auto& i :tab.iMap){
+				i.second.mark();
+			}
+			for (auto& i : tab.sMap) {
+				i.second.mark();
+			}
+		}else if(isList()){
+			auto& list = getList();
+			for(auto& i:list){
+				i.mark();
+			}
+		}
+	}
+}
+
+void Value::collect() {
+	if (isManaged()) {
+		if(isTable()){
+			auto&tab = getTable();
+			for(auto& i :tab.iMap){
+				i.second.collect();
+			}
+			for (auto& i : tab.sMap) {
+				i.second.collect();
+			}
+		}else if(isList()){
+			auto& list = getList();
+			for(auto& i:list){
+				i.collect();
+			}
+		}
+		asObject.collectIfNeeded();
+	}
+}
+
+void Value::resetMark() {
+	if (isManaged()) {
+		asObject.resetMark();
+		if (isTable()) {
+			auto&tab = getTable();
+			for (auto& i : tab.iMap) {
+				i.second.resetMark();
+			}
+			for (auto& i : tab.sMap) {
+				i.second.resetMark();
+			}
+		} else if (isList()) {
+			auto& list = getList();
+			for (auto& i : list) {
+				i.resetMark();
+			}
+		}
+	}
+}
+}
 
 
