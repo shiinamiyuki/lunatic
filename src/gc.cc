@@ -6,9 +6,9 @@
  */
 
 
-#include "speka.h"
+#include "lunatic.h"
 #include "gc.h"
-SPEKA_BEGIN
+namespace lunatic{
 void GCPtr::dec() {
 	if (!refCount)
 		return;
@@ -33,5 +33,5 @@ GCPtr::~GCPtr() {
 
 
 
-SPEKA_END
+}
 

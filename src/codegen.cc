@@ -6,7 +6,7 @@
  */
 
 #include "codegen.h"
-SPEKA_BEGIN
+namespace lunatic{
 
 void CodeGen::visit(Number*node) {
 	auto& tok = node->getToken().tok;
@@ -41,6 +41,10 @@ void CodeGen::assign(AST*node, bool b) {
 
 	auto first = node->first();
 	if (first->type() == Identifier().type()) {
+        auto& var = node->first()->getToken();
+        if(!hasVar(var.tok)){
+            createGlobal(var); // default globals
+        }
 		if (isConst(node->first()->getToken()) && !b) {
 			error(
 					std::string("cannot assign constant object ").append(
@@ -48,6 +52,8 @@ void CodeGen::assign(AST*node, bool b) {
 					node->first()->getToken().line,
 					node->first()->getToken().col);
 		}
+
+
 		int rhs = popReg();
 		if (isGlobal(node->first()->getToken().tok)) {
 			int addr = getGlobalAddress(node->first()->getToken());
@@ -56,7 +62,8 @@ void CodeGen::assign(AST*node, bool b) {
 			int addr = getLocalAddress(node->first()->getToken());
 			emit(Instruction(Opcode::Move, rhs, addr));
 		}
-	} else if (first->type() == Index().type()) {
+    } else if (first->type() == Index().type()
+               || first->type() == Colon().type()) {
 		auto idx = first;
 		auto t = idx->first();
 		auto i = idx->second();
@@ -78,11 +85,12 @@ void CodeGen::visit(Identifier* node) {
 		emit(Instruction(Opcode::LoadGlobal, r, a));
 	} else {
 		int a = getLocalAddress(var);
-		int r = findReg();
-		emit(Instruction(Opcode::Move, a, r));
+	//	int r = findReg();
+	//	emit(Instruction(Opcode::Move, a, r));
+		reg.push_back(a);
 	}
 }
-void CodeGen::visit(Let*node) {
+void CodeGen::visit(Local*node) {
 	if (locals.size()) {
 		createLocal(node->first()->getToken());
 	} else {
@@ -134,7 +142,7 @@ void CodeGen::visit(BinaryExpression*node) {
 			o = Opcode::LE;
 		} else if (op == "==") {
 			o = Opcode::EQ;
-		} else if (op == "!=") {
+        } else if (op == "~=") {
 			o = Opcode::NE;
 		} else if (op == "and") {
 			o = Opcode::And;
@@ -150,13 +158,8 @@ void CodeGen::visit(BinaryExpression*node) {
 }
 void CodeGen::visit(Chunk*node) {
 	for (auto i = node->begin(); i != node->end(); i++) {
-		auto&node = *i;
-		if (node->type() == Class().type()) {
-			addClass(node->getToken().tok);
-		}
-	}
-	for (auto i = node->begin(); i != node->end(); i++) {
 		(*i)->accept(this);
+        syncRegState();
 	}
 }
 
@@ -168,6 +171,7 @@ void CodeGen::visit(Block*node) {
 		pushScope();
 	for (auto i = node->begin(); i != node->end(); i++) {
 		(*i)->accept(this);
+        syncRegState();
 		//TODO:syncRegState()
 	}
 	if (flag)
@@ -176,27 +180,7 @@ void CodeGen::visit(Block*node) {
 
 void CodeGen::visit(UnaryExpression* expr) {
 	auto& op = expr->getToken();
-	if (op.tok == "new") {
-		if (expr->first()->type() != Call().type()) {
-			error(std::string("invalid 'new' syntax"), op.line, op.col);
-		}
-		auto call = expr->first();
-		auto classname = call->first();
-		auto arg = call->second();
-		arg->accept(this);
-		//get classname.new
-		addString("new");
-		classname->accept(this);
-		int c = popReg();
-		emit(Instruction(Opcode::Clone, c, findReg()));
-		emit(Instruction(Opcode::PushSelf, reg.back(), 0));
-		emit(Instruction(Opcode::LoadStr, findReg(), strConst["new"]));
-		int s = popReg(); //new
-		int r = reg.back();
-		emit(Instruction(Opcode::GetValue, r, s, findReg()));
-		int n = arg->size();
-		emit(Instruction(Opcode::fCall, popReg(), n, 1));
-	}else if(op.tok == "-"){
+    if(op.tok == "-"){
 		expr->first()->accept(this);
 		int r = popReg();
 		emit(Instruction(Opcode::Neg,r,findReg()));
@@ -246,34 +230,28 @@ void CodeGen::visit(Arg*arg) {
 #define P(x) std::cout << (x)<<std::endl;
 void CodeGen::visit(Call*node) {
 	auto arg = node->second();
-	arg->accept(this);
 	auto func = node->first();
-	if (func->type() == Index().type()) {
+    int c = 0;
+    if (func->type() == Colon().type()) {
 		auto self = func->first();
-		if (self->type() == Identifier().type()
-				&& isClass(self->getToken().tok)) {
-			emit(Instruction(Opcode::LoadSelf, findReg(), 0));
-			emit(Instruction(Opcode::PushSelf, popReg(), 0));
-			auto classname = self->getToken();
-			emit(
-					Instruction(Opcode::LoadGlobal, findReg(),
-							getGlobalAddress(classname)));
-		} else {
-			self->accept(this);
-			emit(Instruction(Opcode::PushSelf, reg.back(), 0));
-		}
+        self->accept(this);
+        int i = reg.back();
+        emit(Instruction(Opcode::Move,i,findReg()));
+        emit(Instruction(Opcode::Push, popReg(), 0));//push self as first arg
+        arg->accept(this);
 		auto idx = func->second();
 		idx->accept(this);
 		int a, b;
 		b = popReg();
 		a = popReg();
 		emit(Instruction(Opcode::GetValue, a, b, findReg()));
+        c = 1;
 	} else {
+        arg->accept(this);
 		func->accept(this);
-		emit(Instruction(Opcode::PushNil, 0, 0));
 	}
 	int n = arg->size();
-	emit(Instruction(Opcode::fCall, popReg(), n, 1));
+    emit(Instruction(Opcode::fCall, popReg(), n + c, 1));
 	for (int i = 0; i < 1; i++) { //TODO: multiple returns
 		int r = findReg();
 		emit(Instruction(Opcode::LoadRet, i, r));
@@ -301,76 +279,16 @@ void CodeGen::visit(WhileLoop*node) {
 	emit(Instruction(Opcode::BRC, 0, jmpIdx));
 	program[bzIdx] = Instruction(Opcode::BZ, cond, (int) (program.size()));
 }
-void CodeGen::visit(Class*node) {
-	auto classname = node->getToken();
-	//TODO: check classname is not defined
-//	createGlobal(classname);
-	int addr = getGlobalAddress(classname);
-	int r = findReg(); //holds the class object
-	emit(Instruction(Opcode::NewTable, r, (int) 0));
-	auto parent = node->first()->getToken();
-
-	if (classname.tok != "Object") {
-		int p = getGlobalAddress(parent);
-		emit(Instruction(Opcode::LoadGlobal, findReg(), p));
-		emit(Instruction(Opcode::Clone, popReg(), r));
-	}
-	emit(Instruction(Opcode::StoreGlobal, r, addr));
-	for (auto iter = node->begin() + 1; iter != node->end(); iter++) {
-		auto&method = *iter;
-		method->accept(this);
-	}
-	emit(Instruction(Opcode::LoadGlobal, r, addr));
-	popReg(); // pop r
-}
-
-void CodeGen::visit(Self*) {
-	emit(Instruction(Opcode::LoadSelf, findReg(), (int) 0));
-}
-
-void CodeGen::visit(Method*func) {
-	pushScope();
-
-	auto arg = func->first();
-	auto body = func->second();
-	arg->accept(this);
-	int jmpIdx = program.size();
-	emit(Instruction(Opcode::BRC, 0, 0));
-	body->accept(this);
-	emit(Instruction(Opcode::Ret, 0, 0));
-	int end = program.size();
-	program[jmpIdx] = Instruction(Opcode::BRC, 0, end);
-	emit(Instruction(Opcode::MakeClosure, findReg(), jmpIdx + 1));
-
-	if (locals.size() > 1) {
-		//TODO: a lot
-		throw std::runtime_error("closure not implemented");
-	} else {
-		auto name = func->getToken().tok;
-		addString(name);
-		emit(Instruction(Opcode::LoadStr, findReg(), strConst[name]));
-		auto classname = func->getParent()->getToken();
-		emit(
-				Instruction(Opcode::LoadGlobal, findReg(),
-						getGlobalAddress(classname)));
-		int cls = popReg();
-		int nm = popReg();
-		int met = popReg();
-		emit(Instruction(Opcode::StoreValue, cls, nm, met));
-		emit(
-				Instruction(Opcode::StoreGlobal, cls,
-						getGlobalAddress(classname)));
-	}
-	popScope();
-}
 
 void CodeGen::visit(Func*func) {
 	pushScope();
-	auto name = func->getToken();
-	if (!isGlobal(name.tok))
-		createGlobal(name);
-	auto arg = func->first();
-	auto body = func->second();
+    auto name = func->first();
+    if(name->type() == Colon().type()){
+        createLocal(Token(Token::Type::Identifier,"self",-1,-1));
+    }
+    auto arg = func->second();
+    int i = arg->type() == Colon().type() ? 1: 0;
+    auto body = func->third();
 	arg->accept(this);
 	int jmpIdx = program.size();
 	emit(Instruction(Opcode::BRC, 0, 0));
@@ -379,15 +297,8 @@ void CodeGen::visit(Func*func) {
 	int end = program.size();
 	program[jmpIdx] = Instruction(Opcode::BRC, 0, end);
 	emit(Instruction(Opcode::MakeClosure, findReg(), jmpIdx + 1));
-
-	if (locals.size() > 1) {
-		//TODO: a lot
-		throw std::runtime_error("closure not implemented");
-	} else {
-
-		int addr = getGlobalAddress(name);
-		emit(Instruction(Opcode::StoreGlobal, popReg(), addr));
-	}
+    emit(Instruction(Opcode::SetArgCount,reg.back(),arg->size() + i));
+    assign(func);
 	popScope();
 }
 
@@ -406,23 +317,34 @@ void CodeGen::visit(Return*ret) {
 		emit(Instruction(Opcode::Ret, 0, 0));
 	}
 }
+
 void CodeGen::visit(Cond*node) {
-	auto cond = node->first();
-	auto ifBlock = node->second();
-	cond->accept(this);
-	int r = popReg();
-	int bzIdx = program.size();
-	emit(Instruction(Opcode::BZ, r, 0));
-	ifBlock->accept(this);
-	if (node->size() == 3) {
-		int jmpIdx = program.size();
-		emit(Instruction(Opcode::BRC, 0, 0));
-		program[bzIdx] = Instruction(Opcode::BZ, r, (int) program.size());
-		node->third()->accept(this);
-		program[jmpIdx] = Instruction(Opcode::BRC, 0, (int) program.size());
-	} else {
-		program[bzIdx] = Instruction(Opcode::BZ, r, (int) program.size());
-	}
+    std::vector<int>jmpVec;
+    int cnt =0 ;
+    auto iter = node->begin();
+    while(iter < node->end()){
+        if(cnt != node->size() -1){
+            auto cond = *iter;
+            iter++;cnt++;
+            auto block = *iter;
+            iter++;cnt++;
+            cond->accept(this);
+            int bzIdx = program.size();
+            int r = popReg();
+            emit(Instruction(Opcode::BZ,0,0));
+            block->accept(this);
+            jmpVec.push_back(program.size());
+            emit(Instruction(Opcode::BRC,0,0));
+            program[bzIdx] = Instruction(Opcode::BZ,r,(int)program.size());
+        }else{
+            auto block = *iter;
+            block->accept(this);
+            for(auto i:jmpVec){
+                program[i] = Instruction(Opcode::BRC,0,(int)program.size());
+            }
+            break;
+        }
+    }
 }
 
 void CodeGen::visit(Native*node) {
@@ -455,7 +377,7 @@ bool CodeGen::isGlobal(const std::string& var) {
 			return false;
 		}
 	}
-	return global.dict.find(var) != global.dict.end();
+    return globals.dict.find(var) != globals.dict.end();
 }
 
 void CodeGen::createLocal(const Token& var, bool c) {
@@ -463,7 +385,7 @@ void CodeGen::createLocal(const Token& var, bool c) {
 		error(std::string("local scope not initialized!"), var.line, var.col);
 	}
 	auto & dict = locals.back().dict;
-	dict[var.tok] = VarInfo(locals.back().offset + dict.size(), c);
+	dict.insert(std::make_pair(var.tok,VarInfo(locals.back().offset + dict.size(), c)));
 	syncRegState();
 }
 
@@ -472,7 +394,7 @@ int CodeGen::getGlobalAddress(const Token& var) {
 }
 
 void CodeGen::createGlobal(const Token& var, bool c) {
-	global.dict[var.tok] = VarInfo(global.dict.size(), c);
+    globals.dict[var.tok] = VarInfo(globals.dict.size(), c);
 }
 int CodeGen::getLocalAddress(const Token& var) {
 	return getLocal(var).addr;
@@ -501,11 +423,11 @@ bool CodeGen::isConst(const Token& var) {
 }
 
 VarInfo& CodeGen::getGlobal(const Token& var) {
-	if (global.dict.find(var.tok) == global.dict.end()) {
+    if (globals.dict.find(var.tok) == globals.dict.end()) {
 		error(std::string("undefined variable ").append(var.tok), var.line,
 				var.col);
 	} else
-		return global.dict[var.tok];
+        return globals.dict[var.tok];
 }
 
 void CodeGen::popScope() {
@@ -528,7 +450,10 @@ void CodeGen::pushScope() {
 }
 
 void CodeGen::syncRegState() {
+    if(locals.size()>0)
 	regState.reset(locals.back().offset + locals.back().dict.size());
+    else
+        regState.reset();
 }
 void CodeGen::print() {
 	for (unsigned int i = 0; i < program.size(); i++) {
@@ -539,27 +464,67 @@ void CodeGen::print() {
 void CodeGen::addClass(const std::string& s) {
 	if (classSet.find(s) == classSet.end()) {
 		classSet.insert(s);
-		global.dict[s] = VarInfo(global.dict.size(), false);
-	}
+        globals.dict[s] = VarInfo(globals.dict.size(), false);
+    }
 }
 
+bool CodeGen::hasVar(const std::string &s)
+{
+    for(auto iter = locals.rbegin();iter != locals.rend();iter++){
+        auto&scope = *iter;
+        if(scope.dict.find(s)!=scope.dict.end())
+            return true;
+    }
+    return globals.dict.find(s)!=globals.dict.end();
+}
+
+
+
+void CodeGen::addLib(const std::string &s)
+{
+    std::string src = s;
+    src.append("={}");
+    Scanner scan(src);
+    scan.scan();
+    Parser p(scan);
+    auto ast = p.parse();
+    ast->link();
+    ast->accept(this);
+    delete ast;
+}
+
+void CodeGen::addLibMethod(const std::string&lib,const std::string &m, int i)
+{
+    if (i == -1)
+        i = natives.size();
+    auto func = new Func();
+    auto index = new Index();
+    index->add(new Identifier(Token(Token::Type::Identifier,lib,-1,-1)));
+    index->add(new String(Token(Token::Type::Identifier,m,-1,-1)));
+    func->add(index);
+    auto block = new Block();
+    block->add(new Native(Token(Token::Type::Identifier,m,-1,-1)));
+    func->add(new Arg());
+    func->add(block);
+    func->link();
+    natives.insert(std::make_pair(m, i));
+    func->accept(this);
+    delete func;
+}
 void CodeGen::addNative(const std::string& s, int i) {
-	if (i == -1)
-		i = natives.size();
-	natives.insert(std::make_pair(s, i));
-}
-void CodeGen::visit(Import*import) {
-	auto f = import->getToken().tok;
-	std::string src;
-	readFile(f.c_str(),src);
-	Scanner s(src);
-	s.scan();
-	Parser p(s);
-	auto ast = p.parse();
-	ast->link();
-	ast->accept(this);
-//delete ast;
+    if (i == -1)
+        i = natives.size();
+    auto func = new Func();
+    func->add(new Identifier(Token(Token::Type::Identifier,s,-1,-1)));
+    auto block = new Block();
+    block->add(new Native(Token(Token::Type::Identifier,s,-1,-1)));
+    func->add(new Arg());
+    func->add(block);
+    func->link();
+    natives.insert(std::make_pair(s, i));
+    func->accept(this);
+    delete func;
 }
 
-SPEKA_END
+}
 

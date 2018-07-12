@@ -9,13 +9,14 @@
 #include "ast.h"
 #include "codegen.h"
 #include "vm.h"
-#include "speka.h"
+#include "lunatic.h"
 #include "gc.h"
 #include "value.h"
 #include "table.h"
 #include "Windows.h"
 #include "scriptengine.h"
-using namespace speka;
+#include "sni.h"
+using namespace lunatic;
 template<typename T>
 void timing(T f) {
 	int i = GetTickCount();
@@ -37,15 +38,15 @@ public:
 int test() {
 	ScriptEngine engine;
 	engine.execFile("test/test.spk");
-
+	return 0;
 }
 void Interactive() {
 	ScriptEngine engine;
-	std::cout << "Loading std lib" << std::endl;
-	std::string source = "import \"lang.spk\";\n";
-	engine.execString(source);
-	source.clear();
-	std::cout << "Speka REPL" << std::endl;
+    //std::cout << "Loading std lib" << std::endl;
+    std::string source;// = "import \"lang.spk\";\n";
+//	engine.execString(source);
+//	source.clear();
+    std::cout << "lunatic v0.1 REPL" << std::endl;
 	;
 	while (!feof(stdin)) {
 		std::cout << "<<";
@@ -55,8 +56,22 @@ void Interactive() {
 		source.clear();
 	}
 }
+template<typename T>
+void printType(){
+
+}
+template<>
+void printType<int>(){
+	std::cout<<"int"<<std::endl;
+
+}
+template< class Ret, class... Args>
+void foo(Ret(*)(Args...)){
+	printType<Ret>();
+}
 int main(int argc, char**argv) {
 	ScriptEngine engine;
+
 	if (argc == 1) {
 		Interactive();
 	} else {

@@ -17,7 +17,7 @@ void readFile(const char* filename,std::string&s){
 		s.append(temp);
 	}
 }
-SPEKA_BEGIN
+namespace lunatic{
 void ScriptEngine::execString(const std::string& s) {
 	compileString(s);
 
@@ -58,37 +58,129 @@ void ScriptEngine::compileString(const std::string& s) {
 
 void ScriptEngine::addNative(const std::string& s, NativeHandle f) {
 	gen.addNative(s);
-	vm.addNative(f);
+    vm.addNative(f);
+}
+
+void ScriptEngine::addLib(const std::string &s)
+{
+    gen.addLib(s);
+}
+
+void ScriptEngine::addLibMethod(const std::string & lib,
+                                const std::string & m,
+                                NativeHandle f)
+{
+    try{
+    gen.addLibMethod(lib,m);
+    vm.addNative(f);
+    }catch(CompilerException&e){
+        std::cerr<<e.what()<<std::endl;
+    }
 }
 void ScriptEngine::recover(int i) {
 	while(gen.program.size() >i)
 		gen.program.pop_back();
 }
+#define SBIND(func) bind(#func,func)
 void ScriptEngine::loadLib() {
-	addNative("list_append", ListAppend);
-	addNative("list_length", ListLength);
+    addLib("list");
+    addLib("string");
+    addLib("math");
+    addLibMethod("list","append", ListAppend);
+    addLibMethod("list","length", ListLength);
 	addNative("str2list", StringtoList);
 	addNative("list2str", ListtoString);
-	addNative("math_sin",MathLib::sin);
-	addNative("math_cos",MathLib::cos);
-	addNative("math_tan", MathLib::tan);
-	addNative("math_sqrt", MathLib::sqrt);
-	addNative("test_run", run);
-	/*
-	addNative("gl_init",GLLib::init);
-	addNative("gl_displayfunc",GLLib::setRenderFunc);
-	addNative("gl_setwindowpos",GLLib::setWindowPos);
-	addNative("gl_setwindowsize",GLLib::setWindowSize);
-	addNative("gl_begin",GLLib::glBegin);
-	addNative("gl_end",GLLib::glEnd);
-	addNative("gl_color",GLLib::glColor);
-	addNative("gl_vertex",GLLib::glVertex);*/
+    bindLibMethod("math","sqrt",::sqrt);
 	addNative("print", print);
 }
 
 ScriptEngine::ScriptEngine() {
 	loadLib();
 }
+template<typename Ret>
+inline NativeHandle ScriptEngine::bind(const std::string& name, Ret(*function))
+{
+	auto func = [=](VM*vm) {
+		Ret t = function();
+		Value v(t);
+		vm->storeReturn(0,v);
+	};
+    return func;
+}
 
-SPEKA_END
+template<typename Ret, typename Arg1>
+inline NativeHandle ScriptEngine::bind(const std::string& name, Ret(*function)(Arg1))
+{
+	auto func = [=](VM*vm){
+		auto arg0 = vm->getLocal(0);
+		Arg1 val = checkValue<Arg1>(&arg0);
+		Ret t = function(val);
+		Value v(t);
+		vm->storeReturn(0,v);
+	};
+    return func;
+}
+template<typename Ret,typename Arg1,typename Arg2>
+inline	NativeHandle ScriptEngine::bind(const std::string&name,Ret(*function)(Arg1,Arg2)){
+	auto func = [=](VM*vm){
+			auto arg0 = vm->getLocal(0);
+			auto arg1 = vm->getLocal(1);
+			Arg1 val = checkValue<Arg1>(&arg0);
+			Arg2 val2 = checkValue<Arg2>(&arg1);
+			Ret t = function(val,val2);
+			Value v(t);
+			vm->storeReturn(0,v);
+		};
+        return func;
+}
+template<typename Ret, typename Arg1, typename Arg2, typename Arg3>
+NativeHandle ScriptEngine::bind(const std::string&name, Ret (*function)(Arg1, Arg2, Arg3)) {
+	auto func = [=](VM*vm) {
+		auto arg0 = vm->getLocal(0);
+		auto arg1 = vm->getLocal(1);
+		auto arg2 = vm->getLocal(2);
+		Arg1 val = checkValue<Arg1>(&arg0);
+		Arg2 val2 = checkValue<Arg2>(&arg1);
+		Arg3 val3 = checkValue<Arg3>(&arg2);
+		Ret t = function(val,val2,val3);
+		Value v(t);
+		vm->storeReturn(0,v);
+	};
+    return func;
+}
+template<typename T>
+inline T checkValue(const Value*)
+{
+	//do nothing
+	return T();
+}
+
+template<>
+inline int checkValue<int>(const Value*v)
+{
+	v->checkInt();
+	return v->getInt();
+}
+template<>
+inline double checkValue<double>(const Value*v)
+{
+	v->checkFloat();
+	return v->getFloat();
+}
+
+template<>
+inline float checkValue<float>(const Value*v)
+{
+	v->checkFloat();
+    return v->getFloat();
+}
+
+template<typename T>
+void ScriptEngine::bindLibMethod(const std::string & lib,  const std::string &m, T f)
+{
+    auto func = bind(m,f);
+    addLibMethod(lib,m,func);
+}
+
+}
 

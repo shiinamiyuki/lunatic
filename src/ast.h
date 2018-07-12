@@ -9,8 +9,8 @@
 #define AST_H_
 
 #include "parse.h"
-#include "speka.h"
-SPEKA_BEGIN
+#include "lunatic.h"
+namespace lunatic{
 struct Token;
 struct Token {
 	enum class Type {
@@ -61,7 +61,10 @@ public:
 	std::vector<AST*>::iterator end() {
 		return children.end();
 	}
-	virtual ~AST(){}
+    virtual ~AST(){
+        for(auto i:children)
+            delete i;
+    }
 	virtual void accept(Visitor* vis);
 	virtual void link();
 	AST* getParent()const{return parent;}
@@ -150,6 +153,13 @@ public:
 	}
 	void accept(Visitor*);
 };
+class Colon: public AST {
+public:
+    const std::string type() const {
+        return S("Colon");
+    }
+    void accept(Visitor*);
+};
 class Call: public AST {
 public:
 	const std::string type() const {
@@ -223,9 +233,9 @@ public:
 	}
 	void accept(Visitor*);
 };
-class Let:public AST{
+class Local:public AST{
 public:
-	Let(){}
+	Local(){}
 	const std::string type() const {
 			return S("Let");
 		}
@@ -247,37 +257,8 @@ public:
 	}
 	void accept(Visitor*);
 };
-class Class:public AST{
-public:
-	Class(){}
-	Class(const Token&token){content = token;}
-	const std::string type()const{
-		return S("Class");
-	}
-	void accept(Visitor*);
-};
-class Method:public AST{
-public:
-	Method(const Token&token){content = token;}
-	const std::string type()const{
-		return S("Method");
-	}
-	void accept(Visitor*);
-};
-class Self: public AST{
-public:
-	const std::string type()const{
-		return S("Self");
-	}
-	void accept(Visitor*);
-};
-class Import: public AST {
-public:
-	const std::string type() const {
-		return S("Import");
-	}
-	void accept(Visitor*);
-};
+
+
 class Empty:public AST{
 public:
 	const std::string type()const{
@@ -285,5 +266,12 @@ public:
 	}
 	void accept(Visitor*);
 };
-SPEKA_END
+class Method: public AST{
+public:
+    const std::string type()const{
+        return S("Empty");
+    }
+    void accept(Visitor*);
+};
+}
 #endif /* AST_H_ */
