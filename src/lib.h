@@ -25,7 +25,7 @@ public:
 };
 class TableLib{
 public:
-
+    static void clone(VM*vm);
 };
 
 
@@ -35,6 +35,8 @@ void StringtoList(VM*vm);
 void ListtoString(VM*vm);
 void print(VM*vm);
 void run(VM*vm);
+void tonumber(VM*);
+void tostring(VM*);
 }
 
 

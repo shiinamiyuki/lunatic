@@ -39,6 +39,7 @@ public:
 	virtual void visit(ExprList*)=0;
 	virtual void visit(ExprListList*)=0;
 	virtual void visit(Empty*)=0;
+    virtual void visit(For*)=0;
 	virtual ~Visitor() {
 	}
 };
@@ -133,8 +134,8 @@ class CodeGen: public Visitor {
 	void visit(String*);
 	void visit(ExprList*);
 	void visit(ExprListList*);
-	void visit(Empty*) {
-	}
+    void visit(Empty*) {}
+    void visit(For*);
 	void assign(AST*, bool b = false);
 	int getLocalAddress(const Token&var);
 	void createGlobal(const Token&var, bool isConst = false);

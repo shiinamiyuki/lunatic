@@ -68,6 +68,7 @@ AST_ACCEPT(ExprListList)
 AST_ACCEPT(Empty)
 AST_ACCEPT(Method)
 AST_ACCEPT(Colon)
+AST_ACCEPT(For)
 }
 
 

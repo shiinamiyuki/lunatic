@@ -23,6 +23,7 @@ class Scanner {
 	char cur();
 	char peek();
 	char peek2();
+    char peek3();
 	void skipspace();
 	void skipcomment();
 	int isComment();
@@ -79,6 +80,7 @@ public:
 	AST* parseConst();
 	AST* parseExprList();
 	AST* parseExprListList();
+    AST* parseFor();
 	void expect(const std::string&token);
 	bool has(const std::string&token);
 	void skip();

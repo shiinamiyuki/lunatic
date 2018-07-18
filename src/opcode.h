@@ -20,6 +20,7 @@ enum class Opcode {
 	Or,
 	Not,
 	Neg,
+    Len,
 	LT,
 	GT,
 	LE,

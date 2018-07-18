@@ -46,11 +46,17 @@ void Value::div(Value* a, Value* b, Value* c) {
 	c->setFloat(a->getFloat() / b->getFloat());
 }
 void Value::logicAnd(Value* a, Value* b, Value* c) {
-	c->setInt(a->toBool() && b->toBool());
+    if(!a->toBool())
+        *c = *a;
+    else
+        *c = *b;
 }
 
 void Value::logicOr(Value* a, Value* b, Value* c) {
-	c->setInt(a->toBool() || b->toBool());
+    if(a->toBool())
+        *c = *a;
+    else
+        *c = *b;
 }
 void Value::neg(Value* a, Value* b) {
 	if(a->isInt()){
@@ -87,15 +93,23 @@ void Value::setTable(Table* tab) {
 	asObject.reset(tab);
 	type = table;
 }
+
 void Value::setList(List*_list) {
 	asObject.reset(_list);
 	type = list;
 }
+
 void Value::setString(GCPtr s) {
 	//assert(s);
 	assert(!s.isNull());
 	type = string;
-	asObject = s;
+    asObject = s;
+}
+
+void Value::setString(const std::string &s) {
+    GCPtr ptr;
+    ptr.reset(new std::string(s));
+    setString(ptr);
 }
 
 Value Value::get(int i) {
@@ -183,6 +197,9 @@ std::string Value::str() const {
 	} else if (isTable()) {
 		auto& tab = *(asObject.get<Table>());
 		out <<"{ ";
+        for(auto i:tab.list){
+            out << i.str()<<", ";
+        }
 		for(auto i:tab.iMap){
 			out << "{" << i.first <<":"<<i.second.str()<<"},";
 		}
@@ -191,7 +208,7 @@ std::string Value::str() const {
 		}
 		out <<"}";
 	} else if (isClosure()) {
-		out << "<closure at " << getClosureAddr() <<">";
+        out << "<closure at " << reinterpret_cast<long long>(asObject.get<int>()) <<">";
 	} else if(isString()){
 		out << *(asObject.get<std::string>());
 	}else if(isList()){
@@ -201,7 +218,9 @@ std::string Value::str() const {
 			out << i.str()<<", ";
 		}
 		out <<"]";
-	}else {
+    }else if(type == nil){
+        out <<"nil";
+    }else {
 		out << "unsupported type" << std::endl;
 	}
 	return out.str();
@@ -263,7 +282,12 @@ void Value::clone(Value* a, Value* b) {
 void Value::setProto(Value* a, Value* b) {
 	if (a->isTable()) {
 		b->asObject.get<Table>()->proto = a->asObject;
-	}
+    }
+}
+
+void Value::len(Value *a, Value *b)
+{
+    b->setInt(a->len());
 }
 
 void Value::setClosure(Closure*c) {
@@ -384,7 +408,22 @@ void Value::resetMark() {
 				i.resetMark();
 			}
 		}
-	}
+    }
+}
+
+int Value::len() const
+{
+    if(isArithmetic()){
+        throw std::runtime_error("attemp to get length of a number value");
+    }else if(isTable()){
+        return getTable().len();
+    }else if(isList()){
+        return getList().size();
+    }else if( isString()){
+        return getString().length();
+    }else{
+        throw std::runtime_error("cannot get length of the value");
+    }
 }
 }
 

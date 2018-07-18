@@ -148,7 +148,9 @@ void CodeGen::visit(BinaryExpression*node) {
 			o = Opcode::And;
 		} else if (op == "or") {
 			o = Opcode::Or;
-		} else {
+        } else if (op == "//") {
+            o = Opcode::iDiv;
+        }else {
 			error("unsupported operator", node->getToken().line,
 					node->getToken().col);
 		}
@@ -188,7 +190,11 @@ void CodeGen::visit(UnaryExpression* expr) {
 		expr->first()->accept(this);
 		int r = popReg();
 		emit(Instruction(Opcode::Not,r,findReg()));
-	}
+    }else if(op.tok == "#"){
+        expr->first()->accept(this);
+        int r = popReg();
+        emit(Instruction(Opcode::Len,r,findReg()));
+    }
 }
 void CodeGen::visit(ExprListList*list) {
 	int i = findReg();
@@ -200,13 +206,24 @@ void CodeGen::visit(ExprListList*list) {
 		auto v = popReg();
 		emit(Instruction(Opcode::ListAppend, i, v));
 		idx++;
-	}
+    }
+}
+
+void CodeGen::visit(For *f)
+{
+    // for i = 0,100,1 do .. end
+    auto var = f->first()->getToken();
+    auto init = f->second();
+    auto end = f->third();
+    if(f->size() == 5){
+        auto step = (*(f->begin() + 3));
+    }
 }
 
 void CodeGen::visit(ExprList*list) {
 	int i = findReg();
 	emit(Instruction(Opcode::NewTable, i, (int) 0));
-	int idx = 0;
+    int idx = 1;
 	for (auto iter = list->begin(); iter != list->end(); iter++) {
 		auto& node = *iter;
 		node->accept(this);
@@ -286,6 +303,7 @@ void CodeGen::visit(Func*func) {
     if(name->type() == Colon().type()){
         createLocal(Token(Token::Type::Identifier,"self",-1,-1));
     }
+    createGlobal(name->getToken());
     auto arg = func->second();
     int i = arg->type() == Colon().type() ? 1: 0;
     auto body = func->third();
@@ -308,6 +326,7 @@ void CodeGen::visit(FuncArg*arg) {
 		createLocal(node->getToken());
 	}
 }
+
 void CodeGen::visit(Return*ret) {
 	if (ret->size() == 0) {
 		emit(Instruction(Opcode::Ret, 0, 0));

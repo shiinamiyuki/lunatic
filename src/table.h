@@ -16,6 +16,7 @@ class Table;
 class Table{
 	std::unordered_map<std::string,Value> sMap;
 	std::unordered_map<int,Value>iMap;
+    std::vector<Value> list;
 	GCPtr proto;
 public:
 	friend class Value;
@@ -23,7 +24,9 @@ public:
 	Value get(const std::string&);
 	void set(int,const Value&);
 	void set(const std::string&,const Value&);
-	Table():sMap(),iMap(){}
+    Table():sMap(),iMap(){list.push_back(Value());}
+    inline int len(){return list.size() - 1;}
+    inline std::vector<Value>& getList(){return list;}
 };
 
 }

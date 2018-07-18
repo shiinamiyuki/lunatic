@@ -273,5 +273,13 @@ public:
     }
     void accept(Visitor*);
 };
+class For: public AST{
+public:
+    const std::string type()const{
+        return S("For");
+    }
+    void accept(Visitor*);
+};
+
 }
 #endif /* AST_H_ */

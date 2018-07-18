@@ -65,6 +65,9 @@ void VM::eval(State* state) {
 		case Opcode::Div:
 			DO_ARITH(Value::div, "__div")
 			break;
+        case Opcode::iDiv:
+            DO_ARITH(Value::idiv, "__div")
+            break;
 		case Opcode::Mul:
 			DO_ARITH(Value::mul, "__mul")
 			break;
@@ -83,6 +86,12 @@ void VM::eval(State* state) {
             Value::logicNot(a,b);
 			state->next();
 			break;
+        case Opcode::Len:
+            a = GetReg(i.getA());
+            b = GetReg(i.getB());
+            Value::len(a,b);
+            state->next();
+            break;
 		case Opcode::And:
 			DO_ARITH(Value::logicAnd, "__and")
 			break;
@@ -249,6 +258,7 @@ void VM::eval(State* state) {
 void VM::invokeMetaMethod(const char* key) {
 	throw std::runtime_error("metamethod not implemented!");
 }
+
 void State::reset() {
 	locals.resize(4096);
 	pc = 0;
@@ -256,14 +266,17 @@ void State::reset() {
 	sp = 0;
 	registers = locals.data();
 }
+
 void VM::addNative(NativeHandle h) {
 	natives.push_back(h);
 }
+
 void VM::loadProgram(const std::vector<Instruction>& p) {
 	while(p.size() > program.size()){
 		program.push_back(p[program.size()]);
 	}
 }
+
 void VM::loadStringPool(const std::vector<std::string>& p) {
 	while(p.size() > stringPool.size()){
 		//stringPool.push_back(p[stringPool.size()]);
@@ -278,12 +291,12 @@ Value& VM::getLocal(int i) {
 	return *GetReg(i);
 }
 
-
 void VM::storeReturn(int i, const Value& v) {
 	GetState();
 	auto r = GetRet(i);
 	*r = v;
 }
+
 void VM::call(int addr,int n) {
 	auto state = getCurrentState();
 	state->call(addr,n);

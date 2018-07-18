@@ -51,6 +51,9 @@ char Scanner::peek() {
 char Scanner::peek2() {
     return at(pos + 2);
 }
+char Scanner::peek3() {
+    return at(pos + 3);
+}
 bool isSpace(char c) {
     return c == ' ' || c == '\r' || c == '\t' || c == '\n';
 }
@@ -66,25 +69,25 @@ void Scanner::skipcomment() {
     int i = isComment();
     if (!i)
         return;
-    if (i == 1 || i == 2) {
+    if (i == 1 ) {
         while (cur() != '\n')
             consume();
-    } else if (i == 3) {
-        while (!(cur() == '*' && peek() == '/'))
+    } else if (i == 2) {
+        while (!(cur() == ']' && peek() == ']'&&peek2()=='-'&&peek3()=='-'))
             consume();
+        consume();
+        consume();
         consume();
         consume();
     }
 }
 
 int Scanner::isComment() {
-    if (cur() == '#')
+    if (cur() == '-' && peek() == '-') {
         return 1;
-    if (cur() == '/' && peek() == '/') {
-        return 2;
     }
-    if (cur() == '/' && peek() == '*') {
-        return 3;
+    if (cur() == '-' && peek() == '-'&&peek2() == '['&&peek3() == '[') {
+        return 2;
     }
     return 0;
 }
@@ -107,11 +110,11 @@ static std::set<std::string> keywords = { "and", "break", "do", "else",
                                           "let","const", "nil", "not", "or", "repeat", "return", "then", "true",
                                           "until", "while" ,"new","finalize","import"};
 static std::vector<std::set<std::string>> operators = { { "::=", ">>=", "<<=" },
-                                                        { ":=", "!=", "<=", ">=", "==", "+=", "-=", "*=", "/=", "%=", "^=",
-                                                          "&&", "||", "<<", ">>", "..", "->", "~=", "..", "::" }, { "+",
-                                                                                                                    "-", "*", "/", "%", "&", "|", "^", "(", ")", "[", "]", "{", "}",
-                                                                                                                    ",", "=", "\\", "<", ">", ".", ":" } };
-static std::set<char> opChar = { '+', '-', '*', '/', '%', '^', '>', '<', '!',
+                                                        { "<=", ">=", "==",
+                                                           "<<", ">>", "..",  "~=", "..", "::","//" },
+                                                        { "+", "-", "*", "/", "%", "&", "|", "^", "(", ")", "[", "]", "{", "}",
+                                                         ",", "=", "\\", "<", ">", ".", ":" ,"+","#"} };
+static std::set<char> opChar = {'#', '+', '-', '*', '/', '%', '^', '>', '<', '!',
                                  '=', '(', ')', '[', ']', '{', '}', '.', ':', ',', '\\', '&', '|', '~' };
 Token Scanner::next() {
 
@@ -127,12 +130,14 @@ Token Scanner::next() {
     } else if (cur() == '\"' || cur() == '\'') {
         return string();
     }
-    throw std::runtime_error(std::string("unable to parse ") + cur());
+    std::ostringstream out;
+    out <<cur()<<" "<<(int)(cur())<<std::ends;
+    throw std::runtime_error(std::string("unable to parse ").append(out.str()) );
 }
 void Scanner::scan() {
     try {
         skipspace();
-        while (pos < source.length()) {
+        while (pos < source.length()&&cur()) {
             tokenStream.push_back(next());
             skipspace();
         }
@@ -263,8 +268,6 @@ std::vector<Token>& Scanner::getTokenStream() {
 Parser::Parser(Scanner & lex) {
     pos = -1;
     tokenStream = lex.getTokenStream();
-    opPrec[":="] = 0;
-    opPrec["::="] = 0;
     opPrec["="] = 0;
     opPrec["|"] = 1;
     opPrec["or"] = 1;
@@ -273,7 +276,7 @@ Parser::Parser(Scanner & lex) {
     opPrec[">="] = opPrec["<="] = opPrec[">"] = opPrec["<"] = opPrec["=="] = opPrec["~="] =
             opPrec["!="] = 3;
     opPrec["+"] = opPrec["-"] = opPrec[".."] = 4;
-    opPrec["*"] = opPrec["/"] = opPrec["%"] = 5;
+    opPrec["*"] = opPrec["/"] = opPrec["//"] =opPrec["%"] = 5;
     opPrec["+="] = 0;
     opPrec["-="] = 0;
     opPrec["*="] = 0;
@@ -284,17 +287,6 @@ Parser::Parser(Scanner & lex) {
     opPrec["&="] = 0;
     opPrec["|="] = 0;
     opAssoc = {
-        {	"+=",0},
-        {	"-=",0},
-        {	"*=",0},
-        {	"/=",0},
-        {	">>=",0},
-        {	"<<=",0},
-        {	"%=",0},
-        {	"&=",0},
-        {	"|=",0},
-        {	":=",0},
-        {	"::=",0},
         {	"=",0},
         {	".",1},
         {	"->",1},
@@ -302,6 +294,7 @@ Parser::Parser(Scanner & lex) {
         {	"-",1},
         {	"*",1},
         {	"/",1},
+        {	"//",1},
         {	"!=",1},
         {	"==",1},
         {	"~=",1},
@@ -344,6 +337,8 @@ AST* Parser::parseStmt() {
         return e;
     } else if (has("while")) {
         return (parseWhile());
+    } else if (has("for")) {
+        return parseFor();
     } else if (has("function")) {
         return parseFunc();
     } else if (has("local")) {
@@ -435,6 +430,25 @@ AST* Parser::parseExprListList() {
     return list;
 }
 
+AST *Parser::parseFor()
+{
+    expect("for");
+    auto f = new For();
+    f->add(parseAtom());
+    expect("=");
+    f->add(parseAtom());
+    expect(",");
+    f->add(parseAtom());
+    if(has(",")) {
+        consume();
+        f->add(parseAtom());
+    }
+    expect("do");
+    f->add(parseBlock());
+    expect("end");
+    return f;
+}
+
 
 AST* Parser::parseExprList() {
     expect("{");
@@ -468,6 +482,9 @@ AST* Parser::parseUnary() {
     auto next = peek();
     if(next.type == Token::Type::Symbol){
         if(next.tok == "-"){
+            RET_UNARY
+        }
+        if(next.tok == "#"){
             RET_UNARY
         }
     }else if(next.type == Token::Type::Keyword){
@@ -543,7 +560,7 @@ AST* Parser::parseCond() {
         node->add(parseBlock());
     }
     expect("end");
-    std::cout <<node->str()<<std::endl;
+  //  std::cout <<node->str()<<std::endl;
     return node;
 }
 

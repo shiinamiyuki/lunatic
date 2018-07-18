@@ -42,6 +42,7 @@ public:
     void setClosure(Closure*);
 	void setBool(bool);
 	void setString(GCPtr);
+    void setString(const std::string&);
 	void setUserData(void*);
 	void setList(List*);
 	bool operator ==(const Value&rhs);
@@ -63,6 +64,7 @@ public:
 	static void logicNot(Value*a,Value*b);
 	static void clone(Value *a,Value* b);
 	static void setProto(Value*a,Value*v);
+    static void len(Value*a,Value*b);
 	Value get(Value&);
 	void set(Value&,const Value&);
 	Value get(int i);
@@ -70,6 +72,17 @@ public:
 	void set(int i,const Value&);
 	void set(const std::string&,const Value&);
 	std::string str() const;
+    inline bool isManaged()const{return isList() || isTable() || isString();}
+    void checkInt()const;
+    void checkFloat()const;
+    void checkClosure()const;
+    void checkTable()const;
+    void checkList()const;
+    void checkString()const;
+    void mark();
+    void collect();
+    void resetMark();
+    int len()const;
     inline Closure& getClosure()const{
         return *asObject.get<Closure>();
     }
@@ -127,7 +140,10 @@ public:
 			return getInt();
 		} else if (isFloat()) {
 			return getFloat();
-		} else {
+        } else if(type == nil){
+            return false;
+        }
+        else{
 			return !asObject.isNull();
 		}
 	}
@@ -141,16 +157,7 @@ public:
 		return *asObject.get<std::string>();
 	}
     inline void setArgCount(int i){asObject.get<Closure>()->setArgCount(i);}
-	inline bool isManaged()const{return isList() || isTable() || isString();}
-	void checkInt()const;
-	void checkFloat()const;
-	void checkClosure()const;
-	void checkTable()const;
-	void checkList()const;
-	void checkString()const;
-	void mark();
-	void collect();
-	void resetMark();
+
 	~Value();
 };
 }

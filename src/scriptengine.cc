@@ -9,12 +9,19 @@
 #include "scriptengine.h"
 #include "lib.h"
 void readFile(const char* filename,std::string&s){
-	std::ifstream in(filename);
-	while(!in.eof()){
-		std::string temp;
-		std::getline(in,temp);
-		temp.append("\n");
-		s.append(temp);
+    FILE * f= fopen(filename,"r");
+    if(!f){
+        s="";
+        std::cerr<<"cannot open file "<<filename <<std::endl;
+        return;
+    }
+    while(!feof(f)){
+        char c = fgetc(f);
+        if(!c||c==EOF)break;
+        s += c;
+        if(c=='\n'){
+            s.append(";");
+        }
 	}
 }
 namespace lunatic{
@@ -86,12 +93,24 @@ void ScriptEngine::loadLib() {
     addLib("list");
     addLib("string");
     addLib("math");
+    addLib("table");
     addLibMethod("list","append", ListAppend);
     addLibMethod("list","length", ListLength);
+    addLibMethod("table","clone",TableLib::clone);
 	addNative("str2list", StringtoList);
 	addNative("list2str", ListtoString);
     bindLibMethod("math","sqrt",::sqrt);
+    bindLibMethod("math","atan",::atan);
+    bindLibMethod("math","sin",::sin);
+    bindLibMethod("math", "cos",::cos);
+    bindLibMethod("math", "tan",::tan);
+    bindLibMethod("math", "asin",::asin);
+    bindLibMethod("math", "acos",::acos);
+    bindLibMethod("math", "log",::log);
+    bindLibMethod("math", "log10",::log10);
 	addNative("print", print);
+    addNative("tonumber",tonumber);
+    addNative("tostring",tostring);
 }
 
 ScriptEngine::ScriptEngine() {

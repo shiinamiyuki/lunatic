@@ -9,6 +9,9 @@
 
 namespace lunatic{
 Value Table::get(int i) {
+    if(i>=0 && i<list.size()){
+        return list[i];
+    }
 	auto iter = iMap.find(i);
 	if (iter != iMap.end())
 		return iter->second;
@@ -28,13 +31,19 @@ Value Table::get(const std::string &s) {
 		throw std::runtime_error("cannot find index");
 	}
 }
-void Table::set(int int1, const Value&v) {
-	auto iter = iMap.find(int1);
-	if (iter == iMap.end()) {
-		iMap.insert(std::make_pair(int1, v));
-	} else {
-		iMap[int1] = v;
-	}
+void Table::set(int i, const Value&v) {
+    if(i>=0 && i<list.size()){
+        list[i] = v;
+    }else if(i == list.size()){
+        list.push_back(v);
+    }else{
+        auto iter = iMap.find(i);
+        if (iter == iMap.end()) {
+            iMap.insert(std::make_pair(i, v));
+        } else {
+            iMap[i] = v;
+        }
+    }
 }
 
 void Table::set(const std::string& s, const Value&v) {
