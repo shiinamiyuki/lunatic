@@ -17,7 +17,7 @@ class Table{
 	std::unordered_map<std::string,Value> sMap;
 	std::unordered_map<int,Value>iMap;
     std::vector<Value> list;
-	GCPtr proto;
+    GCPtr metatable;
 public:
 	friend class Value;
 	Value get(int);

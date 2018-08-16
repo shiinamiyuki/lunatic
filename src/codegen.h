@@ -40,6 +40,7 @@ public:
 	virtual void visit(ExprListList*)=0;
 	virtual void visit(Empty*)=0;
     virtual void visit(For*)=0;
+    virtual void visit(Break*)=0;
 	virtual ~Visitor() {
 	}
 };
@@ -112,30 +113,32 @@ class CodeGen: public Visitor {
 	std::unordered_map<std::string, int> natives;
 	std::unordered_map<std::string, int> strConst;
 	std::set<std::string> classSet;
+	std::vector<int> callDepthStack;
 	RegState regState;
-	void visit(BinaryExpression*);
-	void visit(Number*);
-	void visit(Identifier*);
-	void visit(Chunk*);
-	void visit(Block*);
-	void visit(UnaryExpression*);
-	void visit(Arg*);
-	void visit(Call*);
-	void visit(Index*);
-	void visit(WhileLoop*);
-	void visit(Return*);
-	void visit(BoolConstant*);
-	void visit(Func*);
-	void visit(FuncArg*);
-    void visit(Local*);
-	void visit(Const*);
-	void visit(Cond*);
-	void visit(Native*);
-	void visit(String*);
-	void visit(ExprList*);
-	void visit(ExprListList*);
-    void visit(Empty*) {}
-    void visit(For*);
+	void visit(BinaryExpression*)override ;
+	void visit(Number*)override;
+	void visit(Identifier*)override;
+	void visit(Chunk*)override;
+	void visit(Block*)override;
+	void visit(UnaryExpression*)override;
+	void visit(Arg*)override;
+	void visit(Call*)override;
+	void visit(Index*)override;
+	void visit(WhileLoop*)override;
+	void visit(Return*)override;
+	void visit(BoolConstant*)override;
+	void visit(Func*)override;
+	void visit(FuncArg*)override;
+    void visit(Local*)override;
+	void visit(Const*)override;
+	void visit(Cond*)override;
+	void visit(Native*)override;
+	void visit(String*)override;
+	void visit(ExprList*)override;
+	void visit(ExprListList*)override;
+    void visit(Empty*)override {}
+    void visit(For*)override;
+    void visit(Break*)override ;
 	void assign(AST*, bool b = false);
 	int getLocalAddress(const Token&var);
 	void createGlobal(const Token&var, bool isConst = false);
@@ -155,6 +158,7 @@ class CodeGen: public Visitor {
 		return classSet.find(s) != classSet.end();
 	}
     bool hasVar(const std::string&s);
+	void defineSymbol(const std::string &s,int i );
 public:
 	friend class ScriptEngine;
 

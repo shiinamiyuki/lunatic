@@ -18,7 +18,6 @@ public:
 	}
 	virtual inline void * get() const {
 		throw std::runtime_error("should not reach here");
-		return nullptr;
 	}
 	virtual void collect(){}
 };

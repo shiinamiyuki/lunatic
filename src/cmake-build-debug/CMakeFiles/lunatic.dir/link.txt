@@ -1,0 +1,3 @@
+"D:\Apps\JetBrains\CLion 2018.2\bin\cmake\win\bin\cmake.exe" -E remove -f CMakeFiles\lunatic.dir/objects.a
+D:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin\ar.exe cr CMakeFiles\lunatic.dir/objects.a @CMakeFiles\lunatic.dir\objects1.rsp
+D:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin\g++.exe -g   -Wl,--whole-archive CMakeFiles\lunatic.dir/objects.a -Wl,--no-whole-archive  -o lunatic.exe -Wl,--out-implib,liblunatic.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\lunatic.dir\linklibs.rsp

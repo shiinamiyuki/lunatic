@@ -54,7 +54,7 @@ enum class Opcode {
 	ListAppend,
 	Clone,//A B
 	SetProto,// A B
-
+	BREAK,
 };
 struct Instruction{
 	Opcode opcode;

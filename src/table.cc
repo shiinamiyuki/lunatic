@@ -15,8 +15,8 @@ Value Table::get(int i) {
 	auto iter = iMap.find(i);
 	if (iter != iMap.end())
 		return iter->second;
-	else if (!proto.isNull()) {
-		return proto.get<Table>()->get(i);
+	else if (!metatable.isNull()) {
+		return metatable.get<Table>()->get(i);
 	} else {
 		throw std::runtime_error("cannot find index");
 	}
@@ -25,10 +25,10 @@ Value Table::get(const std::string &s) {
 	auto iter = sMap.find(s);
 	if (iter != sMap.end())
 		return iter->second;
-	else if (!proto.isNull()) {
-		return proto.get<Table>()->get(s);
+	else if (!metatable.isNull()) {
+		return metatable.get<Table>()->get(s);
 	} else {
-		throw std::runtime_error("cannot find index");
+		throw std::runtime_error(std::string("cannot find index ").append(s));
 	}
 }
 void Table::set(int i, const Value&v) {

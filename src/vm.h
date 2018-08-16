@@ -73,6 +73,10 @@ struct State {
 	inline void updateReg() {
 		registers = locals.data() + bp;
 	}
+    inline void push(const Value& v){
+        *(registers + REG_MAX + sp) = v;
+        push();
+    }
 	inline void push() {
 		sp++;
 	}
@@ -134,7 +138,7 @@ public:
 
 	void reset();
 	void eval(State*state);
-	void invokeMetaMethod(const char * key);
+    void invokeMetaMethod(Value * a,Value * b,Value *c,const char * key);
 
 	void addNative(NativeHandle);
 	Value &getLocal(int i);

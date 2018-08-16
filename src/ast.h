@@ -280,6 +280,12 @@ public:
     }
     void accept(Visitor*);
 };
-
+class Break:public AST{
+public:
+	const std::string type()const{
+		return S("Break");
+	}
+	void accept(Visitor*);
+};
 }
 #endif /* AST_H_ */

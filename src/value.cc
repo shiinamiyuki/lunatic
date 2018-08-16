@@ -91,7 +91,13 @@ void Value::setFloat(double f) {
 
 void Value::setTable(Table* tab) {
 	asObject.reset(tab);
-	type = table;
+    type = table;
+}
+
+void Value::setTable(GCPtr tab)
+{
+    asObject = tab;
+    type = table;
 }
 
 void Value::setList(List*_list) {
@@ -279,15 +285,33 @@ void Value::clone(Value* a, Value* b) {
 	//	b->asObject.get<Table>()->proto = a->asObject;
 	}
 }
-void Value::setProto(Value* a, Value* b) {
+void Value::setMetaTable(Value* a, Value* b) {
 	if (a->isTable()) {
-		b->asObject.get<Table>()->proto = a->asObject;
+		b->asObject.get<Table>()->metatable = a->asObject;
     }
 }
 
 void Value::len(Value *a, Value *b)
 {
     b->setInt(a->len());
+}
+
+void Value::setMetaTable(const Value &v)
+{
+    if(isTable()){
+        asObject.get<Table>()->metatable = v.asObject;
+    }else{
+        throw std::runtime_error("attemp to set the metatable of a non-table value");
+    }
+}
+
+GCPtr Value::getMetatable() const
+{
+    if(isTable()){
+        return asObject.get<Table>()->metatable;
+    }else{
+        throw std::runtime_error("attemp to get the metatable of a non-table value");
+    }
 }
 
 void Value::setClosure(Closure*c) {
@@ -345,7 +369,9 @@ Value::Value(double double1) {
 
 void Value::checkString()const {
 	if(!isString()){
-		throw std::runtime_error("string object expected!");
+		std::string s("string object expected! but have ");
+		s.append(str());
+		throw std::runtime_error(s.c_str());
 	}
 }
 Value::~Value() {
@@ -411,8 +437,7 @@ void Value::resetMark() {
     }
 }
 
-int Value::len() const
-{
+int Value::len() const {
     if(isArithmetic()){
         throw std::runtime_error("attemp to get length of a number value");
     }else if(isTable()){
@@ -425,6 +450,12 @@ int Value::len() const
         throw std::runtime_error("cannot get length of the value");
     }
 }
+
+    void Value::checkUserData() const {
+		if(!isUserData()){
+			throw std::runtime_error("user data expected!");
+		}
+    }
 }
 
 

@@ -35,10 +35,17 @@ public:
 	Value(int);
 	Value(float);
 	Value(double);
+	template<typename T>
+	Value(T * v){
+	    setUserData(static_cast<void*>(v));
+	    type = userData;
+	}
+
 	void setNil();
 	void setInt(int);
 	void setFloat(double);
 	void setTable(Table*);
+    void setTable(GCPtr);
     void setClosure(Closure*);
 	void setBool(bool);
 	void setString(GCPtr);
@@ -63,8 +70,10 @@ public:
 	static void neg(Value*a,Value*b);
 	static void logicNot(Value*a,Value*b);
 	static void clone(Value *a,Value* b);
-	static void setProto(Value*a,Value*v);
+    static void setMetaTable(Value*a,Value*v);
     static void len(Value*a,Value*b);
+    void setMetaTable(const Value&);
+    GCPtr getMetatable()const;
 	Value get(Value&);
 	void set(Value&,const Value&);
 	Value get(int i);
@@ -79,6 +88,7 @@ public:
     void checkTable()const;
     void checkList()const;
     void checkString()const;
+    void checkUserData()const;
     void mark();
     void collect();
     void resetMark();
@@ -142,7 +152,9 @@ public:
 			return getFloat();
         } else if(type == nil){
             return false;
-        }
+        }else if(isUserData()){
+		    return getUserData();
+		}
         else{
 			return !asObject.isNull();
 		}

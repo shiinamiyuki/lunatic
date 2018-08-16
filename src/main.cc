@@ -15,7 +15,7 @@
 #include "table.h"
 #include "Windows.h"
 #include "scriptengine.h"
-#include "sni.h"
+
 using namespace lunatic;
 template<typename T>
 void timing(T f) {
@@ -70,6 +70,7 @@ void foo(Ret(*)(Args...)){
 	printType<Ret>();
 }
 int main(int argc, char**argv) {
+	glfwInit();
 	ScriptEngine engine;
 
 	if (argc == 1) {

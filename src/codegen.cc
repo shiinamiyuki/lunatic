@@ -6,6 +6,7 @@
  */
 
 #include "codegen.h"
+
 namespace lunatic{
 
 void CodeGen::visit(Number*node) {
@@ -159,6 +160,8 @@ void CodeGen::visit(BinaryExpression*node) {
 	}
 }
 void CodeGen::visit(Chunk*node) {
+    callDepthStack.clear();
+    callDepthStack.emplace_back(0);
 	for (auto i = node->begin(); i != node->end(); i++) {
 		(*i)->accept(this);
         syncRegState();
@@ -241,11 +244,12 @@ void CodeGen::visit(Arg*arg) {
 		auto& node = *iter;
 		node->accept(this);
 		int i = popReg();
-		emit(Instruction(Opcode::Push, i, 0));
+		emit(Instruction(Opcode::Push, i, callDepthStack.back()));
 	}
 }
 #define P(x) std::cout << (x)<<std::endl;
 void CodeGen::visit(Call*node) {
+    callDepthStack[callDepthStack.size() - 1]++;
 	auto arg = node->second();
 	auto func = node->first();
     int c = 0;
@@ -254,7 +258,7 @@ void CodeGen::visit(Call*node) {
         self->accept(this);
         int i = reg.back();
         emit(Instruction(Opcode::Move,i,findReg()));
-        emit(Instruction(Opcode::Push, popReg(), 0));//push self as first arg
+        emit(Instruction(Opcode::Push, popReg(), callDepthStack.back()));//push self as first arg
         arg->accept(this);
 		auto idx = func->second();
 		idx->accept(this);
@@ -273,6 +277,7 @@ void CodeGen::visit(Call*node) {
 		int r = findReg();
 		emit(Instruction(Opcode::LoadRet, i, r));
 	}
+    callDepthStack[callDepthStack.size() - 1]--;
 }
 
 void CodeGen::visit(Index*idx) {
@@ -295,9 +300,15 @@ void CodeGen::visit(WhileLoop*node) {
 	node->second()->accept(this);
 	emit(Instruction(Opcode::BRC, 0, jmpIdx));
 	program[bzIdx] = Instruction(Opcode::BZ, cond, (int) (program.size()));
+	for(int i = jmpIdx;i<program.size();i++){
+	    if(program[i].opcode == Opcode::BREAK){
+	        program[i] = Instruction(Opcode::BRC, 0, (int) (program.size()));
+	    }
+	}
 }
 
 void CodeGen::visit(Func*func) {
+    callDepthStack.emplace_back(0);
 	pushScope();
     auto name = func->first();
     if(name->type() == Colon().type()){
@@ -318,6 +329,7 @@ void CodeGen::visit(Func*func) {
     emit(Instruction(Opcode::SetArgCount,reg.back(),arg->size() + i));
     assign(func);
 	popScope();
+    callDepthStack.pop_back();
 }
 
 void CodeGen::visit(FuncArg*arg) {
@@ -470,7 +482,7 @@ void CodeGen::pushScope() {
 
 void CodeGen::syncRegState() {
     if(locals.size()>0)
-	regState.reset(locals.back().offset + locals.back().dict.size());
+	    regState.reset(locals.back().offset + locals.back().dict.size());
     else
         regState.reset();
 }
@@ -518,15 +530,17 @@ void CodeGen::addLibMethod(const std::string&lib,const std::string &m, int i)
         i = natives.size();
     auto func = new Func();
     auto index = new Index();
+    std::string n = lib;
+    n.append("_").append(m);
     index->add(new Identifier(Token(Token::Type::Identifier,lib,-1,-1)));
     index->add(new String(Token(Token::Type::Identifier,m,-1,-1)));
     func->add(index);
     auto block = new Block();
-    block->add(new Native(Token(Token::Type::Identifier,m,-1,-1)));
+    block->add(new Native(Token(Token::Type::Identifier,n,-1,-1)));
     func->add(new Arg());
     func->add(block);
     func->link();
-    natives.insert(std::make_pair(m, i));
+    natives.insert(std::make_pair(n, i));
     func->accept(this);
     delete func;
 }
@@ -544,6 +558,18 @@ void CodeGen::addNative(const std::string& s, int i) {
     func->accept(this);
     delete func;
 }
+
+    void CodeGen::visit(Break *) {
+        emit(Instruction(Opcode::BREAK,0,0,0));
+    }
+
+	void CodeGen::defineSymbol(const std::string &s,int i) {
+		Token t(Token::Type::Identifier,s,-1,-1);
+		createGlobal(t);
+		int r = findReg();
+		emit(Instruction(Opcode::LoadInt,r,i));
+		emit(Instruction(Opcode::StoreGlobal,r,getGlobalAddress(t)));
+	}
 
 }
 
