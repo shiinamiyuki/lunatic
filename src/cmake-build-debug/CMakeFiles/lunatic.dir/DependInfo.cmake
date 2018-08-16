@@ -7,6 +7,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "D:/repo/CLionProjects/lunatic/ast.cc" "D:/repo/CLionProjects/lunatic/cmake-build-debug/CMakeFiles/lunatic.dir/ast.cc.obj"
   "D:/repo/CLionProjects/lunatic/closure.cc" "D:/repo/CLionProjects/lunatic/cmake-build-debug/CMakeFiles/lunatic.dir/closure.cc.obj"
   "D:/repo/CLionProjects/lunatic/codegen.cc" "D:/repo/CLionProjects/lunatic/cmake-build-debug/CMakeFiles/lunatic.dir/codegen.cc.obj"
+  "D:/repo/CLionProjects/lunatic/format.cc" "D:/repo/CLionProjects/lunatic/cmake-build-debug/CMakeFiles/lunatic.dir/format.cc.obj"
   "D:/repo/CLionProjects/lunatic/gc.cc" "D:/repo/CLionProjects/lunatic/cmake-build-debug/CMakeFiles/lunatic.dir/gc.cc.obj"
   "D:/repo/CLionProjects/lunatic/lib.cc" "D:/repo/CLionProjects/lunatic/cmake-build-debug/CMakeFiles/lunatic.dir/lib.cc.obj"
   "D:/repo/CLionProjects/lunatic/main.cc" "D:/repo/CLionProjects/lunatic/cmake-build-debug/CMakeFiles/lunatic.dir/main.cc.obj"

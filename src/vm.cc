@@ -7,6 +7,7 @@
 #include "vm.h"
 #include "table.h"
 #include "value.h"
+#include "format.h"
 namespace lunatic{
 
 
@@ -330,6 +331,8 @@ void VM::fullGC() {
 		i.resetMark();
 
 }
+
+
 
 }
 

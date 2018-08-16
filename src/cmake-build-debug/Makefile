@@ -203,6 +203,33 @@ codegen.cc.s:
 	$(MAKE) -f CMakeFiles\lunatic.dir\build.make CMakeFiles/lunatic.dir/codegen.cc.s
 .PHONY : codegen.cc.s
 
+format.obj: format.cc.obj
+
+.PHONY : format.obj
+
+# target to build an object file
+format.cc.obj:
+	$(MAKE) -f CMakeFiles\lunatic.dir\build.make CMakeFiles/lunatic.dir/format.cc.obj
+.PHONY : format.cc.obj
+
+format.i: format.cc.i
+
+.PHONY : format.i
+
+# target to preprocess a source file
+format.cc.i:
+	$(MAKE) -f CMakeFiles\lunatic.dir\build.make CMakeFiles/lunatic.dir/format.cc.i
+.PHONY : format.cc.i
+
+format.s: format.cc.s
+
+.PHONY : format.s
+
+# target to generate assembly for a file
+format.cc.s:
+	$(MAKE) -f CMakeFiles\lunatic.dir\build.make CMakeFiles/lunatic.dir/format.cc.s
+.PHONY : format.cc.s
+
 gc.obj: gc.cc.obj
 
 .PHONY : gc.obj
@@ -464,6 +491,9 @@ help:
 	@echo ... codegen.obj
 	@echo ... codegen.i
 	@echo ... codegen.s
+	@echo ... format.obj
+	@echo ... format.i
+	@echo ... format.s
 	@echo ... gc.obj
 	@echo ... gc.i
 	@echo ... gc.s

@@ -8,6 +8,7 @@
 
 #include "scriptengine.h"
 #include "lib.h"
+#include "format.h"
 
 void readFile(const char *filename, std::string &s) {
     FILE *f = fopen(filename, "r");
@@ -24,22 +25,22 @@ void readFile(const char *filename, std::string &s) {
 }
 
 namespace lunatic {
-    void ScriptEngine::execString(const std::string &s) {
-        compileString(s);
+    void ScriptEngine::execString(const std::string &s,const char  * filename) {
+        compileString(s,filename);
 
     }
 
     void ScriptEngine::execFile(const std::string &s) {
         std::string source;
         readFile(s.c_str(), source);
-        execString(source);
+        execString(source,s.c_str());
     }
 
-    void ScriptEngine::compileString(const std::string &s) {
+    void ScriptEngine::compileString(const std::string & s,const char  * filename ) {
         auto len = gen.program.size();
         try {
             len = gen.program.size();
-            Scanner scan(s);
+            Scanner scan(filename,s);
             scan.scan();
             Parser p(scan);
             auto ast = p.parse();
@@ -57,7 +58,12 @@ namespace lunatic {
             std::cerr << e.what() << std::endl;
             recover(len);
         } catch (std::runtime_error &e) {
-            std::cerr << e.what() << std::endl;
+            auto pc = vm.getCurrentState()->pc;
+            auto pos = gen.getSourcePos(pc);
+            fprintln(stderr,"error: {} at {}:{}:{} with stack trace:{}",
+                    e.what(),
+                    pos.filename,pos.line,pos.col,
+                    dumpStackTrace());
             recover(len);
         }
     }
@@ -209,6 +215,17 @@ namespace lunatic {
 
     void ScriptEngine::addSymbol(const std::string &s, int i) {
         gen.defineSymbol(s, i);
+    }
+
+    std::string ScriptEngine::dumpStackTrace() {
+        std::string dump;
+        auto state = vm.getCurrentState();
+        auto stack = state->callStack;
+        for(auto iter = stack.rbegin();iter != stack.rend();iter++){
+            auto pos = gen.getSourcePos(iter->pc - 1);
+            dump.append(format("\n\tat {}:{}:{}",pos.filename,pos.line,pos.col));
+        }
+        return dump;
     }
 }
 

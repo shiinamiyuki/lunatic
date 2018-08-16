@@ -98,6 +98,12 @@
 		<Unit filename="D:/repo/CLionProjects/lunatic/codegen.h">
 			<Option target="lunatic"/>
 		</Unit>
+		<Unit filename="D:/repo/CLionProjects/lunatic/format.cc">
+			<Option target="lunatic"/>
+		</Unit>
+		<Unit filename="D:/repo/CLionProjects/lunatic/format.h">
+			<Option target="lunatic"/>
+		</Unit>
 		<Unit filename="D:/repo/CLionProjects/lunatic/gc.cc">
 			<Option target="lunatic"/>
 		</Unit>
@@ -141,6 +147,9 @@
 			<Option target="lunatic"/>
 		</Unit>
 		<Unit filename="D:/repo/CLionProjects/lunatic/value.h">
+			<Option target="lunatic"/>
+		</Unit>
+		<Unit filename="D:/repo/CLionProjects/lunatic/visitor.h">
 			<Option target="lunatic"/>
 		</Unit>
 		<Unit filename="D:/repo/CLionProjects/lunatic/vm.cc">

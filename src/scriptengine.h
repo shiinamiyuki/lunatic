@@ -118,15 +118,15 @@ namespace lunatic {
         void recover(int i);
 
         void loadLib();
-
+        std::string dumpStackTrace();
     public:
         ScriptEngine();
 
-        void execString(const std::string &);
+        void execString(const std::string &,const char  * filename = "");
 
         void execFile(const std::string &);
 
-        void compileString(const std::string &);
+        void compileString(const std::string &,const char  * filename = "");
 
         void addSymbol(const std::string &, int i);
 

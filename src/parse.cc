@@ -97,11 +97,12 @@ namespace lunatic {
         return 0;
     }
 
-    Scanner::Scanner(const std::string &s) {
+    Scanner::Scanner(const char *filename,const std::string &s) {
         pos = 0;
         source = s;
         line = 1;
         col = 1;
+        this->filename = filename;
 
     }
 
@@ -278,6 +279,7 @@ namespace lunatic {
     }
 
     Parser::Parser(Scanner &lex) {
+        filename = lex.filename;
         pos = -1;
         tokenStream = lex.getTokenStream();
         opPrec["="] = 0;
@@ -333,7 +335,7 @@ namespace lunatic {
 
 
     AST *Parser::parse() {
-        auto node = new Chunk();
+        auto node = makeNode<Chunk>();
         while (hasNext()) {
             node->add(parseStmt());
             if (has(";"))consume();
@@ -352,7 +354,7 @@ namespace lunatic {
             return (parseWhile());
         } else if (has("break")) {
             consume();
-            return new Break();
+            return makeNode<Break>();
         } else if (has("for")) {
             return parseFor();
         } else if (has("function")) {
@@ -365,7 +367,7 @@ namespace lunatic {
             return parseNative();
         } else if (has(";")) {
             consume();
-            return new Empty();
+            return makeNode<Empty>();
         } else {
             auto e = parseExpr(0);
             return e;
@@ -376,7 +378,7 @@ namespace lunatic {
 
     AST *Parser::parseBlock() {
         skip();
-        auto node = new Block();
+        auto node = makeNode<Block>();
         while (hasNext() && !BLOCK_END) {
             node->add(parseStmt());
         }
@@ -393,7 +395,7 @@ namespace lunatic {
             if (opPrec[next.tok] >= lev) {
                 consume();
                 AST *rhs = parseExpr(opAssoc[next.tok] + opPrec[next.tok]);
-                AST *op = new BinaryExpression(next);
+                AST *op = makeNode<BinaryExpression>(next);
                 op->add(result);
                 op->add(rhs);
                 result = op;
@@ -409,17 +411,17 @@ namespace lunatic {
         auto &next = peek();
         if (next.type == Token::Type::Number) {
             consume();
-            return new Number(cur());
+            return makeNode<Number>(cur());
         } else if (next.type == Token::Type::Identifier) {
             consume();
-            return new Identifier(cur());
+            return makeNode<Identifier>(cur());
         } else if (next.type == Token::Type::Keyword
                    && (next.tok == "true" || next.tok == "false")) {
             consume();
-            return new BoolConstant(cur());
+            return makeNode<BoolConstant>(cur());
         } else if (next.type == Token::Type::String) {
             consume();
-            return new String(cur());
+            return makeNode<String>(cur());
         } else if (next.tok == "(") {
             consume();
             auto n = parseExpr(0);
@@ -442,7 +444,7 @@ namespace lunatic {
 
     AST *Parser::parseExprListList() {
         expect("[");
-        auto list = new ExprListList();
+        auto list = makeNode<ExprListList>();
         while (hasNext() && !has("]")) {
             list->add(parseExpr(0));
             if (has(","))
@@ -455,7 +457,7 @@ namespace lunatic {
     AST *Parser::parseFor() {
         skip();
         expect("for");
-        auto f = new For();
+        auto f = makeNode<For>();
         f->add(parseAtom());
         expect("=");
         f->add(parseAtom());
@@ -475,7 +477,7 @@ namespace lunatic {
     AST *Parser::parseExprList() {
         skip();
         expect("{");
-        auto list = new ExprList();
+        auto list = makeNode<ExprList>();
         while (hasNext() && !has("}")) {
             list->add(parseExpr(0));
             if (has(","))
@@ -488,7 +490,7 @@ namespace lunatic {
     AST *Parser::parseArg() {
         skip();
         expect("(");
-        auto arg = new Arg();
+        auto arg = makeNode<Arg>();
         while (hasNext() && !has(")")) {
             arg->add(parseExpr(0));
             if (has(","))
@@ -499,7 +501,7 @@ namespace lunatic {
     }
 
 #define RET_UNARY consume(); \
-    auto node = new UnaryExpression(cur()); \
+    auto node = makeNode<UnaryExpression>(cur()); \
     node->add(parseUnary()); \
     return node;
 
@@ -529,14 +531,14 @@ namespace lunatic {
         auto node = parseAtom();
         while (hasNext() && (has("[") || has("(") || has(".") || has(":"))) {
             if (has("[")) {
-                auto index = new Index();
+                auto index = makeNode<Index>();
                 index->add(node);
                 consume();
                 index->add(parseExpr(0));
                 expect("]");
                 node = index;
             } else if (has("(")) {
-                auto call = new Call();
+                auto call = makeNode<Call>();
                 call->add(node);
                 call->add(parseArg());
                 node = call;
@@ -549,9 +551,9 @@ namespace lunatic {
                                           peek().line, peek().col);
                 }
                 consume();
-                auto index = new Index();
+                auto index = makeNode<Index>();
                 index->add(node);
-                index->add(new String(cur()));
+                index->add(makeNode<String>(cur()));
                 node = index;
             } else if (has(":")) {    //.
                 consume();
@@ -562,9 +564,9 @@ namespace lunatic {
                                           peek().line, peek().col);
                 }
                 consume();
-                auto index = new Colon();
+                auto index = makeNode<Colon>();
                 index->add(node);
-                index->add(new String(cur()));
+                index->add(makeNode<String>(cur()));
                 node = index;
             }
         }
@@ -574,7 +576,7 @@ namespace lunatic {
     AST *Parser::parseCond() {
         skip();
         expect("if");
-        auto node = new Cond();
+        auto node = makeNode<Cond>();
         node->add(parseExpr(0));
         expect("then");
         node->add(parseBlock());
@@ -596,9 +598,9 @@ namespace lunatic {
     AST *Parser::parseReturn() {
         expect("return");
         if (peek().type == Token::Type::Terminator) {
-            return new Return();
+            return makeNode<Return>();
         } else {
-            auto node = new Return();
+            auto node = makeNode<Return>();
             node->add(parseExpr(0));
             return node;
         }
@@ -607,7 +609,7 @@ namespace lunatic {
     AST *Parser::parseNative() {
         skip();
         expect("native");
-        auto n = new Native(peek());
+        auto n = makeNode<Native>(peek());
         consume();
         expect(";");
         return n;
@@ -632,7 +634,7 @@ namespace lunatic {
     AST *Parser::parseWhile() {
         expect("while");
         skip();
-        auto node = new WhileLoop();
+        auto node = makeNode<WhileLoop>();
         node->add(parseExpr(0));
         expect("do");
         node->add(parseBlock());
@@ -660,21 +662,21 @@ namespace lunatic {
                 if (has(":")) {
                     consume();
                     consume();
-                    f = new Colon();
+                    f = makeNode<Colon>();
                     f->add(name);
-                    f->add(new String(cur()));
+                    f->add(makeNode<String>(cur()));
                 } else {
                     consume();
                     consume();
-                    f = new Index();
+                    f = makeNode<Index>();
                     f->add(name);
-                    f->add(new String(cur()));
+                    f->add(makeNode<String>(cur()));
                 }
             }
             func = new Func();
             func->add(f);
         } else if (has("(")) {//lambda
-            func = new Func();
+            func = makeNode<Func>();
         } else {
             std::string msg = "identifier or '(' expected after 'fn'";
             throw ParserException(msg, peek().line, peek().col);
@@ -687,7 +689,7 @@ namespace lunatic {
 
     AST *Parser::parseFuncArg() {
         skip();
-        FuncArg *arg = new FuncArg();
+        FuncArg *arg = makeNode<FuncArg>();
         expect("(");
         while (!has(")")) {
             auto atom = parseAtom();
@@ -706,7 +708,7 @@ namespace lunatic {
     AST *Parser::parseLocal() {
         expect("local");
         skip();
-        AST *let = new Local();
+        AST *let = makeNode<Local>();
         let->add(parseAtom());
         if (let->first()->getToken().type != Token::Type::Identifier) {
             auto &tok = let->first()->getToken();
@@ -719,7 +721,7 @@ namespace lunatic {
 
     AST *Parser::parseConst() {
         expect("const");
-        AST *c = new Const();
+        AST *c = makeNode<Const>();
         c->add(parseAtom());
         if (c->first()->getToken().type != Token::Type::Identifier) {
             auto &tok = c->first()->getToken();
@@ -729,6 +731,10 @@ namespace lunatic {
         expect("=");
         c->add(parseExpr(1));
         return c;
+    }
+
+    SourcePos Parser::getPos() const {
+        return SourcePos(filename,peek().line,peek().col);
     }
 
 }

@@ -13,6 +13,12 @@ bool Value::operator ==(const Value& rhs) {
 		return false;
 	} else if(isArithmetic()){
 		return getFloat() == rhs.getFloat();
+	} else if(isUserData()){
+	    return rhs.getUserData() == getUserData();
+	}else if(isManaged()){
+	    return asObject.get<void*>() == rhs.asObject.get<void*>();
+	}else{
+	    return false;
 	}
 }
 void Value::add(Value* a, Value* b, Value* c) {
@@ -220,7 +226,7 @@ std::string Value::str() const {
 	}else if(isList()){
 		auto& l = getList();
 		out <<"[ ";
-		for(auto i:l){
+		for(Value i:l){
 			out << i.str()<<", ";
 		}
 		out <<"]";

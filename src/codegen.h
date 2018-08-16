@@ -10,40 +10,10 @@
 #include "ast.h"
 #include "opcode.h"
 #include "lunatic.h"
+#include "visitor.h"
 namespace lunatic{
 class AST;
 class ScriptEngine;
-class Visitor {
-public:
-	void visit(AST*) {
-	}
-	virtual void visit(BinaryExpression*)=0;
-	virtual void visit(Identifier*)=0;
-	virtual void visit(Number*)=0;
-	virtual void visit(String*)=0;
-	virtual void visit(Chunk*)=0;
-	virtual void visit(Block*)=0;
-	virtual void visit(UnaryExpression*)=0;
-	virtual void visit(Arg*)=0;
-	virtual void visit(Call*)=0;
-	virtual void visit(Index*)=0;
-	virtual void visit(Cond*)=0;
-	virtual void visit(WhileLoop*)=0;
-	virtual void visit(Return*)=0;
-	virtual void visit(BoolConstant*)=0;
-	virtual void visit(Func*)=0;
-	virtual void visit(FuncArg*)=0;
-    virtual void visit(Local*)=0;
-	virtual void visit(Const*)=0;
-	virtual void visit(Native*)=0;
-	virtual void visit(ExprList*)=0;
-	virtual void visit(ExprListList*)=0;
-	virtual void visit(Empty*)=0;
-    virtual void visit(For*)=0;
-    virtual void visit(Break*)=0;
-	virtual ~Visitor() {
-	}
-};
 
 struct RegState {
 	bool reg[REG_MAX];
@@ -104,6 +74,7 @@ public:
 	}
 
 };
+typedef std::unordered_map<int,SourcePos> SourceMap;
 class CodeGen: public Visitor {
 	std::vector<Scope> locals;
     Scope globals;
@@ -115,6 +86,8 @@ class CodeGen: public Visitor {
 	std::set<std::string> classSet;
 	std::vector<int> callDepthStack;
 	RegState regState;
+    SourceMap sourceMap;
+    void addSourceInfo(const SourcePos&);
 	void visit(BinaryExpression*)override ;
 	void visit(Number*)override;
 	void visit(Identifier*)override;
@@ -139,6 +112,7 @@ class CodeGen: public Visitor {
     void visit(Empty*)override {}
     void visit(For*)override;
     void visit(Break*)override ;
+    void pre(AST*)override ;
 	void assign(AST*, bool b = false);
 	int getLocalAddress(const Token&var);
 	void createGlobal(const Token&var, bool isConst = false);
@@ -161,7 +135,27 @@ class CodeGen: public Visitor {
 	void defineSymbol(const std::string &s,int i );
 public:
 	friend class ScriptEngine;
-
+    SourcePos getSourcePos(int i){
+        int t = i;
+        while(i>0){
+            auto iter = sourceMap.find(i);
+            if(iter != sourceMap.end())
+                return iter->second;
+            else{
+                i--;
+            }
+        }
+        i = t;
+        while(i<program.size()){
+            auto iter = sourceMap.find(i);
+            if(iter != sourceMap.end())
+                return iter->second;
+            else{
+                i++;
+            }
+        }
+        return SourcePos("",-1,-1);
+    }
 	void print();
 	void emit(const Instruction&i) {
 		program.push_back(i);

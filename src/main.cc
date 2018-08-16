@@ -52,7 +52,7 @@ void Interactive() {
 		std::cout << "<<";
 		std::getline(std::cin, source);
 		source.append(";");
-		engine.execString(source);
+		engine.execString(source,"stdin");
 		source.clear();
 	}
 }

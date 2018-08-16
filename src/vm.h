@@ -153,6 +153,7 @@ public:
     inline int getArgCount(){
         return getCurrentState()->getArgCount();
     }
+
 };
 }
 #endif /* VM_H_ */

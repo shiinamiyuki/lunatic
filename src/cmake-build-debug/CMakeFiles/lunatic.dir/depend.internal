@@ -4,10 +4,10 @@
 CMakeFiles/lunatic.dir/ast.cc.obj
  D:/repo/CLionProjects/lunatic/ast.cc
  D:/repo/CLionProjects/lunatic/ast.h
- D:/repo/CLionProjects/lunatic/codegen.h
+ D:/repo/CLionProjects/lunatic/format.h
  D:/repo/CLionProjects/lunatic/lunatic.h
- D:/repo/CLionProjects/lunatic/opcode.h
  D:/repo/CLionProjects/lunatic/parse.h
+ D:/repo/CLionProjects/lunatic/visitor.h
 CMakeFiles/lunatic.dir/closure.cc.obj
  D:/repo/CLionProjects/lunatic/closure.cc
  D:/repo/CLionProjects/lunatic/closure.h
@@ -19,6 +19,10 @@ CMakeFiles/lunatic.dir/codegen.cc.obj
  D:/repo/CLionProjects/lunatic/lunatic.h
  D:/repo/CLionProjects/lunatic/opcode.h
  D:/repo/CLionProjects/lunatic/parse.h
+ D:/repo/CLionProjects/lunatic/visitor.h
+CMakeFiles/lunatic.dir/format.cc.obj
+ D:/repo/CLionProjects/lunatic/format.cc
+ D:/repo/CLionProjects/lunatic/format.h
 CMakeFiles/lunatic.dir/gc.cc.obj
  D:/repo/CLionProjects/lunatic/gc.cc
  D:/repo/CLionProjects/lunatic/gc.h
@@ -36,6 +40,7 @@ CMakeFiles/lunatic.dir/lib.cc.obj
  D:/repo/CLionProjects/lunatic/scriptengine.h
  D:/repo/CLionProjects/lunatic/table.h
  D:/repo/CLionProjects/lunatic/value.h
+ D:/repo/CLionProjects/lunatic/visitor.h
  D:/repo/CLionProjects/lunatic/vm.h
 CMakeFiles/lunatic.dir/main.cc.obj
  D:/repo/CLionProjects/lunatic/ast.h
@@ -50,6 +55,7 @@ CMakeFiles/lunatic.dir/main.cc.obj
  D:/repo/CLionProjects/lunatic/scriptengine.h
  D:/repo/CLionProjects/lunatic/table.h
  D:/repo/CLionProjects/lunatic/value.h
+ D:/repo/CLionProjects/lunatic/visitor.h
  D:/repo/CLionProjects/lunatic/vm.h
 CMakeFiles/lunatic.dir/opcode.cc.obj
  D:/repo/CLionProjects/lunatic/lunatic.h
@@ -64,6 +70,7 @@ CMakeFiles/lunatic.dir/scriptengine.cc.obj
  D:/repo/CLionProjects/lunatic/ast.h
  D:/repo/CLionProjects/lunatic/closure.h
  D:/repo/CLionProjects/lunatic/codegen.h
+ D:/repo/CLionProjects/lunatic/format.h
  D:/repo/CLionProjects/lunatic/gc.h
  D:/repo/CLionProjects/lunatic/lib.h
  D:/repo/CLionProjects/lunatic/lunatic.h
@@ -72,6 +79,7 @@ CMakeFiles/lunatic.dir/scriptengine.cc.obj
  D:/repo/CLionProjects/lunatic/scriptengine.cc
  D:/repo/CLionProjects/lunatic/scriptengine.h
  D:/repo/CLionProjects/lunatic/value.h
+ D:/repo/CLionProjects/lunatic/visitor.h
  D:/repo/CLionProjects/lunatic/vm.h
 CMakeFiles/lunatic.dir/table.cc.obj
  D:/repo/CLionProjects/lunatic/closure.h
@@ -89,6 +97,7 @@ CMakeFiles/lunatic.dir/value.cc.obj
  D:/repo/CLionProjects/lunatic/value.h
 CMakeFiles/lunatic.dir/vm.cc.obj
  D:/repo/CLionProjects/lunatic/closure.h
+ D:/repo/CLionProjects/lunatic/format.h
  D:/repo/CLionProjects/lunatic/gc.h
  D:/repo/CLionProjects/lunatic/lunatic.h
  D:/repo/CLionProjects/lunatic/opcode.h

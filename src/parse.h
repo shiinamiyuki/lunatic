@@ -12,7 +12,9 @@
 namespace lunatic{
 class AST;
 struct Token;
+class Parser;
 class Scanner {
+    friend class Parser;
 	int pos;
 	int line, col;
 	std::string source;
@@ -32,21 +34,26 @@ class Scanner {
 	Token number();
 	Token symbol();
 	Token string();
+    const char *filename;
 public:
-	Scanner(const std::string& s);
+	Scanner(const char *filename,const std::string& s);
 	void scan();
 	std::vector<Token>& getTokenStream();
 };
+    struct SourcePos;
 class Parser {
 	std::vector<Token> tokenStream;
 	std::unordered_map<std::string, int> opPrec;
 	std::unordered_map<std::string, int> opAssoc; //1 for left 0 for right
 	int pos;
-
-	template<typename T>
-	T* newNode() {
-		return new T();
+	const char *filename;
+	template<typename T,typename... Args>
+	T* makeNode(Args...args) {
+		auto  t=  new T(args...);
+		t->pos = getPos();
+		return t;
 	}
+    SourcePos getPos()const;
 public:
 	Parser(Scanner&);
 	const Token& at(int idx) const;
@@ -84,6 +91,7 @@ public:
 	void expect(const std::string&token);
 	bool has(const std::string&token);
 	void skip();
+
 
 };
 class ParserException{

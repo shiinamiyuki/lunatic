@@ -1,0 +1,3 @@
+D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/lunatic.dir
+D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/edit_cache.dir
+D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/rebuild_cache.dir

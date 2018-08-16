@@ -1,0 +1,4 @@
+"D:\Apps\JetBrains\CLion 2018.2\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - MinGW Makefiles" D:\repo\CLionProjects\lunatic
+-- Configuring done
+-- Generating done
+-- Build files have been written to: D:/repo/CLionProjects/lunatic/cmake-build-release

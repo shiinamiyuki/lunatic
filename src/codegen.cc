@@ -240,12 +240,23 @@ void CodeGen::visit(ExprList*list) {
 }
 
 void CodeGen::visit(Arg*arg) {
+    int argCount = arg->size();
+    std::vector<int> vec;
+    for(int i =0 ;i<argCount;i++){
+        vec.push_back(findReg());
+    }
+    int idx = 0;
 	for (auto iter = arg->begin(); iter != arg->end(); iter++) {
 		auto& node = *iter;
 		node->accept(this);
 		int i = popReg();
-		emit(Instruction(Opcode::Push, i, callDepthStack.back()));
+		emit(Instruction(Opcode::Move,i,vec[idx]));
+		//emit(Instruction(Opcode::Push, i, callDepthStack.back()));
+		idx++;
 	}
+    for(int i =0 ;i<argCount;i++){
+        emit(Instruction(Opcode::Push, vec[i],0)); //neat!
+    }
 }
 #define P(x) std::cout << (x)<<std::endl;
 void CodeGen::visit(Call*node) {
@@ -515,7 +526,7 @@ void CodeGen::addLib(const std::string &s)
 {
     std::string src = s;
     src.append("={}");
-    Scanner scan(src);
+    Scanner scan("",src);
     scan.scan();
     Parser p(scan);
     auto ast = p.parse();
@@ -570,6 +581,17 @@ void CodeGen::addNative(const std::string& s, int i) {
 		emit(Instruction(Opcode::LoadInt,r,i));
 		emit(Instruction(Opcode::StoreGlobal,r,getGlobalAddress(t)));
 	}
+
+    void CodeGen::addSourceInfo(const SourcePos &pos) {
+        int i = (int)program.size();
+           if(sourceMap.find(i)==sourceMap.end()){
+                sourceMap[i] = pos;
+           }
+    }
+
+    void CodeGen::pre(AST *ast) {
+        addSourceInfo(ast->pos);
+    }
 
 }
 
