@@ -33,9 +33,7 @@ enum class Opcode {
 	LoadBool, //A Bx
 	LoadGlobal, //A Bx
 	LoadRet,// A B
-	PushSelf,
 	PushNil,
-	LoadSelf,
 	GetValue,//A B C   C = A[B]
 	StoreValue,//A B C   A[B] = C
 	StoreRet,//A B
@@ -43,6 +41,7 @@ enum class Opcode {
 	Move,//A B
 	BRC,
 	BZ,
+	BNZ,
 	Push,//A
 	fCall,//A B C A: func reg B : number of args C: number of rets
 	invoke,//A Bx
@@ -50,8 +49,6 @@ enum class Opcode {
 	MakeClosure,
     SetArgCount,// A i32
 	NewTable,
-	NewList,
-	ListAppend,
 	Clone,//A B
 	SetProto,// A B
 	BREAK,

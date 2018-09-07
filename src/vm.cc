@@ -8,6 +8,7 @@
 #include "table.h"
 #include "value.h"
 #include "format.h"
+#include "closure.h"
 namespace lunatic{
 
 
@@ -117,17 +118,6 @@ void VM::eval(State* state) {
 					break;
 			case Opcode::NE:
 				DO_ARITH(Value::ne, "__ne")
-					break;
-			case Opcode::NewList:
-				a = GetReg(i.getA());
-				a->setList(new List());
-				state->next();
-				break;
-			case Opcode::ListAppend:
-				a = GetReg(i.getA());
-				b = GetReg(i.getB());
-				a->getList().push_back(*b);
-				state->next();
 				break;
 			case Opcode::NewTable:
 				a = GetReg(i.getA());
@@ -154,16 +144,6 @@ void VM::eval(State* state) {
 				a = GetReg(i.getA());
 				i32 = i.getBx();
 				*a = globals[i32];//here!
-				state->next();
-				break;
-			case Opcode::LoadSelf:
-				a = GetReg(i.getA());
-				*a = state->getSelf();
-				state->next();
-				break;
-			case Opcode::PushSelf:
-				a = GetReg(i.getA());
-				state->pushSelf(*a);
 				state->next();
 				break;
 			case Opcode::PushNil:
@@ -201,6 +181,10 @@ void VM::eval(State* state) {
 				a = GetReg(i.getA());
 				state->pc = a->toBool() ? state->pc + 1: i.getInt();
 				break;
+			case Opcode::BNZ:
+				a = GetReg(i.getA());
+				state->pc = !a->toBool() ? state->pc + 1: i.getInt();
+				break;
 			case Opcode::StoreRet:
 				a = GetReg(i.getA());
 				b = GetRet(i.getB());
@@ -233,10 +217,11 @@ void VM::eval(State* state) {
 				break;
 			case Opcode::fCall:
 				a = GetReg(i.getA());
-				state->next();
+                state->next();
 				if (!a->isClosure()) {
-					invokeMetaMethod(nullptr,nullptr,nullptr,"__call");
+					invokeMetaMethod(a,nullptr,nullptr,"__call",i.getB());
 				} else {
+
 					state->call(a->getClosureAddr(),i.getB());
 				}
 				break;
@@ -258,7 +243,7 @@ void VM::eval(State* state) {
 	//	std::cout << globals[0].str()<<std::endl;
 }
 
-void VM::invokeMetaMethod(Value * a,Value * b,Value *c,const char* key) {
+void VM::invokeMetaMethod(Value * a,Value * b,Value *c,const char* key,int n) {
 	//throw std::runtime_error("metamethod not implemented!");
 	if(a && b && c){
 		//     std::cout << a->str() << std::endl;
@@ -274,6 +259,15 @@ void VM::invokeMetaMethod(Value * a,Value * b,Value *c,const char* key) {
 		cur->ok = true;
 		*c = cur->retReg[0];
 		//   std::cout << "done"<<std::endl;
+	}else{
+        a->checkTable();
+        auto cur = getCurrentState();
+        auto meta = a->get(key);
+        meta.checkClosure();
+        int addr = meta.getClosureAddr();
+        call(addr,2);
+        eval(cur);
+        cur->ok = true;
 	}
 }
 

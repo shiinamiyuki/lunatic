@@ -138,7 +138,7 @@ public:
 
 	void reset();
 	void eval(State*state);
-    void invokeMetaMethod(Value * a,Value * b,Value *c,const char * key);
+    void invokeMetaMethod(Value * a,Value * b,Value *c,const char * key,int n = 0);
 
 	void addNative(NativeHandle);
 	Value &getLocal(int i);

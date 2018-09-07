@@ -153,7 +153,18 @@ void _getline(VM *vm)
         int c = vm->getArgCount();
         auto arg1 = vm->getLocal(0);
         arg1.checkString();
-
+        auto arg2 = vm->getLocal(2);
+        arg2.checkInt();
+        auto s = arg1.getString();
+        if(c==3) {
+            auto arg3 = vm->getLocal(3);
+            arg3.checkInt();
+            s = s.substr(arg2.getInt(),arg3.getInt());
+        }else{
+            s = s.substr(arg2.getInt());
+        }
+        Value v(new std::string(s));
+        vm->storeReturn(0,v);
     }
 
     void StringLib::Char(VM *vm) {

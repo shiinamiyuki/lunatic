@@ -58,6 +58,7 @@ struct VarInfo {
 typedef std::unordered_map<std::string, VarInfo> Dict;
 struct Scope {
 	int offset;
+	int functionLevel;
 	Dict dict;
 };
 class CompilerException {
@@ -74,9 +75,18 @@ public:
 	}
 
 };
+class SymbolTable:public  std::vector<Scope>{
+    int funcLevel;
+public:
+    SymbolTable():funcLevel(0){
+
+    }
+    void incFuncLevel(){funcLevel++;}
+    void decFuncLevel(){funcLevel--;assert(funcLevel>=0);}
+};
 typedef std::unordered_map<int,SourcePos> SourceMap;
 class CodeGen: public Visitor {
-	std::vector<Scope> locals;
+    SymbolTable locals;
     Scope globals;
 	std::vector<int> reg;
 	std::vector<Instruction> program;
@@ -108,11 +118,12 @@ class CodeGen: public Visitor {
 	void visit(Native*)override;
 	void visit(String*)override;
 	void visit(ExprList*)override;
-	void visit(ExprListList*)override;
+	void visit(ExprListList*)override{}
     void visit(Empty*)override {}
     void visit(For*)override;
     void visit(Break*)override ;
     void pre(AST*)override ;
+    void funcHelper(AST * arg,AST * body,int i);
 	void assign(AST*, bool b = false);
 	int getLocalAddress(const Token&var);
 	void createGlobal(const Token&var, bool isConst = false);

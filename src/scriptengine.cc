@@ -60,7 +60,7 @@ namespace lunatic {
         } catch (std::runtime_error &e) {
             auto pc = vm.getCurrentState()->pc;
             auto pos = gen.getSourcePos(pc);
-            fprintln(stderr,"error: {} at {}:{}:{} with stack trace:{}",
+            fprintln(stderr,"\033[31merror: {} at {}:{}:{} with stack trace:{}\033[0m\n",
                     e.what(),
                     pos.filename,pos.line,pos.col,
                     dumpStackTrace());
@@ -131,6 +131,7 @@ namespace lunatic {
         addLibMethod("string", "char", StringLib::Char);
         addLibMethod("string", "byte", StringLib::byte);
         addLibMethod("string", "length", StringLib::length);
+        addLibMethod("string","sub",StringLib::sub);
         addLibMethod("glfw", "CreateWindow", GLFWLib::createWindow);
         bindLibMethod("glfw","MakeContextCurrent",glfwMakeContextCurrent);
         bindLibMethod("glfw","WindowShouldClose",glfwWindowShouldClose);
@@ -145,9 +146,12 @@ namespace lunatic {
         bindLibMethod("gl","Color3d",glColor3d);
         bindLibMethod("glfw","SwapBuffers",glfwSwapBuffers);
         bindLibMethod("glfw","PollEvents",glfwPollEvents);
+        addFunc(rand);
+        addFunc(GetTickCount);
         addSym(GL_COLOR_BUFFER_BIT);
         addSym(GL_POINTS);
         addFunc(Sleep);
+        addFunc(exit);
     }
 
     ScriptEngine::ScriptEngine() {
@@ -225,6 +229,7 @@ namespace lunatic {
             auto pos = gen.getSourcePos(iter->pc - 1);
             dump.append(format("\n\tat {}:{}:{}",pos.filename,pos.line,pos.col));
         }
+        dump.append("\n");
         return dump;
     }
 }

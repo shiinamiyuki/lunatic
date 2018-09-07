@@ -409,14 +409,16 @@ namespace lunatic {
     AST *Parser::parseAtom() {
         skip();
         auto &next = peek();
-        if (next.type == Token::Type::Number) {
+        if(has("function")){
+            return parseFunc();
+        }else if (next.type == Token::Type::Number) {
             consume();
             return makeNode<Number>(cur());
         } else if (next.type == Token::Type::Identifier) {
             consume();
             return makeNode<Identifier>(cur());
         } else if (next.type == Token::Type::Keyword
-                   && (next.tok == "true" || next.tok == "false")) {
+                   && (next.tok == "true" || next.tok == "false"|| next.tok == "nil")) {
             consume();
             return makeNode<BoolConstant>(cur());
         } else if (next.type == Token::Type::String) {
@@ -429,8 +431,6 @@ namespace lunatic {
             return n;
         } else if (next.tok == "{") {
             return parseExprList();
-        } else if (next.tok == "[") {
-            return parseExprListList();
         } else {
             throw ParserException(std::string("illegal token: ").append(next.tok),
                                   next.line, next.col);
