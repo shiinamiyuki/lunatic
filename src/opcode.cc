@@ -18,6 +18,7 @@ std::string Instruction::str() const {
     W_ABC(Opcode::Sub)
     W_ABC(Opcode::Mul)
     W_ABC(Opcode::Div)
+    W_ABC(Opcode::Mod)
     W_ABC(Opcode::LT)
     W_ABC(Opcode::LE)
     W_ABC(Opcode::GT)
@@ -47,6 +48,10 @@ std::string Instruction::str() const {
     W_AB(Opcode::SetProto)
     W_AB(Opcode::Neg)
     W_AB(Opcode::Not)
+    W_AB(Opcode::MakeUpvalue)
+    W_ABC(Opcode::LoadUpvalue)
+    W_ABC(Opcode::StoreUpvalue)
+    W_ABC(Opcode::SetUpvalue)
     return out.str();
 }
 

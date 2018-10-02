@@ -62,8 +62,13 @@ namespace lunatic {
                 int addr = getGlobalAddress(node->first()->getToken());
                 emit(Instruction(Opcode::StoreGlobal, rhs, addr));
             } else {
-                int addr = getLocalAddress(node->first()->getToken());
-                emit(Instruction(Opcode::Move, rhs, addr));
+                auto &v = getLocal(node->first()->getToken());
+                int addr = v.addr;
+                if (v.captured) {
+                    emit(Instruction(Opcode::StoreUpvalue, popReg(), addr));
+                } else {
+                    emit(Instruction(Opcode::Move, rhs, addr));
+                }
             }
         } else if (first->type() == Index().type()
                    || first->type() == Colon().type()) {
@@ -87,10 +92,13 @@ namespace lunatic {
             int r = findReg();
             emit(Instruction(Opcode::LoadGlobal, r, a));
         } else {
-            int a = getLocalAddress(var);
-            //	int r = findReg();
-            //	emit(Instruction(Opcode::Move, a, r));
-            reg.push_back(a);
+            auto &v = getLocal(var);
+            if (!v.captured) {
+                int a = v.addr;
+                reg.push_back(a);
+            } else {
+                emit(Instruction(Opcode::LoadUpvalue, findReg(), v.addr));
+            }
         }
     }
 
@@ -119,26 +127,26 @@ namespace lunatic {
         if (op == "=") {
             node->second()->accept(this);
             assign(node);
-        }else if(op == "and"){
+        } else if (op == "and") {
             node->first()->accept(this);
             int a = popReg();
             auto end = program.size();
-            emit(Instruction(Opcode::BZ,0,0));
+            emit(Instruction(Opcode::BZ, 0, 0));
             node->second()->accept(this);
-            emit(Instruction(Opcode::Move,popReg(),a));
-            program[end] = Instruction(Opcode::BZ,a,(int)program.size());
+            emit(Instruction(Opcode::Move, popReg(), a));
+            program[end] = Instruction(Opcode::BZ, a, (int) program.size());
             pushReg(a);
 
-        } else if(op == "or"){
+        } else if (op == "or") {
             node->first()->accept(this);
             int a = popReg();
             auto end = program.size();
-            emit(Instruction(Opcode::BNZ,0,0));
+            emit(Instruction(Opcode::BNZ, 0, 0));
             node->second()->accept(this);
-            emit(Instruction(Opcode::Move,popReg(),a));
-            program[end] = Instruction(Opcode::BNZ,a,(int)program.size());
+            emit(Instruction(Opcode::Move, popReg(), a));
+            program[end] = Instruction(Opcode::BNZ, a, (int) program.size());
             pushReg(a);
-        }else {
+        } else {
             node->first()->accept(this);
             node->second()->accept(this);
             int src1, src2;
@@ -229,7 +237,6 @@ namespace lunatic {
     }
 
 
-
     void CodeGen::visit(For *f) {
         // for i = 0,100,1 do .. end
         auto var = f->first()->getToken();
@@ -273,6 +280,7 @@ namespace lunatic {
         }
         for (int i = 0; i < argCount; i++) {
             emit(Instruction(Opcode::Push, vec[i], 0)); //neat!
+            popReg();
         }
     }
 
@@ -339,11 +347,11 @@ namespace lunatic {
 
     void CodeGen::visit(Func *func) {
         callDepthStack.emplace_back(0);
-        pushScope();
         locals.incFuncLevel();
-        AST *arg,*body;
+        pushScope();
+        AST *arg, *body;
         int i;
-        if(func->size() == 3) {
+        if (func->size() == 3) {
             auto name = func->first();
             if (name->type() == Colon().type()) {
                 createLocal(Token(Token::Type::Identifier, "self", -1, -1));
@@ -352,29 +360,34 @@ namespace lunatic {
             arg = func->second();
             i = arg->type() == Colon().type() ? 1 : 0;
             body = func->third();
-        }else{
+        } else {
             assert(func->size() == 2);
             arg = func->first();
             body = func->second();
-            i= 0;
+            i = 0;
         }
-        funcHelper(arg,body,i);
+        funcHelper(arg, body, i);
         assign(func);
         locals.decFuncLevel();
         popScope();
         callDepthStack.pop_back();
     }
-    void CodeGen::funcHelper(AST * arg,AST * body,int i){
+
+    void CodeGen::funcHelper(AST *arg, AST *body, int i) {
+        if (locals.getFuncLevel() == 2) {
+            emit(Instruction(Opcode::MakeUpvalue, 0, 0, 0)); // one upvalue for all closure in the scope
+        }
         arg->accept(this);
-        int jmpIdx = program.size();
+        auto jmpIdx = (unsigned int) program.size();
         emit(Instruction(Opcode::BRC, 0, 0));
         body->accept(this);
         emit(Instruction(Opcode::Ret, 0, 0));
-        int end = program.size();
-        program[jmpIdx] = Instruction(Opcode::BRC, 0, end);
-        emit(Instruction(Opcode::MakeClosure, findReg(), jmpIdx + 1));
+        auto end = (unsigned int) program.size();
+        program[jmpIdx] = Instruction(Opcode::BRC, 0, (int)end);
+        emit(Instruction(Opcode::MakeClosure, findReg(), (int)jmpIdx + 1));
         emit(Instruction(Opcode::SetArgCount, reg.back(), arg->size() + i));
     }
+
     void CodeGen::visit(FuncArg *arg) {
         for (auto iter = arg->begin(); iter != arg->end(); iter++) {
             auto &node = *iter;
@@ -415,11 +428,11 @@ namespace lunatic {
             } else {
                 auto block = *iter;
                 block->accept(this);
-                for (auto i:jmpVec) {
-                    program[i] = Instruction(Opcode::BRC, 0, (int) program.size());
-                }
                 break;
             }
+        }
+        for (auto i:jmpVec) {
+            program[i] = Instruction(Opcode::BRC, 0, (int) program.size());
         }
     }
 
@@ -480,9 +493,13 @@ namespace lunatic {
     }
 
     VarInfo &CodeGen::getLocal(const Token &var) {
+        int funcLevel = locals.rbegin()->functionLevel;
         for (auto iter = locals.rbegin(); iter != locals.rend(); iter++) {
             auto &scope = *iter;
             if (scope.dict.find(var.tok) != scope.dict.end()) {
+                if (scope.functionLevel != funcLevel) {
+                    scope.dict[var.tok].captured = true;
+                }
                 return scope.dict[var.tok];
             }
         }
@@ -521,9 +538,11 @@ namespace lunatic {
             Scope v;
             v.offset = 0;
             locals.push_back(v);
+            locals.back().functionLevel = locals.getFuncLevel();
         } else {
             Scope v;
             v.offset = locals.back().offset + locals.back().dict.size();
+            v.functionLevel = locals.getFuncLevel();
             locals.push_back(v);
         }
         syncRegState();

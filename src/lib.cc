@@ -235,7 +235,7 @@ void _getline(VM *vm)
         FILE *f = static_cast<FILE*>(file.getUserData());
         fclose(f);
     }
-
+#ifdef  HAS_GLFW
     void GLFWLib::createWindow(VM *vm) {
         auto w = vm->getLocal(0);
         auto h = vm->getLocal(1);
@@ -247,7 +247,7 @@ void _getline(VM *vm)
         v.setUserData(::glfwCreateWindow(w.getInt(),h.getInt(),title.getString().c_str(),nullptr,nullptr));
         vm->storeReturn(0,v);
     }
-
+#endif
     void GLFWLib::glfwMakeContextCurrent(VM *vm) {
 
 

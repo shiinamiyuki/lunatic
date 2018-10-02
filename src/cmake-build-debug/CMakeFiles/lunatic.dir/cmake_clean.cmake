@@ -12,6 +12,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/lunatic.dir/closure.cc.obj"
   "CMakeFiles/lunatic.dir/scriptengine.cc.obj"
   "CMakeFiles/lunatic.dir/format.cc.obj"
+  "CMakeFiles/lunatic.dir/upvalue.cc.obj"
   "lunatic.pdb"
   "lunatic.exe"
   "lunatic.exe.manifest"

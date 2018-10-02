@@ -143,6 +143,12 @@
 		<Unit filename="D:/repo/CLionProjects/lunatic/table.h">
 			<Option target="lunatic"/>
 		</Unit>
+		<Unit filename="D:/repo/CLionProjects/lunatic/upvalue.cc">
+			<Option target="lunatic"/>
+		</Unit>
+		<Unit filename="D:/repo/CLionProjects/lunatic/upvalue.h">
+			<Option target="lunatic"/>
+		</Unit>
 		<Unit filename="D:/repo/CLionProjects/lunatic/value.cc">
 			<Option target="lunatic"/>
 		</Unit>

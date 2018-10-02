@@ -1,8 +1,8 @@
 --
 -- Created by IntelliJ IDEA.
 -- User: xiaoc
--- Date: 2018/8/8
--- Time: 9:59
+-- Date: 2018/8/16
+-- Time: 15:24
 -- To change this template use File | Settings | File Templates.
 --
 
@@ -15,6 +15,11 @@ function point.create(x, y)
     return p
 end
 
+function point:setPos(x, y)
+    self.x = x
+    self.y = y
+end
+
 function point:paintGL()
     gl.Begin(GL_POINTS)
     gl.Color3d(1.0, 1.0, 1.0)
@@ -23,12 +28,13 @@ function point:paintGL()
 end
 
 scene = {}
+k = 100
 function scene.create()
     local s = table.clone(scene)
     local i = 0
     local a = 0
     s.points = {}
-    while i < 100 do
+    while i < k do
         s.points[i] = point.create(math.sin(a) * 0.5, math.cos(a) * 0.5)
         i = i + 1
         a = a + 2 * 3.1415 / 100
@@ -40,11 +46,17 @@ end
 function scene:paint()
     local i = 0
     local a = self.t
-    while i < 100 do
-        self.points[i]:paintGL()
-        self.points[i] = point.create(math.sin(a) * 0.5, math.cos(a) * 0.5)
+    local x = 0.4
+    local dx = 1 / k
+    while i < k do
+        if i % 17 == 0 then
+            self['points'][i]:paintGL()
+        end
+        self.points[i].x = x*math.sin(a) * 0.5
+        self.points[i].y = x*math.cos(a) * 0.5
         i = i + 1
-        a = a + 2 * 3.1415 / 100
+        a = a + 4 * 3.1415 / k
+        x = x + dx
     end
     self.t = self.t + 0.01
 end

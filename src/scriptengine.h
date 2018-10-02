@@ -13,7 +13,9 @@
 #include "vm.h"
 #include "lib.h"
 #include <type_traits>
+#ifdef HAS_GLFW
 #include "windows.h"
+#endif
 
 namespace lunatic {
     template<typename T>
@@ -157,17 +159,6 @@ namespace lunatic {
 
         template<typename T>
         void bindLibMethod(const std::string &, const std::string &, T);
-
-#if 0
-        template<typename Ret>
-        NativeHandle bind(const std::string&,Ret(*));
-        template<typename Ret,typename Arg1>
-        NativeHandle bind(const std::string&,Ret(*)(Arg1));
-        template<typename Ret,typename Arg1,typename Arg2>
-        NativeHandle bind(const std::string&,Ret(*)(Arg1,Arg2));
-        template<typename Ret,typename Arg1,typename Arg2,typename Arg3>
-        NativeHandle bind(const std::string&,Ret(*)(Arg1,Arg2,Arg3));
-#endif
 
         template<typename Ret, typename... Args>
         NativeHandle bind(const std::string &, Ret(*f)(Args... args)) {

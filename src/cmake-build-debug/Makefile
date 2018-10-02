@@ -419,6 +419,33 @@ table.cc.s:
 	$(MAKE) -f CMakeFiles\lunatic.dir\build.make CMakeFiles/lunatic.dir/table.cc.s
 .PHONY : table.cc.s
 
+upvalue.obj: upvalue.cc.obj
+
+.PHONY : upvalue.obj
+
+# target to build an object file
+upvalue.cc.obj:
+	$(MAKE) -f CMakeFiles\lunatic.dir\build.make CMakeFiles/lunatic.dir/upvalue.cc.obj
+.PHONY : upvalue.cc.obj
+
+upvalue.i: upvalue.cc.i
+
+.PHONY : upvalue.i
+
+# target to preprocess a source file
+upvalue.cc.i:
+	$(MAKE) -f CMakeFiles\lunatic.dir\build.make CMakeFiles/lunatic.dir/upvalue.cc.i
+.PHONY : upvalue.cc.i
+
+upvalue.s: upvalue.cc.s
+
+.PHONY : upvalue.s
+
+# target to generate assembly for a file
+upvalue.cc.s:
+	$(MAKE) -f CMakeFiles\lunatic.dir\build.make CMakeFiles/lunatic.dir/upvalue.cc.s
+.PHONY : upvalue.cc.s
+
 value.obj: value.cc.obj
 
 .PHONY : value.obj
@@ -515,6 +542,9 @@ help:
 	@echo ... table.obj
 	@echo ... table.i
 	@echo ... table.s
+	@echo ... upvalue.obj
+	@echo ... upvalue.i
+	@echo ... upvalue.s
 	@echo ... value.obj
 	@echo ... value.i
 	@echo ... value.s

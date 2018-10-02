@@ -15,6 +15,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "D:/repo/CLionProjects/lunatic/parse.cc" "D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/lunatic.dir/parse.cc.obj"
   "D:/repo/CLionProjects/lunatic/scriptengine.cc" "D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/lunatic.dir/scriptengine.cc.obj"
   "D:/repo/CLionProjects/lunatic/table.cc" "D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/lunatic.dir/table.cc.obj"
+  "D:/repo/CLionProjects/lunatic/upvalue.cc" "D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/lunatic.dir/upvalue.cc.obj"
   "D:/repo/CLionProjects/lunatic/value.cc" "D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/lunatic.dir/value.cc.obj"
   "D:/repo/CLionProjects/lunatic/vm.cc" "D:/repo/CLionProjects/lunatic/cmake-build-release/CMakeFiles/lunatic.dir/vm.cc.obj"
   )

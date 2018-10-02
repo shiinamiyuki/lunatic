@@ -42,14 +42,10 @@ int test() {
 }
 void Interactive() {
 	ScriptEngine engine;
-    //std::cout << "Loading std lib" << std::endl;
-    std::string source;// = "import \"lang.spk\";\n";
-//	engine.execString(source);
-//	source.clear();
+    std::string source;
     std::cout << "lunatic v0.1 REPL" << std::endl;
-	;
 	while (!feof(stdin)) {
-		std::cout << "<<";
+		std::cout << "< ";
 		std::getline(std::cin, source);
 		source.append(";");
 		engine.execString(source,"stdin");
@@ -63,7 +59,6 @@ void printType(){
 template<>
 void printType<int>(){
 	std::cout<<"int"<<std::endl;
-
 }
 template< class Ret, class... Args>
 void foo(Ret(*)(Args...)){

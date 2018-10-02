@@ -10,9 +10,11 @@
 
 #include "lunatic.h"
 #include "scriptengine.h"
+#ifdef HAS_GLFW
 #include <GLFW\glfw3.h>
 #include <GL\gl.h>
 #include <windows.h>
+#endif
 namespace lunatic{
 class StringLib
 {

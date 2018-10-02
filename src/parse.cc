@@ -88,7 +88,7 @@ namespace lunatic {
     }
 
     int Scanner::isComment() {
-        if (cur() == '-' && peek() == '-') {
+        if (cur() == '-' && peek() == '-' && peek2() != '[') {
             return 1;
         }
         if (cur() == '-' && peek() == '-' && peek2() == '[' && peek3() == '[') {

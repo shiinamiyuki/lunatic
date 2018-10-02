@@ -47,7 +47,7 @@ namespace lunatic {
             ast->link();
             //std::cout <<ast->str()<<std::endl;
             ast->accept(&gen);
-            //	gen.print();
+            gen.print();
             vm.loadProgram(gen.getProgram());
             vm.loadStringPool(gen.getStringPool());
             vm.eval(&state);
@@ -64,7 +64,7 @@ namespace lunatic {
                     e.what(),
                     pos.filename,pos.line,pos.col,
                     dumpStackTrace());
-            recover(len);
+
         }
     }
 
@@ -112,7 +112,7 @@ namespace lunatic {
         addLibMethod("table", "clone", TableLib::clone);
         addNative("str2list", StringtoList);
         addNative("list2str", ListtoString);
-        bindLibMethod("math", "sqrt", ::sqrt);
+		bindLibMethod("math", "sqrt", ::sqrt);
         bindLibMethod("math", "atan", ::atan);
         bindLibMethod("math", "sin", ::sin);
         bindLibMethod("math", "cos", ::cos);
@@ -121,7 +121,7 @@ namespace lunatic {
         bindLibMethod("math", "acos", ::acos);
         bindLibMethod("math", "log", ::log);
         bindLibMethod("math", "log10", ::log10);
-        bindLibMethod("math", "pow", pow);
+        bindLibMethod("math", "pow", ::pow);
         addNative("print", print);
         addNative("tonumber", tonumber);
         addNative("tostring", tostring);
@@ -132,6 +132,7 @@ namespace lunatic {
         addLibMethod("string", "byte", StringLib::byte);
         addLibMethod("string", "length", StringLib::length);
         addLibMethod("string","sub",StringLib::sub);
+#ifdef HAS_GLFW
         addLibMethod("glfw", "CreateWindow", GLFWLib::createWindow);
         bindLibMethod("glfw","MakeContextCurrent",glfwMakeContextCurrent);
         bindLibMethod("glfw","WindowShouldClose",glfwWindowShouldClose);
@@ -146,11 +147,13 @@ namespace lunatic {
         bindLibMethod("gl","Color3d",glColor3d);
         bindLibMethod("glfw","SwapBuffers",glfwSwapBuffers);
         bindLibMethod("glfw","PollEvents",glfwPollEvents);
-        addFunc(rand);
-        addFunc(GetTickCount);
         addSym(GL_COLOR_BUFFER_BIT);
         addSym(GL_POINTS);
         addFunc(Sleep);
+#endif
+        addFunc(rand);
+       // addFunc(GetTickCount);
+
         addFunc(exit);
     }
 

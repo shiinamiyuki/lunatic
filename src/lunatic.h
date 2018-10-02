@@ -5,12 +5,14 @@
  *      Author: XiaochunTong
  */
 
-#ifndef SPEKA_H_
-#define SPEKA_H_
-
+#ifndef LUNATIC_H
+#define LUNATIC_H
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #define REG_MAX 256
-
+#define HAS_GLFW
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -27,4 +29,4 @@
 #include <cmath>
 
 void readFile(const char* filename,std::string&s);
-#endif /* SPEKA_H_ */
+#endif /* LUNATIC_H */
