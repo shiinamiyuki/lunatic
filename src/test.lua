@@ -49,11 +49,7 @@ function scene:paint()
     local x = 0.4
     local dx = 1 / k
     while i < k do
-        if i % 17 == 0 then
-            self['points'][i]:paintGL()
-        end
-        self.points[i].x = x*math.sin(a) * 0.5
-        self.points[i].y = x*math.cos(a) * 0.5
+        self.points[i]:setPos(x*math.sin(a) * 0.5, x*math.cos(a) * 0.5)
         i = i + 1
         a = a + 4 * 3.1415 / k
         x = x + dx
@@ -82,5 +78,12 @@ function main()
         i = i + 1
     end
     glfw.Terminate()
+end
+function foo()
+    local p = point.create(1,1.36)
+    local x = 0.5
+    local a = 0.74
+    p:setPos(x*math.sin(a) * 0.5, x*math.cos(a) * 0.5)
+    print(p)
 end
 main()

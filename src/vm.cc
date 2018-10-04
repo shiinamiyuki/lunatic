@@ -44,7 +44,7 @@ void VM::eval(State* state) {
 		{
 			gcCycle = 0;
 		}
-		// std::cout << i.str() <<std::endl;
+		//std::cout << i.str() <<std::endl;
 		//	system("pause");
 		switch (i.opcode) {
 			case Opcode::LoadInt:

@@ -262,7 +262,27 @@ namespace lunatic {
             idx++;
         }
     }
-
+    void CodeGen::genArgsAndPushSelf(Arg * arg, int r) {
+        int argCount = arg->size();
+        std::vector<int> vec;
+        for (int i = 0; i < argCount; i++) {
+            vec.push_back(findReg());
+        }
+        int idx = 0;
+        for (auto iter = arg->begin(); iter != arg->end(); iter++) {
+            auto &node = *iter;
+            node->accept(this);
+            int i = popReg();
+            emit(Instruction(Opcode::Move, i, vec[idx]));
+            //emit(Instruction(Opcode::Push, i, callDepthStack.back()));
+            idx++;
+        }
+        emit(Instruction(Opcode::Push,r,0));
+        for (int i = 0; i < argCount; i++) {
+            emit(Instruction(Opcode::Push, vec[i], 0)); //neat!
+            popReg();
+        }
+    }
     void CodeGen::visit(Arg *arg) {
         int argCount = arg->size();
         std::vector<int> vec;
@@ -295,9 +315,7 @@ namespace lunatic {
             auto self = func->first();
             self->accept(this);
             int i = reg.back();
-            emit(Instruction(Opcode::Move, i, findReg()));
-            emit(Instruction(Opcode::Push, popReg(), callDepthStack.back()));//push self as first arg
-            arg->accept(this);
+            genArgsAndPushSelf(dynamic_cast<Arg*>(arg),i);
             auto idx = func->second();
             idx->accept(this);
             int a, b;
@@ -647,6 +665,8 @@ namespace lunatic {
     void CodeGen::pre(AST *ast) {
         addSourceInfo(ast->pos);
     }
+
+
 
 }
 

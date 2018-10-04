@@ -47,7 +47,7 @@ namespace lunatic {
             ast->link();
             //std::cout <<ast->str()<<std::endl;
             ast->accept(&gen);
-            gen.print();
+            //gen.print();
             vm.loadProgram(gen.getProgram());
             vm.loadStringPool(gen.getStringPool());
             vm.eval(&state);

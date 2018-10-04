@@ -6,25 +6,19 @@
 
 #IncludeRegexTransform: 
 
-D:/repo/CLionProjects/lunatic/ast.h
-parse.h
-D:/repo/CLionProjects/lunatic/parse.h
+D:/repo/CLionProjects/lunatic/closure.h
 lunatic.h
 D:/repo/CLionProjects/lunatic/lunatic.h
 
-D:/repo/CLionProjects/lunatic/codegen.cc
-codegen.h
-D:/repo/CLionProjects/lunatic/codegen.h
+D:/repo/CLionProjects/lunatic/format.h
+string
+-
+exception
+-
 
-D:/repo/CLionProjects/lunatic/codegen.h
-ast.h
-D:/repo/CLionProjects/lunatic/ast.h
-opcode.h
-D:/repo/CLionProjects/lunatic/opcode.h
+D:/repo/CLionProjects/lunatic/gc.h
 lunatic.h
 D:/repo/CLionProjects/lunatic/lunatic.h
-visitor.h
-D:/repo/CLionProjects/lunatic/visitor.h
 
 D:/repo/CLionProjects/lunatic/lunatic.h
 vector
@@ -60,13 +54,37 @@ D:/repo/CLionProjects/lunatic/opcode.h
 lunatic.h
 D:/repo/CLionProjects/lunatic/lunatic.h
 
-D:/repo/CLionProjects/lunatic/parse.h
-ast.h
-D:/repo/CLionProjects/lunatic/ast.h
+D:/repo/CLionProjects/lunatic/table.h
 lunatic.h
 D:/repo/CLionProjects/lunatic/lunatic.h
+value.h
+D:/repo/CLionProjects/lunatic/value.h
+gc.h
+D:/repo/CLionProjects/lunatic/gc.h
 
-D:/repo/CLionProjects/lunatic/visitor.h
-ast.h
-D:/repo/CLionProjects/lunatic/ast.h
+D:/repo/CLionProjects/lunatic/value.h
+lunatic.h
+D:/repo/CLionProjects/lunatic/lunatic.h
+gc.h
+D:/repo/CLionProjects/lunatic/gc.h
+
+D:/repo/CLionProjects/lunatic/vm.cc
+vm.h
+D:/repo/CLionProjects/lunatic/vm.h
+table.h
+D:/repo/CLionProjects/lunatic/table.h
+value.h
+D:/repo/CLionProjects/lunatic/value.h
+format.h
+D:/repo/CLionProjects/lunatic/format.h
+closure.h
+D:/repo/CLionProjects/lunatic/closure.h
+
+D:/repo/CLionProjects/lunatic/vm.h
+opcode.h
+D:/repo/CLionProjects/lunatic/opcode.h
+lunatic.h
+D:/repo/CLionProjects/lunatic/lunatic.h
+value.h
+D:/repo/CLionProjects/lunatic/value.h
 

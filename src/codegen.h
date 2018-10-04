@@ -134,6 +134,7 @@ namespace lunatic {
 
         void visit(UnaryExpression *) override;
 
+        void genArgsAndPushSelf(Arg * , int );
         void visit(Arg *) override;
 
         void visit(Call *) override;
