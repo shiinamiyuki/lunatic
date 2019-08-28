@@ -81,8 +81,14 @@ namespace lunatic {
 			pc = addr;
 			bp += REG_MAX;
 			sp = 0;
+			if(bp + REG_MAX >= locals.size()){
+				locals.resize(2 * locals.size());
+			}
 			updateReg();
 			//callInfo = info;
+			for(auto & i:retReg){
+				i.setNil();
+			}
 		}
 		inline void ret() {
 			/*		if(callInfo){
@@ -97,6 +103,9 @@ namespace lunatic {
 					}*/
 			if (callStack.size()) {
 				auto& callInfo = callStack.back();
+				for(int i =bp;i<bp + REG_MAX;i++){
+					locals[i].setNil();
+				}
 				pc = callInfo.pc;
 				bp = callInfo.bp;
 				sp = callInfo.sp;

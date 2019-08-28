@@ -97,8 +97,6 @@ namespace lunatic {
 		addLib("math");
 		addLib("table");
 		addLib("file");
-		addLib("glfw");
-		addLib("gl");
 		addLibMethod("file", "open", FileLib::open);
 		addLibMethod("file", "read", FileLib::read);
 		addLibMethod("file", "write", FileLib::write);

@@ -127,6 +127,7 @@ namespace lunatic {
 	class ScriptEngine {
 		CodeGen gen;
 		VM vm;
+		State state;
 
 		void recover(int i);
 
