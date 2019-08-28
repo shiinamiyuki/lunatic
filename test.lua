@@ -52,9 +52,11 @@ m.a = {}
 m.b = {}
 m.c = m
 m.d = m
-m = {}
+--m = {}
 
 print(collectgarbage('count'))
-collectgarbage()
+--collectgarbage()
+m = {}
 print(collectgarbage('count'))
+
 

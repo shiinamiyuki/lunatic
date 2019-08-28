@@ -25,7 +25,7 @@ namespace lunatic {
 		cur = state;
 		int i32;
 		double f64;
-		int gcCycle = 0;
+		size_t gcCycle = 0;
 		if (state->selfStack.size() == 0)
 			state->selfStack.push_back(Value());
 		int size = program.size();
@@ -33,7 +33,7 @@ namespace lunatic {
 		while (state->pc < size && state->ok) {
 			auto& i = program[state->pc];
 			gcCycle++;
-			if (gcCycle > 10000000)
+			if (gcCycle > 1ull << 35)
 			{
 				gcCycle = 0;
 				collect();

@@ -148,6 +148,7 @@ namespace lunatic {
 		}
 	}
 	void Value::setNil() {
+		release();
 		type = TNil;
 	}
 	void Value::setInt(int64_t val) {
@@ -183,7 +184,6 @@ namespace lunatic {
 		asInt = val;
 	}
 	void Value::setString(String * s){
-
 		s->retain();
 		release();
 		asString = s;
@@ -195,6 +195,7 @@ namespace lunatic {
 		type = TString;
 	}
 	Value& Value::operator = (const Value& v) {
+		release();
 		type = v.type;
 		asTable = v.asTable;
 		if (isTable()) {
@@ -290,7 +291,7 @@ namespace lunatic {
 			out << "nil";
 		}
 		else {
-			out << "unsupported type" << std::endl;
+			out << "unsupported type " << (size_t)type << std::endl;
 		}
 		return out.str();
 	}

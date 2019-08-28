@@ -51,7 +51,7 @@ namespace lunatic {
 	}
 	void GCObject::release(){
 		refCount.fetch_sub(1);
-		if(refCount <= 0){
+		if(refCount == 0){
 			if(ref){
 				ref->object = nullptr;
 				delete this;
