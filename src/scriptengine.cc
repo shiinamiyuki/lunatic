@@ -42,7 +42,7 @@ namespace lunatic {
 			//gen.print();
 			vm.loadProgram(gen.getProgram());
 			vm.loadStringPool(gen.getStringPool());
-			vm.eval(&state);
+			vm.exec();
 		}
 		catch (ParserException& e) {
 			std::cerr << e.what() << std::endl;
@@ -120,6 +120,7 @@ namespace lunatic {
 		addNative("getmetatable", getmetatable);
 		addNative("setmetatable", setmetatable);
 		addNative("getline", _getline);
+		addNative("collectgarbage",collectGarbage);
 		addLibMethod("string", "char", StringLib::Char);
 		addLibMethod("string", "byte", StringLib::byte);
 		addLibMethod("string", "length", StringLib::length);

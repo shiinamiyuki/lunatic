@@ -171,4 +171,7 @@ namespace lunatic {
 		FILE* f = static_cast<FILE*>(file.getUserData());
 		fclose(f);
 	}
+		void collectGarbage(VM*vm){
+			vm->collect();
+		}
 }

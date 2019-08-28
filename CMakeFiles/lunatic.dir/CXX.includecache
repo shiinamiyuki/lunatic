@@ -6,9 +6,25 @@
 
 #IncludeRegexTransform: 
 
-/home/shiinamiyuki/Documents/lunatic/src/codegen.cc
-codegen.h
-/home/shiinamiyuki/Documents/lunatic/src/codegen.h
+/home/shiinamiyuki/Documents/lunatic/src/closure.cc
+gc.h
+/home/shiinamiyuki/Documents/lunatic/src/gc.h
+closure.h
+/home/shiinamiyuki/Documents/lunatic/src/closure.h
+value.h
+/home/shiinamiyuki/Documents/lunatic/src/value.h
+
+/home/shiinamiyuki/Documents/lunatic/src/gc.cc
+gc.h
+/home/shiinamiyuki/Documents/lunatic/src/gc.h
+lstring.h
+/home/shiinamiyuki/Documents/lunatic/src/lstring.h
+table.h
+/home/shiinamiyuki/Documents/lunatic/src/table.h
+closure.h
+/home/shiinamiyuki/Documents/lunatic/src/closure.h
+format.h
+/home/shiinamiyuki/Documents/lunatic/src/format.h
 
 /home/shiinamiyuki/Documents/lunatic/src/lib.cc
 lib.h
@@ -24,10 +40,6 @@ lstring.h
 scriptengine.h
 /home/shiinamiyuki/Documents/lunatic/src/scriptengine.h
 
-/home/shiinamiyuki/Documents/lunatic/src/opcode.cc
-opcode.h
-/home/shiinamiyuki/Documents/lunatic/src/opcode.h
-
 /home/shiinamiyuki/Documents/lunatic/src/scriptengine.cc
 scriptengine.h
 /home/shiinamiyuki/Documents/lunatic/src/scriptengine.h
@@ -37,6 +49,20 @@ lib.h
 /home/shiinamiyuki/Documents/lunatic/src/lib.h
 cmath
 -
+
+/home/shiinamiyuki/Documents/lunatic/src/table.cc
+table.h
+/home/shiinamiyuki/Documents/lunatic/src/table.h
+
+/home/shiinamiyuki/Documents/lunatic/src/value.cc
+value.h
+/home/shiinamiyuki/Documents/lunatic/src/value.h
+table.h
+/home/shiinamiyuki/Documents/lunatic/src/table.h
+lstring.h
+/home/shiinamiyuki/Documents/lunatic/src/lstring.h
+closure.h
+/home/shiinamiyuki/Documents/lunatic/src/closure.h
 
 /home/shiinamiyuki/Documents/lunatic/src/vm.cc
 vm.h
@@ -88,6 +114,8 @@ cassert
 functional
 -
 list
+-
+memory
 -
 
 include/lunatic/format.h

@@ -27,8 +27,12 @@ CMakeFiles/lunatic.dir/src/format.cc.o: src/format.cc
 CMakeFiles/lunatic.dir/src/format.cc.o: include/lunatic/format.h
 
 CMakeFiles/lunatic.dir/src/gc.cc.o: src/gc.cc
+CMakeFiles/lunatic.dir/src/gc.cc.o: include/lunatic/closure.h
 CMakeFiles/lunatic.dir/src/gc.cc.o: include/lunatic/common.h
+CMakeFiles/lunatic.dir/src/gc.cc.o: include/lunatic/format.h
 CMakeFiles/lunatic.dir/src/gc.cc.o: include/lunatic/gc.h
+CMakeFiles/lunatic.dir/src/gc.cc.o: include/lunatic/lstring.h
+CMakeFiles/lunatic.dir/src/gc.cc.o: include/lunatic/table.h
 CMakeFiles/lunatic.dir/src/gc.cc.o: include/lunatic/value.h
 
 CMakeFiles/lunatic.dir/src/lex.cc.o: src/lex.cc

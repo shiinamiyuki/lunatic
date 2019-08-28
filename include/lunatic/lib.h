@@ -30,4 +30,5 @@ namespace lunatic {
 	void setmetatable(VM* vm);
 	void getmetatable(VM* vm);
 	void _getline(VM* vm);
+	void collectGarbage(VM*vm);
 }

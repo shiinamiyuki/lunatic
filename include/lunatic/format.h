@@ -8,6 +8,7 @@ const char* printstr(int t);
 const char* printstr(double t);
 const char* printstr(float t);
 const char* printstr(char t);
+const char* printstr(size_t t);
 const char* printstr(const std::string& t);
 
 class BadFormatException :public std::exception {
@@ -71,10 +72,10 @@ void println(const std::string& fmt);
 template< typename... Args>
 void println(const char* fmt, Args... a) {
 	auto str = format(fmt, a...);
-	printf(str.c_str());
+	printf("%s", str.c_str());
 }
 template< typename... Args>
 void fprintln(FILE* f, const char* fmt, Args... a) {
 	auto str = format(fmt, a...);
-	fprintf(f, str.c_str());
+	fprintf(f, "%s",str.c_str());
 }

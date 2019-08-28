@@ -24,6 +24,7 @@ namespace lunatic {
 			return v;
 		}
 		void prepareForCollect();
-		void mark(Value&);
+		void mark(const Value&);
+		void sweep();
 	};
 }

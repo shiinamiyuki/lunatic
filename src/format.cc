@@ -45,3 +45,6 @@ void println(const char* fmt) {
 void println(const std::string& fmt) {
 	printf("%s", fmt.c_str());
 }
+const char* printstr(size_t t){
+	printf("%dll", t);
+}

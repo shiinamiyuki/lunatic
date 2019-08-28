@@ -36,6 +36,7 @@ namespace lunatic {
 			if (gcCycle > 10000000)
 			{
 				gcCycle = 0;
+				collect();
 			}
 			//std::cout << i.str() <<std::endl;
 			//	system("pause");
@@ -309,7 +310,16 @@ namespace lunatic {
 
 	void VM::collect(){
 		gc.prepareForCollect();
-		
-
+		auto s = getCurrentState();
+		for(int i =0;i<s->bp + REG_MAX;i++){
+			gc.mark(s->locals[i]);
+		}
+		for(auto & i:globals){
+			gc.mark(i);
+		}
+		gc.sweep();
+	}
+	void VM::exec(){
+		eval(getCurrentState());
 	}
 }

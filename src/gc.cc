@@ -2,6 +2,7 @@
 #include "lstring.h"
 #include "table.h"
 #include "closure.h"
+#include "format.h"
 namespace lunatic {
 	void GC::mark(GCObject* object) {
 		if(visited.find(object)!=visited.end())return;
@@ -14,17 +15,30 @@ namespace lunatic {
 			i->marked = false;
 		}
 	}
-	void GC::mark(Value & v){
+	void GC::mark(const Value & v){
 		if(v.isString()){
 			mark(v.getString());
 		}else if (v.isTable()){
 			mark(v.getTable());
 		}else if(v.isClosure()){
-			mark(v.getTable());
+			mark(v.getClosure());
 		}
 	}
 	void GC::prepareForCollect(){
 		visited.clear();
 		unmarkAll();
+	}
+	void GC::sweep(){
+		for(auto iter = values.begin();iter!=values.end();){
+			auto o = *iter;
+			if(!o->marked){
+				iter = values.erase(iter);
+				//println("Delected {}", (size_t)o);
+				//std::cout << "deleted" << (size_t)o <<std::endl;
+				delete o;
+			}else{
+				++iter;
+			}
+		}
 	}
 }

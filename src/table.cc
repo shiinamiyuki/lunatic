@@ -3,14 +3,10 @@
 namespace lunatic {
 	void Table::markReferences(GC* gc)const {
 		for (const auto& pair : iMap) {
-			if (pair.second.isTable()) {
-				gc->mark(pair.second.getTable());
-			}
+			gc->mark(pair.second);
 		}
 		for (const auto& pair : sMap) {
-			if (pair.second.isTable()) {
-				gc->mark(pair.second.getTable());
-			}
+			gc->mark(pair.second);
 		}
 		for (const auto& i : list) {
 			if (i.isTable()) {

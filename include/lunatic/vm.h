@@ -124,11 +124,14 @@ namespace lunatic {
 		std::vector<Instruction> program;
 		std::vector<NativeHandle> natives;
 		State* cur;
+		State _state;
 		void loadProgram(const std::vector<Instruction>& p);
 		void loadStringPool(const std::vector<std::string>& p);
 		GC gc;
-		void collect();
+		
+		void eval(State* state);
 	public:
+	void collect();
 		template<class T, class... Args>
 		T* alloc(Args&& ...args) {
 			return gc.alloc<T>(args...);
@@ -136,10 +139,11 @@ namespace lunatic {
 		friend class ScriptEngine;
 		VM() {
 			reset();
+			cur = &_state;
 		}
 
 		void reset();
-		void eval(State* state);
+		
 		void invokeMetaMethod(Value* a, Value* b, Value* c, const char* key, int n = 0);
 
 		void addNative(NativeHandle);
@@ -154,6 +158,6 @@ namespace lunatic {
 		inline int getArgCount() {
 			return getCurrentState()->getArgCount();
 		}
-
+		void exec();
 	};
 }

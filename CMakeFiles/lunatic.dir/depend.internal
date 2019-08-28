@@ -28,8 +28,12 @@ CMakeFiles/lunatic.dir/src/format.cc.o
  include/lunatic/format.h
 CMakeFiles/lunatic.dir/src/gc.cc.o
  /home/shiinamiyuki/Documents/lunatic/src/gc.cc
+ include/lunatic/closure.h
  include/lunatic/common.h
+ include/lunatic/format.h
  include/lunatic/gc.h
+ include/lunatic/lstring.h
+ include/lunatic/table.h
  include/lunatic/value.h
 CMakeFiles/lunatic.dir/src/lex.cc.o
  /home/shiinamiyuki/Documents/lunatic/src/lex.cc
