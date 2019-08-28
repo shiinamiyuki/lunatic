@@ -6,7 +6,6 @@ namespace lunatic {
 	class Closure;
 	class GC;
 	class String;
-	class __SerializeContextImpl;
 	class VM;
 	class SerializeContext {
 		std::shared_ptr<VM> vm;
@@ -201,6 +200,11 @@ namespace lunatic {
 		int getClosureAddr() const;
 
 		template<class T>
+		Value& operator = (const T& val) {
+			store(val);
+			return *this;
+		}
+		template<class T>
 		T load(SerializeContext* ctx = nullptr)const {
 			T tmp;
 			Serializer<T>::deserialize(*this, tmp, ctx);
@@ -235,17 +239,17 @@ namespace lunatic {
 		v.setFloat(f);
 	}
 
-	inline void fromLuaValue(Value& v, int& i, SerializeContext* ctx) {
+	inline void fromLuaValue(const Value& v, int& i, SerializeContext* ctx) {
 		v.checkInt();
 		i = v.getInt();
 	}
 
-	inline void fromLuaValue(Value& v, size_t& i, SerializeContext* ctx) {
+	inline void fromLuaValue(const Value& v, size_t& i, SerializeContext* ctx) {
 		v.checkInt();
 		i = v.getInt();
 	}
 
-	inline void fromLuaValue(Value& v, double& f, SerializeContext* ctx) {
+	inline void fromLuaValue(const Value& v, double& f, SerializeContext* ctx) {
 		v.checkFloat();
 		f = v.getFloat();
 	}

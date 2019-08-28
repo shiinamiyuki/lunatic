@@ -18,7 +18,8 @@ namespace lunatic {
 		W_ABC(Opcode::EQ);
 		W_ABC(Opcode::NE);
 		W_AB(Opcode::BRC);
-		W_AB(Opcode::BZ);
+		W_AB(Opcode::BZ); 
+		W_AB(Opcode::SetArgCount);
 		W_AB(Opcode::LoadGlobal);
 		W_AB(Opcode::LoadRet);
 		W_AB(Opcode::LoadInt);

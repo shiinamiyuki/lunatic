@@ -59,6 +59,8 @@ namespace lunatic {
 				e.what(),
 				pos.filename, pos.line, pos.col,
 				dumpStackTrace());
+			vm.getCurrentState()->reset();
+			vm.getCurrentState()->pc = vm.program.size();
 			return Error(ErrorCode::RuntimeError, msg);
 
 		}
@@ -121,6 +123,7 @@ namespace lunatic {
 		addNative("setmetatable", setmetatable);
 		addNative("getline", _getline);
 		addNative("collectgarbage", collectGarbage);
+		addNative("pcall", pCall);
 		addLibMethod("string", "char", StringLib::Char);
 		addLibMethod("string", "byte", StringLib::byte);
 		addLibMethod("string", "length", StringLib::length);

@@ -59,11 +59,6 @@ namespace lunatic {
 			return children.end();
 		}
 
-		virtual ~AST() {
-			for (auto i : children)
-				delete i;
-		}
-
 		virtual void accept(Visitor* vis);
 
 		virtual void link();

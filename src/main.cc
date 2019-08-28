@@ -14,6 +14,7 @@ std::string get() {
 	std::getline(std::cin, tmp);
 	return tmp;
 }
+
 void Interactive() {
 	ScriptEngine engine;
 	std::string source;

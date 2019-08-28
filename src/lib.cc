@@ -114,11 +114,11 @@ namespace lunatic {
 	}
 
 	void StringLib::byte(VM* vm) {
-	/*	auto arg1 = vm->getLocal(0);
-		arg1.checkString();
-		Value v;
-		v.setInt((int)&arg1->getString()[0]);
-		vm->storeReturn(0, v);*/
+		/*	auto arg1 = vm->getLocal(0);
+			arg1.checkString();
+			Value v;
+			v.setInt((int)&arg1->getString()[0]);
+			vm->storeReturn(0, v);*/
 	}
 
 	void FileLib::open(VM* vm) {
@@ -171,19 +171,36 @@ namespace lunatic {
 		FILE* f = static_cast<FILE*>(file.getUserData());
 		fclose(f);
 	}
-		void collectGarbage(VM*vm){
-			auto _opt = vm->getLocal(0);
-			std::string opt = "collect";
-			if(!_opt.isNil()){
-				opt = _opt.load<std::string>();				
-			}
-			if(opt == "count"){
-				Value ret;
-				ret.store(vm->getMemoryUsage(true));
-				vm->storeReturn(0, ret);
-			}
-			else if(opt == "collect"){
-				vm->collect();
-			}
+	void collectGarbage(VM* vm) {
+		auto _opt = vm->getLocal(0);
+		std::string opt = "collect";
+		if (!_opt.isNil()) {
+			opt = _opt.load<std::string>();
 		}
+		if (opt == "count") {
+			Value ret;
+			ret.store(vm->getMemoryUsage(true));
+			vm->storeReturn(0, ret);
+		}
+		else if (opt == "collect") {
+			vm->collect();
+		}
+	}
+	void pCall(VM* vm) {
+		auto func = vm->getLocal(0);
+		func.checkClosure();
+		auto info = vm->getCurrentState()->save();
+		try {			
+			vm->call(func.getClosureAddr(), 0);
+			vm->forceRecurse();
+			Value ret;
+			ret.setBool(true);
+			vm->storeReturn(0, ret);
+		}
+		catch (std::runtime_error& e) {
+			Value ret;
+			vm->storeReturn(0, ret);
+			vm->getCurrentState()->restoreFrom(info);
+		}
+	}
 }

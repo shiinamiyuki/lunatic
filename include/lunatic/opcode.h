@@ -20,6 +20,7 @@ namespace lunatic {
 		GE,
 		NE,
 		EQ,
+		LoadNil,
 		LoadInt, // A i32
 		LoadFloat, // A f64
 		LoadStr, // A Bx
@@ -48,7 +49,8 @@ namespace lunatic {
 		MakeUpvalue,//A  Upvalue -> A
 		LoadUpvalue,//A B A: dest, Bx: index
 		StoreUpvalue,//A B A: upvalue, Bx : index
-		SetUpvalue,//A B , A: Closure, B: upvalue
+		SetUpvalue,//A B , A: Closure, B: upvalue,
+		Throw,
 	};
 
 	struct Instruction {

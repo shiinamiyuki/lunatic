@@ -6,67 +6,11 @@
 
 
 namespace lunatic {
-	template<typename T>
-	inline T checkValue(const Value* v) {
-		if (std::is_pointer<T>::value) {
-			v->checkUserData();
-			return static_cast<T>(v->getUserData());
-		}
-		return T();
-	}
-
-	template<>
-	inline int checkValue<int>(const Value* v) {
-		v->checkInt();
-		return v->getInt();
-	}
-
-	template<>
-	inline unsigned int checkValue<unsigned int>(const Value* v) {
-		v->checkInt();
-		return v->getInt();
-	}
-
-	template<>
-	inline long unsigned int checkValue<long unsigned int>(const Value* v) {
-		v->checkInt();
-		return v->getInt();
-	}
-
-	template<>
-	inline double checkValue<double>(const Value* v) {
-		v->checkFloat();
-		return v->getFloat();
-	}
-
-	template<>
-	inline float checkValue<float>(const Value* v) {
-		v->checkFloat();
-		return (float)v->getFloat();
-	}
-
-
-	template<>
-	inline const char* checkValue<const char*>(const Value* v) {
-		v->checkString();
-		return v->getString()->str().c_str();
-	}
-
-
-	inline void toValue(int i, Value& v) {
-		v.setInt(i);
-	}
-
-	inline void toValue(size_t i, Value& v) {
-		v.setInt(i);
-	}
-	inline void toValue(double f, Value& v) {
-		v.setFloat(f);
-	}
+	
 	template<typename Ret>
 	inline void handleReturnValue(VM* vm, std::function<Ret(void)> func, int i) {
 		Value v;
-		toValue(func(), v);
+		v.store(func());
 		vm->storeReturn(i, v);
 	}
 
@@ -107,14 +51,14 @@ namespace lunatic {
 	template<typename Ret, typename Arg0>
 	inline std::function<Ret(void)> bindHelper(VM* vm, int i, std::function<Ret(Arg0)> func) {
 		auto arg0 = vm->getLocal(i);
-		Arg0 val = checkValue<Arg0>(&arg0);
+		Arg0 val = arg0.load<Arg0>();
 		return std::bind(func, val);
 	}
 
 	template<typename Ret, typename Arg0, typename... Args>
 	inline std::function<Ret(void)> bindHelper(VM* vm, int i, std::function<Ret(Arg0, Args...)> func) {
 		auto arg0 = vm->getLocal(i);
-		Arg0 val = checkValue<Arg0>(&arg0);
+		Arg0 val = arg0.load<Arg0>();
 		std::function<Ret(Args...)> f = MakeCallDefer(val, func); // std::bind is rubbish
 		return bindHelper(vm, i + 1, f);
 	}
@@ -180,8 +124,6 @@ namespace lunatic {
 
 		Error execFile(const std::string&);
 
-	
-
 		void addSymbol(const std::string&, int i);
 
 		void addNative(const std::string&, NativeHandle);
@@ -193,14 +135,8 @@ namespace lunatic {
 		void addModule(const Module& module);
 
 		template<typename T>
-		void bindLibMethod(const std::string&, const std::string&, T);
-
-		
+		void bindLibMethod(const std::string&, const std::string&, T);		
 
 	};
-
-	template<typename T>
-	T checkValue(const Value*);
-
 
 }

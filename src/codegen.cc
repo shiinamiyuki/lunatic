@@ -480,8 +480,11 @@ namespace lunatic {
 		if (boolConstant->getToken().tok == "true") {
 			emit(Instruction(Opcode::LoadInt, findReg(), 1));
 		}
-		else {
+		else if (boolConstant->getToken().tok == "false") {
 			emit(Instruction(Opcode::LoadInt, findReg(), 0));
+		}
+		else {
+			emit(Instruction(Opcode::LoadNil, findReg(), 0));
 		}
 	}
 

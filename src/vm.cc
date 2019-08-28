@@ -38,9 +38,14 @@ namespace lunatic {
 				gcCycle = 0;
 				collect();
 			}
-			//std::cout << i.str() <<std::endl;
+			// std::cout << i.str() <<std::endl;
 			//	system("pause");
 			switch (i.opcode) {
+			case Opcode::LoadNil:
+				a = GetReg(i.getA());
+				a->setNil();
+				state->next();
+				break;
 			case Opcode::LoadInt:
 				a = GetReg(i.getA());
 				i32 = i.getInt();
@@ -237,7 +242,6 @@ namespace lunatic {
 	}
 
 	void VM::invokeMetaMethod(Value* a, Value* b, Value* c, const char* key, int n) {
-		//throw std::runtime_error("metamethod not implemented!");
 		if (a && b && c) {
 			//     std::cout << a->str() << std::endl;
 			a->checkTable();

@@ -89,6 +89,14 @@ namespace lunatic {
 				i.setNil();
 			}
 		}
+		CallInfo save()const {
+			return CallInfo(nullptr, pc, bp, sp, 0);
+		}
+		void restoreFrom(const CallInfo& callInfo) {
+			pc = callInfo.pc;
+			bp = callInfo.bp;
+			sp = callInfo.sp;
+		}
 		inline void ret() {
 			/*		if(callInfo){
 						pc = callInfo->pc;
@@ -105,9 +113,7 @@ namespace lunatic {
 				for(int i =bp;i<bp + REG_MAX;i++){
 					locals[i].setNil();
 				}
-				pc = callInfo.pc;
-				bp = callInfo.bp;
-				sp = callInfo.sp;
+				restoreFrom(callInfo);
 				callStack.pop_back();
 			}
 			else {
@@ -139,6 +145,9 @@ namespace lunatic {
 		
 		void eval(State* state);
 	public:
+		void forceRecurse() {
+			eval(getCurrentState());
+		}
 	void collect();
 		template<class T, class... Args>
 		T* alloc(Args&& ...args) {
@@ -171,5 +180,6 @@ namespace lunatic {
 		size_t getMemoryUsage(bool force=false)const{
 			return gc.getMemoryUsage(force);
 		}
+
 	};
 }

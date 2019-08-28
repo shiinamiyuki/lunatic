@@ -245,8 +245,11 @@ namespace lunatic {
 		else if (isTable()) {
 			auto& tab = *getTable();
 			out << "{ ";
-			for (auto i : tab.list) {
-				out << i.str() << ", ";
+			if (!tab.getList()[0].isNil()) {
+				out << "{0:" << tab.getList()[0].str() << std::endl;
+			}
+			for (auto iter = tab.getList().begin() + 1; iter != tab.getList().end();iter++) {
+				out << iter->str() << ", ";
 			}
 			for (auto i : tab.iMap) {
 				out << "{" << i.first << ":" << i.second.str() << "},";
@@ -262,7 +265,7 @@ namespace lunatic {
 		else if (isString()) {
 			out << getString()->str();
 		}
-		else if (type == TNil) {
+		else if (isNil()) {
 			out << "nil";
 		}
 		else {
