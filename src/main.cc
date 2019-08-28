@@ -33,12 +33,17 @@ void Interactive() {
 			}
 		};
 		tryExec();
+		
 		if (err.code != ErrorCode::None) {
 			// enter multi-line loop
 			source.pop_back();
 
 			bool empty = false;
 			while (true) {
+				if (err.code == ErrorCode::RuntimeError) {
+					std::cerr << err.message << std::endl;
+					break;
+				}
 				std::cout << "...";
 				auto s = get();
 				source.append(" ").append(s);
@@ -57,6 +62,7 @@ void Interactive() {
 				tryExec();
 				if (err.code == ErrorCode::None)
 					break;
+				
 			}
 		}
 		source.clear();

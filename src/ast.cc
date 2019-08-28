@@ -60,4 +60,5 @@ namespace lunatic {
 	AST_ACCEPT(Colon);
 	AST_ACCEPT(For);
 	AST_ACCEPT(Break);
+	AST_ACCEPT(KVPair);
 }

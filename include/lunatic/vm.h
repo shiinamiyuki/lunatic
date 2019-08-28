@@ -1,7 +1,6 @@
 #pragma once
 #include "common.h"
 #include "opcode.h"
-#include "lunatic.h"
 #include "value.h"
 #include "table.h"
 #include "lstring.h"

@@ -37,6 +37,7 @@ namespace lunatic {
 			auto ast = p.parse();
 			ast->link();
 			//std::cout <<ast->str()<<std::endl;
+			
 			ast->accept(&gen);
 			//gen.print();
 			vm.loadProgram(gen.getProgram());
@@ -54,7 +55,7 @@ namespace lunatic {
 		catch (std::runtime_error& e) {
 			auto pc = vm.getCurrentState()->pc;
 			auto pos = gen.getSourcePos(pc);
-			auto msg = format("\033[31merror: {} at {}:{}:{} with stack trace:{}\033[0m\n",
+			auto msg = format("\033[31merror: {} at {}:{}:{} with stack trace:{}\033[0m",
 				e.what(),
 				pos.filename, pos.line, pos.col,
 				dumpStackTrace());
@@ -156,5 +157,12 @@ namespace lunatic {
 		}
 		dump.append("\n");
 		return dump;
+	}
+
+	void ScriptEngine::addModule(const Module& module) {
+		addLib(module.name());
+		for (const auto& i : module.handles) {
+			addLibMethod(module.name(), i.first, i.second);
+		}
 	}
 }

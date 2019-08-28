@@ -94,7 +94,6 @@ namespace lunatic {
 	};
 
 	typedef std::unordered_map<int, SourcePos> SourceMap;
-
 	class CodeGen : public Visitor {
 		SymbolTable locals;
 		Scope globals;
@@ -123,6 +122,7 @@ namespace lunatic {
 		void visit(UnaryExpression*) override;
 
 		void genArgsAndPushSelf(Arg*, int);
+
 		void visit(Arg*) override;
 
 		void visit(Call*) override;
@@ -196,6 +196,8 @@ namespace lunatic {
 		bool hasVar(const std::string& s);
 
 		void defineSymbol(const std::string& s, int i);
+
+		void visit(KVPair*);
 
 	public:
 		friend class ScriptEngine;

@@ -124,6 +124,16 @@ namespace lunatic {
 		return std::function<Ret(Args...)>(f);
 	}
 
+	template<typename Ret, typename... Args>
+	NativeHandle bind(const std::string&, Ret(*f)(Args... args)) {
+		auto func = toStdFunction(f);
+		auto handle = [=](VM* vm) {
+			auto helper = bindHelper(vm, 0, func);
+			handleReturnValue(vm, helper, 0);
+		};
+		return handle;
+	}
+
 	enum class ErrorCode {
 		None,
 		ParserError,
@@ -136,6 +146,20 @@ namespace lunatic {
 		Error() :code(ErrorCode::None) {}
 		Error(ErrorCode code, const std::string& message = "") :code(code), message(message) {}
 	};
+	class ScriptEngine;
+	class Module {
+		friend class ScriptEngine;
+		std::string _name;
+		std::unordered_map<std::string, NativeHandle> handles;
+	public:
+		Module(const std::string& name) :_name(name) {}
+		Module& add(const std::string& methodName, NativeHandle method) {
+			handles[methodName] = method;
+			return *this;
+		}
+		const std::string& name()const { return _name; }
+	};
+
 	class ScriptEngine {
 		CodeGen gen;
 		VM vm;
@@ -166,18 +190,12 @@ namespace lunatic {
 
 		void addLibMethod(const std::string&, const std::string&, NativeHandle);
 
+		void addModule(const Module& module);
+
 		template<typename T>
 		void bindLibMethod(const std::string&, const std::string&, T);
 
-		template<typename Ret, typename... Args>
-		NativeHandle bind(const std::string&, Ret(*f)(Args... args)) {
-			auto func = toStdFunction(f);
-			auto handle = [=](VM* vm) {
-				auto helper = bindHelper(vm, 0, func);
-				handleReturnValue(vm, helper, 0);
-			};
-			return handle;
-		}
+		
 
 	};
 

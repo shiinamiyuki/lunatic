@@ -202,6 +202,15 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
+	class KVPair : public AST {
+	public:
+		const std::string type() const {
+			return S("KVPair");
+		}
+
+		void accept(Visitor*);
+	};
+
 	class ExprList : public AST {
 	public:
 		const std::string type() const {

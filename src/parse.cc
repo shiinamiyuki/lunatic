@@ -204,7 +204,34 @@ namespace lunatic {
 		expect("{");
 		auto list = makeNode<ExprList>();
 		while (hasNext() && !has("}")) {
-			list->add(parseExpr(0));
+			skip();
+			if (at(pos + 2).tok == "=") {
+				auto pair = makeNode<KVPair>();
+				auto tok = at(pos + 1);
+				if (tok.type != Token::Type::Identifier) {
+					throw ParserException("Identifier expected", tok.line, tok.col);
+				}
+				consume();
+				expect("=");
+				auto key = makeNode<StringLiteral>(tok);
+				auto value = parseExpr();
+				pair->add(key);
+				pair->add(value);
+				list->add(pair);
+			}
+			else if (peek().tok == "[") {
+				auto pair = makeNode<KVPair>();
+				consume();
+				auto key = parseExpr(1);
+				expect("]");
+				expect("=");
+				auto value = parseExpr(1);
+				pair->add(key);
+				pair->add(value);
+				list->add(pair);
+			}
+			else
+				list->add(parseExpr(0));
 			if (has(","))
 				consume();
 		}
@@ -272,9 +299,7 @@ namespace lunatic {
 			}
 			else if (has(".")) {    //.
 				consume();
-				if (peek().type != Token::Type::Identifier
-					&& !(peek().type == Token::Type::Keyword
-						&& peek().tok == "new")) {
+				if (peek().type != Token::Type::Identifier) {
 					throw ParserException(std::string("identifier expected"),
 						peek().line, peek().col);
 				}

@@ -3,9 +3,19 @@
 
 namespace lunatic {
 	class Table;
-	class Closure;	
+	class Closure;
 	class GC;
 	class String;
+	class __SerializeContextImpl;
+	class VM;
+	class SerializeContext {
+		std::shared_ptr<VM> vm;
+	public:
+		SerializeContext(std::shared_ptr<VM>);
+
+		String* newString(const std::string&);
+		Table* newTable();
+	};
 	class Value {
 	public:
 		enum Type {
@@ -47,6 +57,7 @@ namespace lunatic {
 		}
 
 		void setString(const std::string&);
+
 		void setString(String* s) {
 			asString = s;
 			type = TString;
@@ -132,7 +143,7 @@ namespace lunatic {
 			return a->isArithmetic() && b->isArithmetic();
 		}
 		static void len(Value* a, Value* b);
-		static void clone(GC& ,Value* a, Value* b);
+		static void clone(GC&, Value* a, Value* b);
 		Value get(Value&);
 
 		void set(Value&, const Value&);
@@ -186,5 +197,55 @@ namespace lunatic {
 
 		void setArgCount(int i);
 		int getClosureAddr() const;
+
+		template<class T>
+		T load(SerializeContext* ctx = nullptr)const {
+			T tmp;
+			Serializer<T>::serialize(*this, tmp, ctx);
+			return tmp;
+		}
+
+		template<class T>
+		void store(const T& v, SerializeContext* ctx = nullptr) {
+			Serializer<T>::deserialize(*this, v, ctx);
+			return *this;
+		}
 	};
+
+	template<class T>
+	struct Serializer {
+		static void serailize(const Value& v, T& out, SerializeContext* ctx) {
+			toLuaValue(v, tmp, ctx);
+		}
+		static void deserailize(Value& v, const T& out, SerializeContext* ctx) {
+			fromLuaValue(v, tmp, ctx);
+		}
+	};
+
+	inline void toLuaValue(Value& v, int i, SerializeContext* ctx) {
+		v.setInt(i);
+	}
+
+	inline void toLuaValue(Value& v, size_t i, SerializeContext* ctx) {
+		v.setInt(i);
+	}
+
+	inline void toLuaValue(Value& v, double f, SerializeContext* ctx) {
+		v.setFloat(f);
+	}
+
+	inline void fromLuaValue(Value& v, int& i, SerializeContext* ctx) {
+		v.checkInt();
+		i = v.getInt();
+	}
+
+	inline void fromLuaValue(Value& v, size_t& i, SerializeContext* ctx) {
+		v.checkInt();
+		i = v.getInt();
+	}
+
+	inline void fromLuaValue(Value& v, double& f, SerializeContext* ctx) {
+		v.checkFloat();
+		f = v.getFloat();
+	}
 }

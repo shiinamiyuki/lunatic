@@ -253,11 +253,17 @@ namespace lunatic {
 		int idx = 1;
 		for (auto iter = list->begin(); iter != list->end(); iter++) {
 			auto& node = *iter;
+			
+			int key, v;
 			node->accept(this);
-			int key;
-			emit(Instruction(Opcode::LoadInt, findReg(), idx));
+			if (node->type() == KVPair().type()) {
+
+			}
+			else {				
+				emit(Instruction(Opcode::LoadInt, findReg(), idx));
+			}
 			key = popReg();
-			auto v = popReg();
+			v = popReg();
 			emit(Instruction(Opcode::StoreValue, i, key, v));
 			idx++;
 		}
@@ -664,6 +670,9 @@ namespace lunatic {
 		addSourceInfo(ast->pos);
 	}
 
-
+	void CodeGen::visit(KVPair* pair) {
+		pair->second()->accept(this);
+		pair->first()->accept(this);	
+	}
 
 }
