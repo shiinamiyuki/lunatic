@@ -21,16 +21,20 @@ namespace lunatic {
 		auto iter = iMap.find(i);
 		if (iter != iMap.end())
 			return iter->second;
-		else {
+		else if(!metatable){
 			throw std::runtime_error("cannot find index");
+		}else{
+			return metatable->get(i);
 		}
 	}
 	Value Table::get(const std::string& s) {
 		auto iter = sMap.find(s);
 		if (iter != sMap.end())
 			return iter->second;
-		else {
+		else if(!metatable){
 			throw std::runtime_error(std::string("cannot find index ").append(s));
+		}else{
+			return metatable->get(s);
 		}
 	}
 	void Table::set(int i, const Value& v) {
