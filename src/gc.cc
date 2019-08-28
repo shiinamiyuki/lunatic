@@ -12,7 +12,7 @@ namespace lunatic {
 	}
 	void GC::unmarkAll(){
 		for(auto & i:values){
-			i->marked = false;
+			i.object->marked = false;
 		}
 	}
 	void GC::mark(const Value & v){
@@ -26,18 +26,35 @@ namespace lunatic {
 	}
 	void GC::prepareForCollect(){
 		visited.clear();
-		unmarkAll();
+		allocatedBytes = 0;
+	}
+	void GC::free(GCObject * o){
+		delete o;
+		
 	}
 	void GC::sweep(){
 		for(auto iter = values.begin();iter!=values.end();){
 			auto o = *iter;
-			if(!o->marked){
+			if(o.isValid() && !o.object->marked){
 				iter = values.erase(iter);
 				//println("Delected {}", (size_t)o);
 				//std::cout << "deleted" << (size_t)o <<std::endl;
-				delete o;
+				delete o.object;
+			}else if(!o.isValid()){
+				iter = values.erase(iter);				
 			}else{
 				++iter;
+				o.object->marked = false;
+				allocatedBytes += o.object->nBytes();
+			}
+		}
+	}
+	void GCObject::release(){
+		refCount.fetch_sub(1);
+		if(refCount == 0){
+			if(ref){
+				ref->object = nullptr;
+				delete this;
 			}
 		}
 	}

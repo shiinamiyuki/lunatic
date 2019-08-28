@@ -40,6 +40,7 @@ namespace lunatic {
 			double asFloat;
 			void* asUserData;
 		};
+		void release();
 	public:
 		void setNil();
 
@@ -60,10 +61,7 @@ namespace lunatic {
 
 		void setString(const std::string&);
 
-		void setString(String* s) {
-			asString = s;
-			type = TString;
-		}
+		void setString(String* s);
 		bool isString() const {
 			return type == TString;
 		}
@@ -93,6 +91,8 @@ namespace lunatic {
 		bool isTable() const {
 			return type == TTable;
 		}
+
+		bool isNil()const{return type == TNil;}
 		void checkInt() const;
 
 		void checkFloat() const;
@@ -203,22 +203,22 @@ namespace lunatic {
 		template<class T>
 		T load(SerializeContext* ctx = nullptr)const {
 			T tmp;
-			Serializer<T>::serialize(*this, tmp, ctx);
+			Serializer<T>::deserialize(*this, tmp, ctx);
 			return tmp;
 		}
 
 		template<class T>
 		void store(const T& v, SerializeContext* ctx = nullptr) {
-			Serializer<T>::deserialize(*this, v, ctx);
+			Serializer<T>::serialize(*this, v, ctx);
 		}
 	};
 
 	template<class T>
 	struct Serializer {
-		static void serailize(const Value& v, T& out, SerializeContext* ctx) {
+		static void serialize( Value& v, const T& out, SerializeContext* ctx) {
 			toLuaValue(v, out, ctx);
 		}
-		static void deserailize(Value& v, const T& out, SerializeContext* ctx) {
+		static void deserialize(const Value& v, T& out, SerializeContext* ctx) {
 			fromLuaValue(v, out, ctx);
 		}
 	};
@@ -249,4 +249,8 @@ namespace lunatic {
 		v.checkFloat();
 		f = v.getFloat();
 	}
+	void fromLuaValue(const Value& v, std::string& ,SerializeContext* ctx);
+	void fromLuaValue(const Value& v, const char*& , SerializeContext* ctx);
+	void toLuaValue(Value& v, const std::string& ,SerializeContext* ctx);
+	void toLuaValue(Value& v, const char* , SerializeContext* ctx);
 }

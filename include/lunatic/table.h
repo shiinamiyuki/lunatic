@@ -31,6 +31,9 @@ namespace lunatic {
 			return len() == 0 && sMap.size() == 0;
 		}
 		void markReferences(GC*)const override;
+		virtual size_t nBytes()const{
+			return sizeof(*this);
+		}
 	};
 
 }

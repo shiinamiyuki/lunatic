@@ -172,6 +172,18 @@ namespace lunatic {
 		fclose(f);
 	}
 		void collectGarbage(VM*vm){
-			vm->collect();
+			auto _opt = vm->getLocal(0);
+			std::string opt = "collect";
+			if(!_opt.isNil()){
+				opt = _opt.load<std::string>();				
+			}
+			if(opt == "count"){
+				Value ret;
+				ret.store(vm->getMemoryUsage(true));
+				vm->storeReturn(0, ret);
+			}
+			else if(opt == "collect"){
+				vm->collect();
+			}
 		}
 }

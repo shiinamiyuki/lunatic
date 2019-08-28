@@ -10,4 +10,18 @@ namespace lunatic {
 	Table* SerializeContext::newTable() {
 		return vm->alloc<Table>();
 	}
+	void fromLuaValue(const Value& v, std::string& s, SerializeContext* ctx){
+		v.checkString();
+		s = v.getString()->str();
+	}
+	void fromLuaValue(const Value& v, const char*& s, SerializeContext* ctx){
+		v.checkString();
+		s = v.getString()->str().c_str();
+	}
+	void toLuaValue(Value& v, const std::string&s ,SerializeContext* ctx){
+		v.setString(ctx->newString(s));
+	}
+	void toLuaValue(Value& v, const char*s , SerializeContext* ctx){
+		v.setString(ctx->newString(s));
+	}
 }

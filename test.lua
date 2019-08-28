@@ -43,4 +43,18 @@ print(func)
 print(functor)
 print(getmetatable(func))
 print(func.__call)
-func(3)
+--func(3)
+
+print('gc test')
+
+m = {}
+m.a = {}
+m.b = {}
+m.c = m
+m.d = m
+m = {}
+
+print(collectgarbage('count'))
+collectgarbage()
+print(collectgarbage('count'))
+

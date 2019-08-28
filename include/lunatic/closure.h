@@ -24,6 +24,8 @@ namespace lunatic {
 		void markReferences(GC*)const override {}
 		//  inline Value& getUpValue(unsigned int i)const{return upValue[i];}
 	   //   inline void setUpValue(unsigned int i, const Value &v){upValue[i] = v;}
-
+		virtual size_t nBytes()const{
+			return sizeof(*this);
+		}
 	};
 }

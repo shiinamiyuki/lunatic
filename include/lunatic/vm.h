@@ -167,5 +167,9 @@ namespace lunatic {
 			return getCurrentState()->getArgCount();
 		}
 		void exec();
+
+		size_t getMemoryUsage(bool force=false)const{
+			return gc.getMemoryUsage(force);
+		}
 	};
 }
