@@ -140,76 +140,51 @@ namespace lunatic {
 	}
 
 	Value::Value() :type(TNil) {}
-	void Value::release(){
-		if(isTable()){
-			getTable()->release();
-		}else if(isString()){
-			getString()->release();
-		}
-	}
+	
 	void Value::setNil() {
-		release();
+
 		type = TNil;
 	}
 	void Value::setInt(int64_t val) {
-		release();
+
 		type = TInt;
 		asInt = val;
 	}
 	void Value::setFloat(double val) {
-		release();
+
 		type = TFloat;
 		asFloat = val;
 	}
 
 	void Value::setTable(Table* val) {
-		val->retain();
-		release();
+
 		type = TTable;
 		asTable = val;
 
 	}
 
 	void Value::setClosure(Closure* val) {
-		val->retain();
-		release();
+
 		type = TClosure;
 		asClosure = val;
 	
 	}
 
 	void Value::setBool(bool val) {
-		release();
+
 		type = TInt;
 		asInt = val;
 	}
 	void Value::setString(String * s){
-		s->retain();
-		release();
+
 		asString = s;
 		type = TString;
 			
 	}
 	void Value::setString(const std::string&) {
-		release();
 		type = TString;
 	}
-	Value& Value::operator = (const Value& v) {
-		release();
-		type = v.type;
-		asTable = v.asTable;
-		if (isTable()) {
-			asTable->retain();
-		}
-		else if (isString()) {
-			asString->retain();
-		}
-		else if (isClosure()) {
-			asClosure->retain();
-		}
-		return *this;
-				
-	}
+
 	void Value::checkArithmetic() const {
 		if (!isArithmetic())
 			throw std::runtime_error("arithmetic object expected!");

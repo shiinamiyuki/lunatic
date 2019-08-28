@@ -189,7 +189,6 @@ namespace lunatic {
 				a = GetRet(i.getA());
 				b = GetReg(i.getB());
 				*b = *a;
-				a->setNil();
 				state->next();
 				break;
 			case Opcode::MakeClosure:

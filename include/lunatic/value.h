@@ -40,7 +40,7 @@ namespace lunatic {
 			double asFloat;
 			void* asUserData;
 		};
-		void release();
+		
 	public:
 		void setNil();
 
@@ -211,7 +211,6 @@ namespace lunatic {
 		void store(const T& v, SerializeContext* ctx = nullptr) {
 			Serializer<T>::serialize(*this, v, ctx);
 		}
-		Value& operator = (const Value& v);
 	};
 
 	template<class T>

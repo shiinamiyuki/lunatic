@@ -46,7 +46,7 @@ void Interactive() {
 				}
 				std::cout << "...";
 				auto s = get();
-				source.append(" ").append(s);
+				source.append("\n").append(s);
 				//std::cout << source << std::endl;
 				if (s.empty()) {
 					if (empty) {

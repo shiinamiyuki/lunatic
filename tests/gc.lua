@@ -24,15 +24,29 @@ function find(tree)
 	end
 end
 
-tree = build(16)
+N = 16
+print('----no cycles----')
+tree = build(N)
 
+
+print(collectgarbage('count'))
+
+tree = {}
+
+print('now force gc')
+
+collectgarbage()
+
+print(collectgarbage('count'))
+
+print('---- cycles----')
+tree = build(N)
 find(tree)
 
 print(collectgarbage('count'))
 
 tree = {}
 
-print(collectgarbage('count'))
 
 print('now force gc')
 

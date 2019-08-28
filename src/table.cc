@@ -13,6 +13,9 @@ namespace lunatic {
 				gc->mark(i.getTable());
 			}
 		}
+		if (metatable) {
+			gc->mark(metatable);
+		}
 	}
 	Value Table::get(int i) {
 		if (i >= 0 && i < list.size()) {
@@ -21,9 +24,10 @@ namespace lunatic {
 		auto iter = iMap.find(i);
 		if (iter != iMap.end())
 			return iter->second;
-		else if(!metatable){
+		else if (!metatable) {
 			throw std::runtime_error("cannot find index");
-		}else{
+		}
+		else {
 			return metatable->get(i);
 		}
 	}
@@ -31,9 +35,10 @@ namespace lunatic {
 		auto iter = sMap.find(s);
 		if (iter != sMap.end())
 			return iter->second;
-		else if(!metatable){
+		else if (!metatable) {
 			throw std::runtime_error(std::string("cannot find index ").append(s));
-		}else{
+		}
+		else {
 			return metatable->get(s);
 		}
 	}
@@ -64,5 +69,6 @@ namespace lunatic {
 			sMap[s] = v;
 		}
 	}
+
 
 }
