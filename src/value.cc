@@ -194,6 +194,21 @@ namespace lunatic {
 		release();
 		type = TString;
 	}
+	Value& Value::operator = (const Value& v) {
+		type = v.type;
+		asTable = v.asTable;
+		if (isTable()) {
+			asTable->retain();
+		}
+		else if (isString()) {
+			asString->retain();
+		}
+		else if (isClosure()) {
+			asClosure->retain();
+		}
+		return *this;
+				
+	}
 	void Value::checkArithmetic() const {
 		if (!isArithmetic())
 			throw std::runtime_error("arithmetic object expected!");
