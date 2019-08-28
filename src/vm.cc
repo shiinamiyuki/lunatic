@@ -1,15 +1,8 @@
-/*
- * vm.cc
- *
- *  Created on: 2018Äê6ÔÂ22ÈÕ
- *      Author: XiaochunTong
- */
 #include "vm.h"
 #include "table.h"
 #include "value.h"
-#include "format.h"
 #include "closure.h"
-namespace lunatic{
+namespace lunatic {
 
 
 	void VM::reset() {
@@ -25,28 +18,28 @@ namespace lunatic{
 }else{ op(a,b,c);/*std::cout <<"op result :"<<c->str()<<std::endl;*/ }
 #define DO_ARITH(op,meta) state->next();GetABC(i);DO_OP(op,meta)
 #define PRT(x) std::cout <<(x)->str()<<std::endl
-void VM::eval(State* state) {
-	Value * a = nullptr;
-	Value * b = nullptr;
-	Value * c = nullptr;
-	cur = state;
-	int i32;
-	double f64;
-	int gcCycle = 0;
-	if(state->selfStack.size() == 0)
-		state->selfStack.push_back(Value());
-	int size = program.size();
-	int callsize = cur->callStack.size();
-	while (state->pc < size && state->ok) {
-		auto&i = program[state->pc];
-		gcCycle ++;
-		if(gcCycle > 10000000)
-		{
-			gcCycle = 0;
-		}
-		//std::cout << i.str() <<std::endl;
-		//	system("pause");
-		switch (i.opcode) {
+	void VM::eval(State * state) {
+		Value* a = nullptr;
+		Value* b = nullptr;
+		Value* c = nullptr;
+		cur = state;
+		int i32;
+		double f64;
+		int gcCycle = 0;
+		if (state->selfStack.size() == 0)
+			state->selfStack.push_back(Value());
+		int size = program.size();
+		int callsize = cur->callStack.size();
+		while (state->pc < size && state->ok) {
+			auto& i = program[state->pc];
+			gcCycle++;
+			if (gcCycle > 10000000)
+			{
+				gcCycle = 0;
+			}
+			//std::cout << i.str() <<std::endl;
+			//	system("pause");
+			switch (i.opcode) {
 			case Opcode::LoadInt:
 				a = GetReg(i.getA());
 				i32 = i.getInt();
@@ -80,19 +73,19 @@ void VM::eval(State* state) {
 			case Opcode::Neg:
 				a = GetReg(i.getA());
 				b = GetReg(i.getB());
-				Value::neg(a,b);
+				Value::neg(a, b);
 				state->next();
 				break;
 			case Opcode::Not:
 				a = GetReg(i.getA());
 				b = GetReg(i.getB());
-				Value::logicNot(a,b);
+				Value::logicNot(a, b);
 				state->next();
 				break;
 			case Opcode::Len:
 				a = GetReg(i.getA());
 				b = GetReg(i.getB());
-				Value::len(a,b);
+				Value::len(a, b);
 				state->next();
 				break;
 			case Opcode::And:
@@ -118,7 +111,7 @@ void VM::eval(State* state) {
 					break;
 			case Opcode::NE:
 				DO_ARITH(Value::ne, "__ne")
-				break;
+					break;
 			case Opcode::NewTable:
 				a = GetReg(i.getA());
 				a->setTable(new Table());
@@ -131,13 +124,13 @@ void VM::eval(State* state) {
 				break;
 			case Opcode::StoreValue:
 				GetABC(i);
-				a->set(*b,*c);
+				a->set(*b, *c);
 				state->next();
 				break;
 			case Opcode::LoadStr:
 				a = GetReg(i.getA());
 				i32 = i.getBx();
-				a->setString(stringPool[i32]);
+				a->setString(&stringPool[i32]);
 				state->next();
 				break;
 			case Opcode::LoadGlobal:
@@ -159,7 +152,7 @@ void VM::eval(State* state) {
 			case Opcode::Clone:
 				a = GetReg(i.getA());
 				b = GetReg(i.getB());
-				Value::clone(a,b);
+				Value::clone(gc, a, b);
 				state->next();
 				break;
 			case Opcode::StoreGlobal:
@@ -179,11 +172,11 @@ void VM::eval(State* state) {
 				break;
 			case Opcode::BZ:
 				a = GetReg(i.getA());
-				state->pc = a->toBool() ? state->pc + 1: i.getInt();
+				state->pc = a->toBool() ? state->pc + 1 : i.getInt();
 				break;
 			case Opcode::BNZ:
 				a = GetReg(i.getA());
-				state->pc = !a->toBool() ? state->pc + 1: i.getInt();
+				state->pc = !a->toBool() ? state->pc + 1 : i.getInt();
 				break;
 			case Opcode::StoreRet:
 				a = GetReg(i.getA());
@@ -200,7 +193,7 @@ void VM::eval(State* state) {
 				break;
 			case Opcode::MakeClosure:
 				a = GetReg(i.getA());
-				a->setClosure(new Closure(i.getInt(),0));
+				a->setClosure(new Closure(i.getInt(), 0));
 				state->next();
 				break;
 			case Opcode::SetArgCount:
@@ -217,12 +210,12 @@ void VM::eval(State* state) {
 				break;
 			case Opcode::fCall:
 				a = GetReg(i.getA());
-                state->next();
+				state->next();
 				if (!a->isClosure()) {
-					invokeMetaMethod(a,nullptr,nullptr,"__call",i.getB());
-				} else {
-
-					state->call(a->getClosureAddr(),i.getB());
+					invokeMetaMethod(a, nullptr, nullptr, "__call", i.getB());
+				}
+				else {
+					state->call(a->getClosureAddr(), i.getB());
 				}
 				break;
 			case Opcode::Ret:
@@ -238,98 +231,82 @@ void VM::eval(State* state) {
 				std::cerr << "unknown opcode " << std::endl;
 				state->next();
 				break;
+			}
+		}
+		//	std::cout << globals[0].str()<<std::endl;
+	}
+
+	void VM::invokeMetaMethod(Value* a, Value* b, Value* c, const char* key, int n) {
+		//throw std::runtime_error("metamethod not implemented!");
+		if (a && b && c) {
+			//     std::cout << a->str() << std::endl;
+			a->checkTable();
+			auto cur = getCurrentState();
+			cur->push(*a);
+			cur->push(*b);
+			auto meta = a->get(key);
+			meta.checkClosure();
+			int addr = meta.getClosureAddr();
+			call(addr, 2);
+			eval(cur);
+			cur->ok = true;
+			*c = cur->retReg[0];
+			//   std::cout << "done"<<std::endl;
+		}
+		else {
+			a->checkTable();
+			auto cur = getCurrentState();
+			auto meta = a->get(key);
+			meta.checkClosure();
+			int addr = meta.getClosureAddr();
+			call(addr, 2);
+			eval(cur);
+			cur->ok = true;
 		}
 	}
-	//	std::cout << globals[0].str()<<std::endl;
-}
 
-void VM::invokeMetaMethod(Value * a,Value * b,Value *c,const char* key,int n) {
-	//throw std::runtime_error("metamethod not implemented!");
-	if(a && b && c){
-		//     std::cout << a->str() << std::endl;
-		a->checkTable();
-		auto cur = getCurrentState();
-		cur->push(*a);
-		cur->push(*b);
-		auto meta = a->get(key);
-		meta.checkClosure();
-		int addr = meta.getClosureAddr();
-		call(addr,2);
-		eval(cur);
-		cur->ok = true;
-		*c = cur->retReg[0];
-		//   std::cout << "done"<<std::endl;
-	}else{
-        a->checkTable();
-        auto cur = getCurrentState();
-        auto meta = a->get(key);
-        meta.checkClosure();
-        int addr = meta.getClosureAddr();
-        call(addr,2);
-        eval(cur);
-        cur->ok = true;
+	void State::reset() {
+		locals.resize(4096);
+		pc = 0;
+		bp = 0;
+		sp = 0;
+		registers = locals.data();
 	}
-}
 
-void State::reset() {
-	locals.resize(4096);
-	pc = 0;
-	bp = 0;
-	sp = 0;
-	registers = locals.data();
-}
-
-void VM::addNative(NativeHandle h) {
-	natives.push_back(h);
-}
-
-void VM::loadProgram(const std::vector<Instruction>& p) {
-	while(p.size() > program.size()){
-		program.push_back(p[program.size()]);
+	void VM::addNative(NativeHandle h) {
+		natives.push_back(h);
 	}
-}
 
-void VM::loadStringPool(const std::vector<std::string>& p) {
-	while(p.size() > stringPool.size()){
-		//stringPool.push_back(p[stringPool.size()]);
-		GCPtr s;
-		s.reset(new std::string(p[stringPool.size()]));
-		stringPool.push_back(s);
+	void VM::loadProgram(const std::vector<Instruction>& p) {
+		while (p.size() > program.size()) {
+			program.push_back(p[program.size()]);
+		}
 	}
-}
 
-Value& VM::getLocal(int i) {
-	GetState();
-	return *GetReg(i);
-}
-
-void VM::storeReturn(int i, const Value& v) {
-	GetState();
-	auto r = GetRet(i);
-	*r = v;
-}
-
-void VM::call(int addr,int n) {
-	auto state = getCurrentState();
-	state->call(addr,n);
-}
-
-void VM::fullGC() {
-	for(auto&i:globals)
-		i.resetMark();
-	for(auto&i:stringPool)
-	{
-		i.resetMark();
+	void VM::loadStringPool(const std::vector<std::string>& p) {
+		while (p.size() > stringPool.size()) {
+			//stringPool.push_back(p[stringPool.size()]);
+			stringPool.emplace_back(p[stringPool.size()]);
+		}
 	}
-	for(auto& i :cur->locals)
-		i.resetMark();
+
+	Value& VM::getLocal(int i) {
+		GetState();
+		return *GetReg(i);
+	}
+
+	void VM::storeReturn(int i, const Value& v) {
+		GetState();
+		auto r = GetRet(i);
+		*r = v;
+	}
+
+	void VM::call(int addr, int n) {
+		auto state = getCurrentState();
+		state->call(addr, n);
+	}
+
+
+
 
 }
-
-
-
-}
-
-
-
-
