@@ -1,2 +1,5 @@
 out/
 .vs/
+CMakeFiles/
+CMakeCache.txt
+*.cmake

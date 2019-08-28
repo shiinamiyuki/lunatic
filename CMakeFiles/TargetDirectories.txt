@@ -1,3 +1,0 @@
-/home/shiinamiyuki/Documents/lunatic/CMakeFiles/rebuild_cache.dir
-/home/shiinamiyuki/Documents/lunatic/CMakeFiles/lunatic.dir
-/home/shiinamiyuki/Documents/lunatic/CMakeFiles/edit_cache.dir

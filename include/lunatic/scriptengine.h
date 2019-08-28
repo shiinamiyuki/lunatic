@@ -52,15 +52,15 @@ namespace lunatic {
 		return v->getString()->str().c_str();
 	}
 
-	
-	inline void toValue(int i, Value & v){
+
+	inline void toValue(int i, Value& v) {
 		v.setInt(i);
 	}
 
-	inline void toValue(size_t i, Value & v){
+	inline void toValue(size_t i, Value& v) {
 		v.setInt(i);
 	}
-	inline void toValue(double f, Value & v){
+	inline void toValue(double f, Value& v) {
 		v.setFloat(f);
 	}
 	template<typename Ret>
@@ -124,6 +124,18 @@ namespace lunatic {
 		return std::function<Ret(Args...)>(f);
 	}
 
+	enum class ErrorCode {
+		None,
+		ParserError,
+		CompilerError,
+		RuntimeError,
+	};
+	struct Error {
+		ErrorCode code;
+		std::string message;
+		Error() :code(ErrorCode::None) {}
+		Error(ErrorCode code, const std::string& message = "") :code(code), message(message) {}
+	};
 	class ScriptEngine {
 		CodeGen gen;
 		VM vm;
@@ -135,14 +147,16 @@ namespace lunatic {
 
 		std::string dumpStackTrace();
 
+		Error compileAndRunString(const std::string&, const char* filename = "");
+
 	public:
 		ScriptEngine();
 
-		void execString(const std::string&, const char* filename = "");
+		Error execString(const std::string&, const char* filename = "");
 
-		void execFile(const std::string&);
+		Error execFile(const std::string&);
 
-		void compileString(const std::string&, const char* filename = "");
+	
 
 		void addSymbol(const std::string&, int i);
 

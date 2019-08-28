@@ -17,18 +17,17 @@ void readFile(const char* filename, std::string& s) {
 }
 
 namespace lunatic {
-	void ScriptEngine::execString(const std::string& s, const char* filename) {
-		compileString(s, filename);
-
+	Error ScriptEngine::execString(const std::string& s, const char* filename) {
+		return compileAndRunString(s, filename);
 	}
 
-	void ScriptEngine::execFile(const std::string& s) {
+	Error ScriptEngine::execFile(const std::string& s) {
 		std::string source;
 		readFile(s.c_str(), source);
-		execString(source, s.c_str());
+		return execString(source, s.c_str());
 	}
 
-	void ScriptEngine::compileString(const std::string& s, const char* filename) {
+	Error ScriptEngine::compileAndRunString(const std::string& s, const char* filename) {
 		auto len = gen.program.size();
 		try {
 			len = gen.program.size();
@@ -45,22 +44,24 @@ namespace lunatic {
 			vm.exec();
 		}
 		catch (ParserException& e) {
-			std::cerr << e.what() << std::endl;
 			recover(len);
+			return Error(ErrorCode::ParserError, e.what());
 		}
 		catch (CompilerException& e) {
-			std::cerr << e.what() << std::endl;
 			recover(len);
+			return Error(ErrorCode::CompilerError, e.what());
 		}
 		catch (std::runtime_error& e) {
 			auto pc = vm.getCurrentState()->pc;
 			auto pos = gen.getSourcePos(pc);
-			fprintln(stderr, "\033[31merror: {} at {}:{}:{} with stack trace:{}\033[0m\n",
+			auto msg = format("\033[31merror: {} at {}:{}:{} with stack trace:{}\033[0m\n",
 				e.what(),
 				pos.filename, pos.line, pos.col,
 				dumpStackTrace());
+			return Error(ErrorCode::RuntimeError, msg);
 
 		}
+		return Error(ErrorCode::None);
 	}
 
 	void ScriptEngine::addNative(const std::string& s, NativeHandle f) {
@@ -111,14 +112,14 @@ namespace lunatic {
 		bindLibMethod("math", "acos", (double(*)(double))std::cos);
 		bindLibMethod("math", "log", (double(*)(double))std::log);
 		bindLibMethod("math", "log10", (double(*)(double))std::log10);
-		bindLibMethod("math", "pow", (double(*)(double,double))std::pow);
+		bindLibMethod("math", "pow", (double(*)(double, double))std::pow);
 		addNative("print", print);
 		addNative("tonumber", tonumber);
 		addNative("tostring", tostring);
 		addNative("getmetatable", getmetatable);
 		addNative("setmetatable", setmetatable);
 		addNative("getline", _getline);
-		addNative("collectgarbage",collectGarbage);
+		addNative("collectgarbage", collectGarbage);
 		addLibMethod("string", "char", StringLib::Char);
 		addLibMethod("string", "byte", StringLib::byte);
 		addLibMethod("string", "length", StringLib::length);
