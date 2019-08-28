@@ -12,6 +12,8 @@ namespace lunatic {
 
 	class GC {
 		std::list<GCObject*> values;
+		std::set<GCObject*> visited;
+		void unmarkAll();
 	public:
 		void mark(GCObject*);
 		template<class T,class...Args>
@@ -21,5 +23,7 @@ namespace lunatic {
 			values.emplace_back(object);
 			return v;
 		}
+		void prepareForCollect();
+		void mark(Value&);
 	};
 }

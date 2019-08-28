@@ -6,3 +6,4 @@
 #include <set>
 #include <cassert>
 #include <functional>
+#include <list>

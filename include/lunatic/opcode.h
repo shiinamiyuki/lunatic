@@ -52,7 +52,7 @@ namespace lunatic {
 	};
 
 	struct Instruction {
-		Opcode opcode : 8;
+		Opcode opcode;
 		char operand[10];
 		inline int getA() const {
 			return operand[0];

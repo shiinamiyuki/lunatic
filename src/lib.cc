@@ -46,7 +46,7 @@ namespace lunatic {
 		auto arg = vm->getLocal(0);
 		arg.checkTable();
 		Value v;
-		v.setTable(new Table(*arg.getTable()));
+		v.setTable(vm->alloc<Table>(*arg.getTable()));
 		vm->storeReturn(0, v);
 	}
 
@@ -130,7 +130,7 @@ namespace lunatic {
 		Value file;
 		file.setUserData(f);
 		Value v;
-		v.setTable(new Table());
+		v.setTable(vm->alloc<Table>());
 		v.set("fp", file);
 		vm->storeReturn(0, v);
 	}

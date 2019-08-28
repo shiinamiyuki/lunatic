@@ -1,7 +1,7 @@
 #include "scriptengine.h"
 #include "format.h"
 #include "lib.h"
-
+#include <cmath>
 void readFile(const char* filename, std::string& s) {
 	FILE* f = fopen(filename, "r");
 	if (!f) {
@@ -104,16 +104,16 @@ namespace lunatic {
 		addLibMethod("file", "write", FileLib::write);
 		addLibMethod("file", "close", FileLib::close);
 		addLibMethod("table", "clone", TableLib::clone);
-		bindLibMethod("math", "sqrt", (double(*)(double))::sqrt);
-		bindLibMethod("math", "atan", (double(*)(double))::atan);
+		bindLibMethod("math", "sqrt", (double(*)(double))std::sqrt);
+		bindLibMethod("math", "atan", (double(*)(double))std::atan);
 		bindLibMethod("math", "sin", (double(*)(double))std::sin);
-		bindLibMethod("math", "cos", (double(*)(double))::cos);
-		bindLibMethod("math", "tan", (double(*)(double))::tan);
-		bindLibMethod("math", "asin", (double(*)(double))::asin);
-		bindLibMethod("math", "acos", (double(*)(double))::acos);
-		bindLibMethod("math", "log", (double(*)(double))::log);
-		bindLibMethod("math", "log10", (double(*)(double))::log10);
-		bindLibMethod("math", "pow", (double(*)(double,double))::pow);
+		bindLibMethod("math", "cos", (double(*)(double))std::cos);
+		bindLibMethod("math", "tan", (double(*)(double))std::tan);
+		bindLibMethod("math", "asin", (double(*)(double))std::asin);
+		bindLibMethod("math", "acos", (double(*)(double))std::cos);
+		bindLibMethod("math", "log", (double(*)(double))std::log);
+		bindLibMethod("math", "log10", (double(*)(double))std::log10);
+		bindLibMethod("math", "pow", (double(*)(double,double))std::pow);
 		addNative("print", print);
 		addNative("tonumber", tonumber);
 		addNative("tostring", tostring);

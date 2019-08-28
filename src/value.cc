@@ -153,7 +153,7 @@ namespace lunatic {
 	}
 
 	void Value::setTable(Table* val) {
-		type = TFloat;
+		type = TTable;
 		asTable = val;
 	}
 

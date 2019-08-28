@@ -114,7 +114,7 @@ namespace lunatic {
 					break;
 			case Opcode::NewTable:
 				a = GetReg(i.getA());
-				a->setTable(new Table());
+				a->setTable(gc.alloc<Table>(Table()));
 				state->next();
 				break;
 			case Opcode::GetValue:
@@ -193,7 +193,7 @@ namespace lunatic {
 				break;
 			case Opcode::MakeClosure:
 				a = GetReg(i.getA());
-				a->setClosure(new Closure(i.getInt(), 0));
+				a->setClosure(gc.alloc<Closure>(i.getInt(), 0));
 				state->next();
 				break;
 			case Opcode::SetArgCount:
@@ -307,6 +307,9 @@ namespace lunatic {
 	}
 
 
+	void VM::collect(){
+		gc.prepareForCollect();
+		
 
-
+	}
 }

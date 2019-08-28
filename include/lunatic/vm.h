@@ -127,6 +127,7 @@ namespace lunatic {
 		void loadProgram(const std::vector<Instruction>& p);
 		void loadStringPool(const std::vector<std::string>& p);
 		GC gc;
+		void collect();
 	public:
 		template<class T, class... Args>
 		T* alloc(Args&& ...args) {

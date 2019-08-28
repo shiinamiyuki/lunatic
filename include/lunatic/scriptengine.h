@@ -52,14 +52,21 @@ namespace lunatic {
 		return v->getString()->str().c_str();
 	}
 
-	template<typename T>
-	inline Value makeValue(const T& x) {
-		return Value(x);
+	
+	inline void toValue(int i, Value & v){
+		v.setInt(i);
 	}
 
+	inline void toValue(size_t i, Value & v){
+		v.setInt(i);
+	}
+	inline void toValue(double f, Value & v){
+		v.setFloat(f);
+	}
 	template<typename Ret>
 	inline void handleReturnValue(VM* vm, std::function<Ret(void)> func, int i) {
-		auto v = makeValue(func());
+		Value v;
+		toValue(func(), v);
 		vm->storeReturn(i, v);
 	}
 
