@@ -16,6 +16,8 @@ namespace lunatic {
 		String* newString(const std::string&);
 		Table* newTable();
 	};
+	template<class T>
+	struct Serializer;
 	class Value {
 	public:
 		enum Type {
@@ -208,17 +210,16 @@ namespace lunatic {
 		template<class T>
 		void store(const T& v, SerializeContext* ctx = nullptr) {
 			Serializer<T>::deserialize(*this, v, ctx);
-			return *this;
 		}
 	};
 
 	template<class T>
 	struct Serializer {
 		static void serailize(const Value& v, T& out, SerializeContext* ctx) {
-			toLuaValue(v, tmp, ctx);
+			toLuaValue(v, out, ctx);
 		}
 		static void deserailize(Value& v, const T& out, SerializeContext* ctx) {
-			fromLuaValue(v, tmp, ctx);
+			fromLuaValue(v, out, ctx);
 		}
 	};
 

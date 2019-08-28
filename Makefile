@@ -420,6 +420,33 @@ src/scriptengine.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/scriptengine.cc.s
 .PHONY : src/scriptengine.cc.s
 
+src/serialize.o: src/serialize.cc.o
+
+.PHONY : src/serialize.o
+
+# target to build an object file
+src/serialize.cc.o:
+	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/serialize.cc.o
+.PHONY : src/serialize.cc.o
+
+src/serialize.i: src/serialize.cc.i
+
+.PHONY : src/serialize.i
+
+# target to preprocess a source file
+src/serialize.cc.i:
+	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/serialize.cc.i
+.PHONY : src/serialize.cc.i
+
+src/serialize.s: src/serialize.cc.s
+
+.PHONY : src/serialize.s
+
+# target to generate assembly for a file
+src/serialize.cc.s:
+	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/serialize.cc.s
+.PHONY : src/serialize.cc.s
+
 src/table.o: src/table.cc.o
 
 .PHONY : src/table.o
@@ -543,6 +570,9 @@ help:
 	@echo "... src/scriptengine.o"
 	@echo "... src/scriptengine.i"
 	@echo "... src/scriptengine.s"
+	@echo "... src/serialize.o"
+	@echo "... src/serialize.i"
+	@echo "... src/serialize.s"
 	@echo "... src/table.o"
 	@echo "... src/table.i"
 	@echo "... src/table.s"
