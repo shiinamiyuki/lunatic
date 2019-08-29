@@ -39,7 +39,7 @@ namespace lunatic {
 		AST* hackParallelAssign(AST*);
 		//all of the followings will call consume() themselves
 		AST* parseBlock();
-		AST* parseExpr(int lev = 0);
+		AST* parseExpr(int lev = 0, int maxLex = -1);
 		AST* parsePostfixExpr();
 		AST* parseAtom();
 		AST* parseCall();

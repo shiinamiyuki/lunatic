@@ -35,7 +35,7 @@ namespace lunatic {
 			Parser p(scan);
 			auto ast = p.parse();
 			ast->link();
-			//std::cout <<ast->str()<<std::endl;
+			std::cout <<ast->str()<<std::endl;
 			ast->accept(&gen);
 			//gen.print();
 			vm.loadProgram(gen.getProgram());

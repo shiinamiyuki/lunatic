@@ -9,7 +9,7 @@ namespace lunatic {
 	class AST;
 
 	class ScriptEngine;
-	
+
 	struct RegState {
 		bool reg[REG_MAX];
 
@@ -81,7 +81,7 @@ namespace lunatic {
 
 	class SymbolTable : public std::vector<Scope> {
 		int funcLevel;
-		
+
 	public:
 		SymbolTable() : funcLevel(0) {
 
@@ -158,6 +158,8 @@ namespace lunatic {
 
 		void visit(For*) override;
 
+		void visit(GenericFor*)override;
+
 		void visit(Break*) override;
 
 		void visitRight(ParallelAssignEntry*);
@@ -213,7 +215,7 @@ namespace lunatic {
 				if (iter != funcInfoMap.end())
 					return iter->second;
 				pc--;
-			
+
 			}
 			return "main";
 		}
@@ -256,7 +258,7 @@ namespace lunatic {
 
 		int popReg() {
 			if (reg.size() == 0) {
-				throw CompilerException("reg underflow",-1,-1);
+				throw CompilerException("reg underflow", -1, -1);
 			}
 			int i = reg.back();
 			reg.pop_back();

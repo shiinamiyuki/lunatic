@@ -58,7 +58,8 @@ namespace lunatic {
 	AST_ACCEPT(Empty);
 	AST_ACCEPT(Method);
 	AST_ACCEPT(Colon);
-	AST_ACCEPT(For);
+	AST_ACCEPT(For); 
+	AST_ACCEPT(GenericFor);
 	AST_ACCEPT(Break);
 	AST_ACCEPT(KVPair);
 	AST_ACCEPT(ParallelAssign);

@@ -122,20 +122,36 @@ namespace lunatic {
 	}
 
 	void Value::eq(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
-			c->setInt(a->getInt() == b->getInt());
+		if (a->isArithmetic() && b->isArithmetic()) {
+			if (a->isInt() && b->isInt()) {
+				c->setInt(a->getInt() == b->getInt());
+			}
+			else {
+				c->setInt(a->getFloat() == b->getFloat());
+			}
+		}
+		else if (a->type != b->type) {
+			c->setBool(false);
 		}
 		else {
-			c->setInt(a->getFloat() == b->getFloat());
+			c->setBool(a->getTable() == b->getTable());
 		}
 	}
 
 	void Value::ne(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
-			c->setInt(a->getInt() != b->getInt());
+		if (a->isArithmetic() && b->isArithmetic()) {
+			if (a->isInt() && b->isInt()) {
+				c->setInt(a->getInt() != b->getInt());
+			}
+			else {
+				c->setInt(a->getFloat() != b->getFloat());
+			}
+		}
+		else if (a->type != b->type) {
+			c->setBool(true);
 		}
 		else {
-			c->setInt(a->getFloat() != b->getFloat());
+			c->setBool(a->getTable() != b->getTable());
 		}
 	}
 

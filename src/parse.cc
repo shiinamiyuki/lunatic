@@ -192,14 +192,17 @@ namespace lunatic {
 		}
 		return node;
 	}
-	AST* Parser::parseExpr(int lev) {
+	AST* Parser::parseExpr(int lev, int maxLev) {
+		if (maxLev == -1) {
+			maxLev = 6;
+		}
 		skip();
 		AST* result = parseUnary();
 		while (hasNext()) {
 			auto next = peek();
 			if (opPrec.find(next.tok) == opPrec.end())
 				break;
-			if (opPrec[next.tok] >= lev) {
+			if (opPrec[next.tok] >= lev && opPrec[next.tok] <= maxLev) {
 				consume();
 				AST* rhs = parseExpr(opAssoc[next.tok] + opPrec[next.tok]);
 				AST* op = makeNode<BinaryExpression>(next);
@@ -261,20 +264,40 @@ namespace lunatic {
 	AST* Parser::parseFor() {
 		skip();
 		expect("for");
-		auto f = makeNode<For>();
-		f->add(parseAtom());
-		expect("=");
-		f->add(parseAtom());
-		expect(",");
-		f->add(parseAtom());
-		if (has(",")) {
-			consume();
+		
+		if (at(pos + 2).tok == "=") {
+			auto f = makeNode<For>();
 			f->add(parseAtom());
+			expect("=");
+			f->add(parseExpr(2));
+			expect(",");
+			f->add(parseExpr(2));
+			if (has(",")) {
+				consume();
+				f->add(parseExpr(2));
+			}
+			else {
+				f->add(makeNode<Number>(Token(Token::Type::Number,"1",getPos().line, getPos().col)));
+			}
+			expect("do");
+			f->add(parseBlock());
+			expect("end");
+			return f;
 		}
-		expect("do");
-		f->add(parseBlock());
-		expect("end");
-		return f;
+		else {
+			auto pos = getPos();
+			auto f = makeNode<GenericFor>();
+			auto var = parseExpr(1, 1);
+			f->add(var);
+			expect("in");
+			auto expr = parseExpr(1);
+			f->add(expr);
+			expect("do");
+			f->add(parseBlock());
+			expect("end");
+			
+			return f;
+		}
 	}
 
 

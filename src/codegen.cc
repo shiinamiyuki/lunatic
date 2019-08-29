@@ -260,11 +260,31 @@ namespace lunatic {
 	void CodeGen::visit(For* f) {
 		// for i = 0,100,1 do .. end
 		auto var = f->first()->getToken();
+	
 		auto init = f->second();
 		auto end = f->third();
-		if (f->size() == 5) {
-			auto step = (*(f->begin() + 3));
-		}
+		auto step = f->at(3);
+		
+		end->accept(this);
+		int end_reg = reg.back();
+		step->accept(this);
+		int step_reg = reg.back();
+		createLocal(var);
+
+		init->accept(this);
+		int init_reg = popReg();
+		emit(Instruction(Opcode::Move, init_reg, getLocalAddress(var)));
+		int loopStart = program.size();
+		emit(Instruction(Opcode::LT, getLocalAddress(var), end_reg, findReg()));
+		int jmpIdx = program.size();
+		emit(Instruction(Opcode::BZ, popReg(), 0));
+		f->at(4)->accept(this);
+
+
+	}
+
+	void CodeGen::visit(GenericFor* f) {
+
 	}
 
 	void CodeGen::visit(ExprList* list) {
@@ -624,8 +644,14 @@ namespace lunatic {
 	}
 
 	void CodeGen::syncRegState() {
-		if (locals.size() > 0)
+		if (locals.size() > 0) {
+			for (int i = locals.back().offset + locals.back().dict.size(); i < REG_MAX; i++) {
+				if (!regState.reg[i]) {
+					std::cout << "fuck" << std::endl;
+				}
+			}
 			regState.reset(locals.back().offset + locals.back().dict.size());
+		}
 		else
 			regState.reset();
 	}

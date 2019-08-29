@@ -353,6 +353,28 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
+	class GenericForVarList : public AST {
+	public:
+		const std::string type() const {
+			return S("GenericForVarList");
+		}
+	};
+
+	class GenericForExprList : public AST {
+	public:
+		const std::string type() const {
+			return S("GenericForExprList");
+		}
+	};
+
+	class GenericFor : public AST {
+	public:
+		const std::string type() const {
+			return S("GenericFor");
+		}
+
+		void accept(Visitor*);
+	};
 	class Break : public AST {
 	public:
 		const std::string type() const {

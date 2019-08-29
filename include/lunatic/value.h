@@ -84,7 +84,7 @@ namespace lunatic {
 		}
 
 		bool isManaged()const {
-			return isTable();
+			return isTable() || isClosure() || isString();
 		}
 
 		bool isTable() const {

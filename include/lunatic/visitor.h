@@ -46,6 +46,8 @@ namespace  lunatic {
 
 		virtual void visit(For*) = 0;
 
+		virtual void visit(GenericFor*) = 0;
+
 		virtual void visit(Break*) = 0;
 
 		virtual void visit(KVPair*) = 0;
