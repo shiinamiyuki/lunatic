@@ -8,9 +8,9 @@ namespace lunatic {
 	class String;
 	class VM;
 	class SerializeContext {
-		std::shared_ptr<VM> vm;
+		VM* vm;
 	public:
-		SerializeContext(std::shared_ptr<VM>);
+		SerializeContext(VM* vm);
 
 		String* newString(const std::string&);
 		Table* newTable();

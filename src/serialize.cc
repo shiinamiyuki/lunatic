@@ -1,7 +1,7 @@
 #include "value.h"
 #include "vm.h"
 namespace lunatic {
-	SerializeContext::SerializeContext(std::shared_ptr<VM> vm):vm(vm) {
+	SerializeContext::SerializeContext(VM * vm):vm(vm) {
 	
 	}
 	String* SerializeContext::newString(const std::string& s) {

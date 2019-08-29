@@ -190,7 +190,7 @@ namespace lunatic {
 		auto func = vm->getLocal(0);
 		func.checkClosure();
 		auto info = vm->getCurrentState()->save();
-		try {			
+		try {
 			vm->call(func.getClosureAddr(), 0);
 			vm->forceRecurse();
 			Value ret;
@@ -200,6 +200,10 @@ namespace lunatic {
 		catch (std::runtime_error& e) {
 			Value ret;
 			vm->storeReturn(0, ret);
+			Value msg;
+			SerializeContext ctx(vm);
+			msg.store(e.what(), &ctx);
+			vm->storeReturn(1, msg);
 			vm->getCurrentState()->restoreFrom(info);
 		}
 	}
