@@ -2,6 +2,7 @@
 #include "table.h"
 #include "value.h"
 #include "closure.h"
+#include "upvalue.h"
 namespace lunatic {
 
 
@@ -26,8 +27,6 @@ namespace lunatic {
 		int i32;
 		double f64;
 		size_t gcCycle = 0;
-		if (state->selfStack.size() == 0)
-			state->selfStack.push_back(Value());
 		int size = program.size();
 		int callsize = cur->callStack.size();
 		while (state->pc < size && state->ok) {
@@ -145,10 +144,6 @@ namespace lunatic {
 				*a = globals[i32];//here!
 				state->next();
 				break;
-			case Opcode::PushNil:
-				state->pushSelf(Value());
-				state->next();
-				break;
 			case Opcode::SetProto:
 				a = GetReg(i.getA());
 				b = GetReg(i.getB());
@@ -197,8 +192,11 @@ namespace lunatic {
 				state->next();
 				break;
 			case Opcode::MakeClosure:
-				a = GetReg(i.getA());
-				a->setClosure(gc.alloc<Closure>(i.getInt(), 0));
+				a = GetReg(i.getA()); {
+					auto closure = gc.alloc<Closure>(i.getInt(), 0);
+					closure->setParent(getCurrentClosure());
+					a->setClosure(closure);
+				}
 				state->next();
 				break;
 			case Opcode::SetArgCount:
@@ -220,7 +218,7 @@ namespace lunatic {
 					invokeMetaMethod(a, nullptr, nullptr, "__call", i.getB());
 				}
 				else {
-					state->call(a->getClosureAddr(), i.getB());
+					state->call(a->getClosure(), i.getB());
 				}
 				break;
 			case Opcode::Ret:
@@ -232,8 +230,42 @@ namespace lunatic {
 				state->next();
 				natives[i32](this);
 				break;
+			case Opcode::MakeUpvalue:
+				{
+				auto closure = getCurrentClosure();
+				auto parent = closure->getParent();
+				UpValue* parentUp = nullptr;
+				if (parent) {
+					parentUp = parent->getUpValue();
+				}
+				auto up = gc.alloc<UpValue>(parentUp);
+				closure->setUpvalue(up);
+				}
+				state->next();
+				break;
+			case Opcode::LoadUpvalue:
+			{
+				a = GetReg(i.getA());
+				i32 = i.getInt();
+				auto closure = getCurrentClosure();
+				UpValue* up = closure->getUpValue();
+				*a = up->get(i32);
+				state->next();
+				break;
+			}
+			case Opcode::StoreUpvalue:
+			{
+				auto closure = getCurrentClosure();
+				UpValue* up = closure->getUpValue();
+	
+				a = GetReg(i.getA());
+				i32 = i.getInt();
+				up->set(i32, *a);
+				state->next();
+				break;
+			}
 			default:
-				std::cerr << "unknown opcode " << std::endl;
+				std::cerr << "unknown opcode "<<i.str() << std::endl;
 				state->next();
 				break;
 			}
@@ -250,8 +282,7 @@ namespace lunatic {
 			cur->push(*b);
 			auto meta = a->get(key);
 			meta.checkClosure();
-			int addr = meta.getClosureAddr();
-			call(addr, 2);
+			call(meta.getClosure(), 2);
 			eval(cur);
 			cur->ok = true;
 			*c = cur->retReg[0];
@@ -262,8 +293,7 @@ namespace lunatic {
 			auto cur = getCurrentState();
 			auto meta = a->get(key);
 			meta.checkClosure();
-			int addr = meta.getClosureAddr();
-			call(addr, 2);
+			call(meta.getClosure(), 2);
 			eval(cur);
 			cur->ok = true;
 		}
@@ -305,24 +335,30 @@ namespace lunatic {
 		*r = v;
 	}
 
-	void VM::call(int addr, int n) {
+	void VM::call(Closure* closure, int n) {
 		auto state = getCurrentState();
-		state->call(addr, n);
+		state->call(closure, n);
 	}
 
 
-	void VM::collect(){
+	void VM::collect() {
 		gc.prepareForCollect();
 		auto s = getCurrentState();
-		for(int i =0;i<s->bp + REG_MAX;i++){
+		for (int i = 0; i < s->bp + REG_MAX; i++) {
 			gc.mark(s->locals[i]);
 		}
-		for(auto & i:globals){
+		for (auto& i : globals) {
 			gc.mark(i);
+		}
+		for (auto& i : s->retReg) {
+			gc.mark(i);
+		}
+		for (auto& i :s->callStack) {
+			gc.mark(i.closure);
 		}
 		gc.sweep();
 	}
-	void VM::exec(){
+	void VM::exec() {
 		eval(getCurrentState());
 	}
 }

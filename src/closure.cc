@@ -2,6 +2,7 @@
 #include "closure.h"
 
 #include "value.h"
+#include "upvalue.h"
 
 namespace lunatic {
 	class UpValue;
@@ -11,6 +12,13 @@ namespace lunatic {
 	}
 
 	void Closure::setUpvalue(UpValue* up) {
+		upValue = up;
+	}
 
+	void  Closure::markReferences(GC* gc)const {
+		if (upValue)
+			gc->mark(upValue);
+		if (parent)
+			gc->mark(parent);
 	}
 }

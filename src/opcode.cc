@@ -37,13 +37,12 @@ namespace lunatic {
 		W_ABC(Opcode::StoreValue);
 		W_AB(Opcode::NewTable);
 		W_AB(Opcode::Clone);
-		W_AB(Opcode::PushNil);
 		W_AB(Opcode::SetProto);
 		W_AB(Opcode::Neg);
 		W_AB(Opcode::Not);
-		W_AB(Opcode::MakeUpvalue);
-		W_ABC(Opcode::LoadUpvalue);
-		W_ABC(Opcode::StoreUpvalue);
+		W_ABC(Opcode::MakeUpvalue);
+		W_AB(Opcode::LoadUpvalue);
+		W_AB(Opcode::StoreUpvalue);
 		W_ABC(Opcode::SetUpvalue);
 		return out.str();
 	}

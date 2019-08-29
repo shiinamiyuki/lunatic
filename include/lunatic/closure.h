@@ -8,9 +8,16 @@ namespace lunatic {
 	class Closure : public GCObject {
 		int addr;
 		int argCount;
-		UpValue* upvalue;
+		UpValue* upValue=nullptr;
 		//  std::unordered_map<unsigned int, Value> upValue;
+		Closure* parent = nullptr;
 	public:
+		void setParent(Closure* p) {
+			parent = p;
+		}
+		Closure* getParent() {
+			return parent;
+		}
 		Closure(int a, int c);
 
 		inline int getAddress() const { return addr; }
@@ -19,9 +26,12 @@ namespace lunatic {
 
 		inline void setArgCount(int i) { argCount = i; }
 		void setUpvalue(UpValue* up);
+		UpValue* getUpValue()const {
+			return upValue;
+		}
 		Value get(int);
 		void set(int, const Value&);
-		void markReferences(GC*)const override {}
+		void markReferences(GC* gc)const override;
 		//  inline Value& getUpValue(unsigned int i)const{return upValue[i];}
 	   //   inline void setUpValue(unsigned int i, const Value &v){upValue[i] = v;}
 		virtual size_t nBytes()const{

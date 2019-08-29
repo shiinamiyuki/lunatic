@@ -408,12 +408,13 @@ namespace lunatic {
 	}
 
 	void CodeGen::funcHelper(AST* arg, AST* body, int i) {
-		if (locals.getFuncLevel() == 2) {
-			emit(Instruction(Opcode::MakeUpvalue, 0, 0, 0)); // one upvalue for all closure in the scope
-		}
+	
 		arg->accept(this);
 		auto jmpIdx = (unsigned int)program.size();
 		emit(Instruction(Opcode::BRC, 0, 0));
+		if (locals.getFuncLevel() >= 1) {
+			emit(Instruction(Opcode::MakeUpvalue, 0, 0, 0));
+		}
 		body->accept(this);
 		emit(Instruction(Opcode::Ret, 0, 0));
 		auto end = (unsigned int)program.size();
@@ -540,15 +541,17 @@ namespace lunatic {
 		for (auto iter = locals.rbegin(); iter != locals.rend(); iter++) {
 			auto& scope = *iter;
 			if (scope.dict.find(var.tok) != scope.dict.end()) {
-				if (scope.functionLevel != funcLevel) {
-					scope.dict[var.tok].captured = true;
+				if (scope.functionLevel != funcLevel && !scope.dict[var.tok].captured) {
+					auto& v = scope.dict[var.tok];
+					v.captured = true;
+					//println("captured {}", var.tok);
+					
 				}
 				return scope.dict[var.tok];
 			}
 		}
 		error(std::string("undefined variable ").append(var.tok), var.line,
 			var.col);
-
 	}
 
 	VarInfo& CodeGen::getGlobal(const Token& var) {
@@ -565,6 +568,15 @@ namespace lunatic {
 			throw std::runtime_error("local scopes are empty!");
 		}
 		locals.pop_back();
+		if (!locals.empty()) {
+			for (auto& i : locals.back().dict) {
+				auto& v = i.second;
+				if (v.captured) {
+					emit(Instruction(Opcode::StoreUpvalue, v.addr, v.addr));
+				}
+			}
+		}
+		
 	}
 
 	void CodeGen::pushScope() {
@@ -593,13 +605,6 @@ namespace lunatic {
 	void CodeGen::print() {
 		for (unsigned int i = 0; i < program.size(); i++) {
 			std::cout << i << " " << program[i].str() << std::endl;
-		}
-	}
-
-	void CodeGen::addClass(const std::string& s) {
-		if (classSet.find(s) == classSet.end()) {
-			classSet.insert(s);
-			globals.dict[s] = VarInfo(globals.dict.size());
 		}
 	}
 

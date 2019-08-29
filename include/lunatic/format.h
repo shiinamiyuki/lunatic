@@ -72,7 +72,7 @@ void println(const std::string& fmt);
 template< typename... Args>
 void println(const char* fmt, Args... a) {
 	auto str = format(fmt, a...);
-	printf("%s", str.c_str());
+	printf("%s\n", str.c_str());
 }
 template< typename... Args>
 void fprintln(FILE* f, const char* fmt, Args... a) {

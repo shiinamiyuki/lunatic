@@ -4,6 +4,7 @@
 #include "value.h"
 #include "table.h"
 #include "lstring.h"
+#include "closure.h"
 namespace lunatic {
 	class VM;
 	class Table;
@@ -14,6 +15,7 @@ namespace lunatic {
 
 	struct CallInfo {
 		CallInfo* prev;
+		Closure* closure = nullptr;
 		int pc;
 		int bp;
 		int sp;
@@ -39,7 +41,6 @@ namespace lunatic {
 	struct State {
 		std::vector<Value> locals;
 		std::vector<Value> retReg;
-		std::vector<Value> selfStack;
 		//CallInfo* callInfo;
 		std::vector<CallInfo>callStack;
 		int pc, bp, sp;
@@ -74,8 +75,10 @@ namespace lunatic {
 		inline void push() {
 			sp++;
 		}
-		inline void call(int addr, int n) {
+		inline void call(Closure *closure, int n) {
+			int addr = closure->getAddress();
 			callStack.push_back(CallInfo(nullptr, pc, bp, sp - n, n));
+			callStack.back().closure = closure;
 			//	CallInfo* info = new CallInfo(callInfo,pc,bp,sp - n);//TODO : sp- number of args
 			pc = addr;
 			bp += REG_MAX;
@@ -122,11 +125,7 @@ namespace lunatic {
 			updateReg();
 			//	popSelf();
 		}
-		inline void pushSelf(const Value& v) {
-			selfStack.push_back(v);
-		}
-		inline Value getSelf()const { return selfStack.back(); }
-		inline void popSelf() { selfStack.pop_back(); }
+
 		inline int getArgCount()const {
 			return callStack.back().argCount;
 		}
@@ -144,6 +143,20 @@ namespace lunatic {
 		GC gc;
 		
 		void eval(State* state);
+		Closure* getCurrentClosure()const {
+			auto s = getCurrentState()->callStack.size();
+			if (s >= 1)
+				return getCurrentState()->callStack[s - 1].closure;
+			else
+				return nullptr;
+		}
+		Closure* getParentClosure()const {
+			auto s = getCurrentState()->callStack.size();
+			if (s >= 2)
+				return getCurrentState()->callStack[s - 2].closure;
+			else
+				return nullptr;
+		}
 	public:
 		void forceRecurse() {
 			eval(getCurrentState());
@@ -167,7 +180,7 @@ namespace lunatic {
 		Value& getLocal(int i);
 		void storeReturn(int i, const Value&);
 
-		void call(int addr, int n);
+		void call(Closure*, int n);
 		inline State* getCurrentState()const { return cur; }
 		inline bool checkArithmetic(Value* a, Value* b) {
 			return Value::checkArithmetic(a, b);

@@ -81,6 +81,7 @@ namespace lunatic {
 
 	class SymbolTable : public std::vector<Scope> {
 		int funcLevel;
+		
 	public:
 		SymbolTable() : funcLevel(0) {
 
@@ -105,7 +106,6 @@ namespace lunatic {
 		std::vector<std::string> strPool;
 		std::unordered_map<std::string, int> natives;
 		std::unordered_map<std::string, int> strConst;
-		std::set<std::string> classSet;
 		std::vector<int> callDepthStack;
 		RegState regState;
 		SourceMap sourceMap;
@@ -161,7 +161,9 @@ namespace lunatic {
 		void visit(Break*) override;
 
 		void visitRight(ParallelAssignEntry*);
+
 		void visitLeft(ParallelAssignEntry*);
+
 		void visit(ParallelAssignEntry*) override;
 
 		void visit(ParallelAssign*) override;
@@ -195,12 +197,6 @@ namespace lunatic {
 		void syncRegState();
 
 		void addString(const std::string&);
-
-		void addClass(const std::string&);
-
-		bool isClass(const std::string& s) {
-			return classSet.find(s) != classSet.end();
-		}
 
 		bool hasVar(const std::string& s);
 

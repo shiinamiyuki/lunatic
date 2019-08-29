@@ -191,7 +191,7 @@ namespace lunatic {
 		func.checkClosure();
 		auto info = vm->getCurrentState()->save();
 		try {
-			vm->call(func.getClosureAddr(), 0);
+			vm->call(func.getClosure(), 0);
 			vm->forceRecurse();
 			Value ret;
 			ret.setBool(true);

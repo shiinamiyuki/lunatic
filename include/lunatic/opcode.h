@@ -27,7 +27,6 @@ namespace lunatic {
 		LoadBool, //A Bx
 		LoadGlobal, //A Bx
 		LoadRet,// A B
-		PushNil,
 		GetValue,//A B C   C = A[B]
 		StoreValue,//A B C   A[B] = C
 		StoreRet,//A B
