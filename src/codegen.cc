@@ -77,6 +77,9 @@ namespace lunatic {
 
 	void CodeGen::visit(Identifier* node) {
 		auto& var = node->getToken();
+		if (!hasVar(var.tok)) {
+			createGlobal(var);
+		}
 		if (isGlobal(var.tok)) {
 			int a = getGlobalAddress(var);
 			int r = findReg();
@@ -190,9 +193,9 @@ namespace lunatic {
 		for (auto i = node->begin(); i != node->end(); i++) {
 			auto n = *i;
 			if (n->type() == Func().type()) {
-				if (n->first()->type() == Identifier().type()) {
+				/*if (n->first()->type() == Identifier().type()) {
 					createGlobal(n->first()->getToken());
-				}
+				}*/
 			}
 
 		}
@@ -405,10 +408,13 @@ namespace lunatic {
 			body = func->second();
 			i = 0;
 		}
+	
 		funcHelper(arg, body, i);
-		assign(func);
-		locals.decFuncLevel();
 		popScope();
+		assign(func);
+		
+		locals.decFuncLevel();
+		
 		callDepthStack.pop_back();
 	}
 
@@ -532,7 +538,7 @@ namespace lunatic {
 	}
 
 	void CodeGen::createGlobal(const Token& var) {
-		auto n = var.tok;
+		const auto& n = var.tok;
 		if (globals.dict.find(n) == globals.dict.end())
 			globals.dict[n] = VarInfo(globals.dict.size());
 	}
