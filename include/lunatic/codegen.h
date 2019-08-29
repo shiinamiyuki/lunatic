@@ -3,6 +3,7 @@
 #include "ast.h"
 #include "opcode.h"
 #include "visitor.h"
+#include "format.h"
 
 namespace lunatic {
 	class AST;
@@ -94,6 +95,8 @@ namespace lunatic {
 	};
 
 	typedef std::unordered_map<int, SourcePos> SourceMap;
+	typedef std::unordered_map<int, std::string> FuncInfoMap;
+
 	class CodeGen : public Visitor {
 		SymbolTable locals;
 		Scope globals;
@@ -106,8 +109,10 @@ namespace lunatic {
 		std::vector<int> callDepthStack;
 		RegState regState;
 		SourceMap sourceMap;
-
+		FuncInfoMap funcInfoMap;
 		void addSourceInfo(const SourcePos&);
+
+		void addFuncInfo(int i, const std::string& name);
 
 		void visit(BinaryExpression*) override;
 
@@ -155,19 +160,23 @@ namespace lunatic {
 
 		void visit(Break*) override;
 
+		void visitRight(ParallelAssignEntry*);
+		void visitLeft(ParallelAssignEntry*);
+		void visit(ParallelAssignEntry*) override;
+
+		void visit(ParallelAssign*) override;
+
 		void pre(AST*) override;
 
 		void funcHelper(AST* arg, AST* body, int i);
 
-		void assign(AST*, bool b = false);
+		void assign(AST*);
 
 		int getLocalAddress(const Token& var);
 
 		void createGlobal(const Token& var);
 
 		void createLocal(const Token& var);
-
-		bool isConst(const Token& var);
 
 		void error(const std::string& msg, int line, int col);
 
@@ -201,6 +210,17 @@ namespace lunatic {
 
 	public:
 		friend class ScriptEngine;
+
+		std::string getFuncName(int pc) {
+			while (pc >= 0) {
+				auto iter = funcInfoMap.find(pc);
+				if (iter != funcInfoMap.end())
+					return iter->second;
+				pc--;
+			
+			}
+			return "main";
+		}
 
 		SourcePos getSourcePos(int i) {
 			int t = i;

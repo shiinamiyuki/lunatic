@@ -30,14 +30,12 @@ namespace lunatic {
 	Error ScriptEngine::compileAndRunString(const std::string& s, const char* filename) {
 		auto len = gen.program.size();
 		try {
-			len = gen.program.size();
 			Scanner scan(filename, s);
 			scan.scan();
 			Parser p(scan);
 			auto ast = p.parse();
 			ast->link();
 			//std::cout <<ast->str()<<std::endl;
-			
 			ast->accept(&gen);
 			//gen.print();
 			vm.loadProgram(gen.getProgram());
@@ -55,8 +53,9 @@ namespace lunatic {
 		catch (std::runtime_error& e) {
 			auto pc = vm.getCurrentState()->pc;
 			auto pos = gen.getSourcePos(pc);
-			auto msg = format("\033[31merror: {} at {}:{}:{} with stack trace:{}\033[0m",
+			auto msg = format("\033[31merror: {} in <{}> at {}:{}:{} with stack trace:{}\033[0m",
 				e.what(),
+				gen.getFuncName(pc),
 				pos.filename, pos.line, pos.col,
 				dumpStackTrace());
 			vm.getCurrentState()->reset();
@@ -156,7 +155,7 @@ namespace lunatic {
 		auto stack = state->callStack;
 		for (auto iter = stack.rbegin(); iter != stack.rend(); iter++) {
 			auto pos = gen.getSourcePos(iter->pc - 1);
-			dump.append(format("\n\tat {}:{}:{}", pos.filename, pos.line, pos.col));
+			dump.append(format("\n\t in  <{}> at {}:{}:{}", gen.getFuncName(iter->pc - 1), pos.filename, pos.line, pos.col));
 		}
 		dump.append("\n");
 		return dump;

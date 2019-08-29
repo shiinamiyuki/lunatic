@@ -9,10 +9,12 @@ namespace lunatic {
 		std::unordered_map<std::string, int> opAssoc; //1 for left 0 for right
 		int pos;
 		const char* filename;
+		std::vector<AST*> pool;
 		template<typename T, typename... Args>
 		T* makeNode(Args...args) {
-			auto  t = new T(args...);
+			auto t = new T(args...);
 			t->pos = getPos();
+			pool.emplace_back(t);
 			return t;
 		}
 		SourcePos getPos()const;
@@ -20,7 +22,9 @@ namespace lunatic {
 		Parser(Scanner&);
 		
 		AST* parse();
+		void free();
 	private:
+		
 		const Token& at(int idx) const;
 		inline const Token& cur() const {
 			return at(pos);
@@ -32,7 +36,7 @@ namespace lunatic {
 		inline bool hasNext() const {
 			return pos + 1 < (int)tokenStream.size();
 		}
-
+		AST* hackParallelAssign(AST*);
 		//all of the followings will call consume() themselves
 		AST* parseBlock();
 		AST* parseExpr(int lev = 0);
@@ -54,6 +58,10 @@ namespace lunatic {
 		void expect(const std::string& token);
 		bool has(const std::string& token);
 		void skip();
+	public:
+		~Parser() {
+			free();
+		}
 	};
 
 	class ParserException : public std::exception {

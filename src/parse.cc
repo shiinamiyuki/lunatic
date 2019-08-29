@@ -1,29 +1,23 @@
 #include "parse.h"
+#include "format.h"
 namespace lunatic {
 	Parser::Parser(Scanner& lex) {
 		filename = lex.filename;
 		pos = -1;
 		tokenStream = lex.getTokenStream();
 		opPrec["="] = 0;
-		opPrec["|"] = 1;
-		opPrec["or"] = 1;
-		opPrec["and"] = 2;
-		opPrec["&"] = 2;
+		opPrec[","] = 1;
+		opPrec["|"] = 2;
+		opPrec["or"] = 3;
+		opPrec["and"] = 3;
+		opPrec["&"] = 3;
 		opPrec[">="] = opPrec["<="] = opPrec[">"] = opPrec["<"] = opPrec["=="] = opPrec["~="] =
-			opPrec["!="] = 3;
-		opPrec["+"] = opPrec["-"] = opPrec[".."] = 4;
-		opPrec["*"] = opPrec["/"] = opPrec["//"] = opPrec["%"] = 5;
-		opPrec["+="] = 0;
-		opPrec["-="] = 0;
-		opPrec["*="] = 0;
-		opPrec["/="] = 0;
-		opPrec["<<="] = 0;
-		opPrec[">>="] = 0;
-		opPrec["^="] = 0;
-		opPrec["&="] = 0;
-		opPrec["|="] = 0;
+			opPrec["!="] = 4;
+		opPrec["+"] = opPrec["-"] = opPrec[".."] = 5;
+		opPrec["*"] = opPrec["/"] = opPrec["//"] = opPrec["%"] = 6;
 		opAssoc = {
 				{"=",   0},
+				{",",   1},
 				{".",   1},
 				{"->",  1},
 				{"+",   1},
@@ -113,7 +107,85 @@ namespace lunatic {
 		}
 		return node;
 	}
-
+	std::vector<AST*> unrollComma(BinaryExpression* e) {
+		std::vector<AST*> result;
+		if (!dynamic_cast<BinaryExpression*>(e->first())) {
+			result.emplace_back(e->first());
+		}
+		else {
+			auto t = std::move(unrollComma(dynamic_cast<BinaryExpression*>(e->first())));
+			result.insert(result.end(), t.begin(), t.end());
+		}
+		result.emplace_back(e->second());
+		return result;
+	}
+	/*AST* Parser::hackParallelAssign(AST* _node) {
+		auto node = static_cast<BinaryExpression*>(_node);
+		if (_node->getToken().tok == "=" && node->first()->getToken().tok == ",") {
+			auto& tok = node->second()->getToken();
+			if (node->second()->getToken().tok != ",") {
+				throw ParserException("requires both sides having same number of arguments",
+					tok.line, tok.col);
+			}
+			auto left = unrollComma(static_cast<BinaryExpression*>(node->first()));
+			auto right = unrollComma(static_cast<BinaryExpression*>(node->second()));
+			if (left.size() != right.size()) {
+				throw ParserException("requires both sides having same number of arguments",
+					tok.line, tok.col);
+			}
+			int id = 0;
+			const char* prefix = "@tmp_";
+			auto block = makeNode<Block>();
+			for (int i = 0; i < left.size(); i++) {
+				auto iden = makeNode<Identifier>(Token(Token::Type::Identifier,
+					format("{}{}", prefix, i), tok.line, tok.col));
+				auto expr = makeNode<BinaryExpression>(Token(Token::Type::Symbol,
+					"=", tok.line, tok.col));
+				expr->add(iden);
+				expr->add(right.at(i));
+				block->add(expr);
+			}
+			for (int i = 0; i < left.size(); i++) {
+				auto iden = makeNode<Identifier>(Token(Token::Type::Identifier,
+					format("{}{}", prefix, i), tok.line, tok.col));
+				auto expr = makeNode<BinaryExpression>(Token(Token::Type::Symbol,
+					"=", tok.line, tok.col));
+				expr->add(left.at(i));
+				expr->add(iden);	
+				block->add(expr);
+			}
+			return block;
+		}
+		return node;
+	}*/
+	AST* Parser::hackParallelAssign(AST* _node) {
+		auto node = static_cast<BinaryExpression*>(_node);
+		if (_node->getToken().tok == "=" && node->first()->getToken().tok == ",") {
+			auto& tok = node->second()->getToken();
+			std::vector<AST*>left, right;
+			if (node->second()->getToken().tok != ",") {
+				right.emplace_back(node->second());
+			}
+			else {
+				right = unrollComma(static_cast<BinaryExpression*>(node->second()));
+			}
+			left = unrollComma(static_cast<BinaryExpression*>(node->first()));
+			
+			auto assign = makeNode<ParallelAssign>();
+			auto L = makeNode<ParallelAssignEntry>();
+			auto R = makeNode<ParallelAssignEntry>();
+			for (auto i : left) {
+				L->add(i);
+			}
+			for (auto i : right) {
+				R->add(i);
+			}
+			assign->add(L);
+			assign->add(R);
+			return assign;
+		}
+		return node;
+	}
 	AST* Parser::parseExpr(int lev) {
 		skip();
 		AST* result = parseUnary();
@@ -127,6 +199,7 @@ namespace lunatic {
 				AST* op = makeNode<BinaryExpression>(next);
 				op->add(result);
 				op->add(rhs);
+				op = hackParallelAssign(op);
 				result = op;
 			}
 			else
@@ -161,7 +234,7 @@ namespace lunatic {
 		}
 		else if (next.tok == "(") {
 			consume();
-			auto n = parseExpr(0);
+			auto n = parseExpr(1);
 			expect(")");
 			return n;
 		}
@@ -214,7 +287,7 @@ namespace lunatic {
 				consume();
 				expect("=");
 				auto key = makeNode<StringLiteral>(tok);
-				auto value = parseExpr();
+				auto value = parseExpr(2);
 				pair->add(key);
 				pair->add(value);
 				list->add(pair);
@@ -222,16 +295,16 @@ namespace lunatic {
 			else if (peek().tok == "[") {
 				auto pair = makeNode<KVPair>();
 				consume();
-				auto key = parseExpr(1);
+				auto key = parseExpr(2);
 				expect("]");
 				expect("=");
-				auto value = parseExpr(1);
+				auto value = parseExpr(2);
 				pair->add(key);
 				pair->add(value);
 				list->add(pair);
 			}
 			else
-				list->add(parseExpr(0));
+				list->add(parseExpr(2));
 			if (has(","))
 				consume();
 		}
@@ -244,7 +317,7 @@ namespace lunatic {
 		expect("(");
 		auto arg = makeNode<Arg>();
 		while (hasNext() && !has(")")) {
-			arg->add(parseExpr(0));
+			arg->add(parseExpr(2));
 			if (has(","))
 				consume();
 		}
@@ -287,7 +360,7 @@ namespace lunatic {
 				auto index = makeNode<Index>();
 				index->add(node);
 				consume();
-				index->add(parseExpr(0));
+				index->add(parseExpr(2));
 				expect("]");
 				node = index;
 			}
@@ -336,7 +409,7 @@ namespace lunatic {
 		node->add(parseBlock());
 		while (hasNext() && has("elseif")) {
 			consume();
-			node->add(parseExpr(0));
+			node->add(parseExpr(2));
 			expect("then");
 			node->add(parseBlock());
 		}
@@ -356,7 +429,17 @@ namespace lunatic {
 		}
 		else {
 			auto node = makeNode<Return>();
-			node->add(parseExpr(0));
+			auto e = parseExpr(1);
+			auto r = dynamic_cast<BinaryExpression*>(e);
+			if (r && r->getToken().tok == ",") {
+				auto v = unrollComma(r);
+				for (auto i : v) {
+					node->add(i);
+					
+				}
+				return node;
+			}
+			node->add(e);
 			return node;
 		}
 	}
@@ -391,7 +474,7 @@ namespace lunatic {
 		expect("while");
 		skip();
 		auto node = makeNode<WhileLoop>();
-		node->add(parseExpr(0));
+		node->add(parseExpr(2));
 		expect("do");
 		node->add(parseBlock());
 		expect("end");
@@ -480,6 +563,13 @@ namespace lunatic {
 
 	SourcePos Parser::getPos() const {
 		return SourcePos(filename, peek().line, peek().col);
+	}
+
+	void Parser::free() {
+		for (auto i : pool) {
+			delete i;
+		}
+		pool.clear();
 	}
 
 }

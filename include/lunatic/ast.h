@@ -26,7 +26,9 @@ namespace lunatic {
 		virtual std::string str(int depth = 0) const;
 
 		virtual const std::string type() const { return std::string(); };
-
+		inline AST* at(int i) {
+			return children.at(i);
+		}
 		inline AST* first() {
 			return children.at(0);
 		}
@@ -77,6 +79,23 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
+	class ParallelAssign : public AST {
+	public:
+		const std::string type() const {
+			return S("ParallelAssign");
+		}
+
+		void accept(Visitor*);
+	};
+
+	class ParallelAssignEntry : public AST {
+	public:
+		const std::string type() const {
+			return S("ParallelAssignEntry");
+		}
+
+		void accept(Visitor*);
+	};
 	class BinaryExpression : public AST {
 	public:
 		BinaryExpression() {}

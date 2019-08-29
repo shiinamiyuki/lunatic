@@ -34,7 +34,7 @@ namespace lunatic {
 		emit(Instruction(Opcode::LoadStr, findReg(), strConst[s]));
 	}
 
-	void CodeGen::assign(AST* node, bool b) {
+	void CodeGen::assign(AST* node) {
 
 		auto first = node->first();
 		if (first->type() == Identifier().type()) {
@@ -253,13 +253,13 @@ namespace lunatic {
 		int idx = 1;
 		for (auto iter = list->begin(); iter != list->end(); iter++) {
 			auto& node = *iter;
-			
+
 			int key, v;
 			node->accept(this);
 			if (node->type() == KVPair().type()) {
 
 			}
-			else {				
+			else {
 				emit(Instruction(Opcode::LoadInt, findReg(), idx));
 			}
 			key = popReg();
@@ -381,7 +381,15 @@ namespace lunatic {
 			if (name->type() == Colon().type()) {
 				createLocal(Token(Token::Type::Identifier, "self", -1, -1));
 			}
-			createGlobal(name->getToken());
+			if (name->type() == Identifier().type()) {
+				createGlobal(name->getToken());
+				addFuncInfo(program.size(), name->getToken().tok);
+			}
+			else {
+				auto c = name->first();
+				auto m = name->second();
+				addFuncInfo(program.size(), format("{}.{}", c->getToken().tok, m->getToken().tok));
+			}
 			arg = func->second();
 			i = arg->type() == Colon().type() ? 1 : 0;
 			body = func->third();
@@ -426,8 +434,10 @@ namespace lunatic {
 			emit(Instruction(Opcode::Ret, 0, 0));
 		}
 		else {
-			ret->first()->accept(this);
-			emit(Instruction(Opcode::StoreRet, popReg(), 0));
+			for (int i = 0; i < ret->size(); i++) {
+				ret->at(i)->accept(this);
+				emit(Instruction(Opcode::StoreRet, popReg(), i));
+			}
 			emit(Instruction(Opcode::Ret, 0, 0));
 		}
 	}
@@ -612,7 +622,7 @@ namespace lunatic {
 		auto ast = p.parse();
 		ast->link();
 		ast->accept(this);
-		delete ast;
+		p.free();
 	}
 
 	void CodeGen::addLibMethod(const std::string& lib, const std::string& m, int i) {
@@ -669,13 +679,74 @@ namespace lunatic {
 		}
 	}
 
+	void  CodeGen::addFuncInfo(int i, const std::string& name) {
+		//println("added {} at {}\n", name, i);
+		funcInfoMap[i] = name;
+	}
 	void CodeGen::pre(AST* ast) {
 		addSourceInfo(ast->pos);
 	}
 
 	void CodeGen::visit(KVPair* pair) {
 		pair->second()->accept(this);
-		pair->first()->accept(this);	
+		pair->first()->accept(this);
 	}
 
+	void CodeGen::visit(ParallelAssignEntry* entry) {
+
+	}
+	void CodeGen::visitRight(ParallelAssignEntry* entry) {
+		for (int i = entry->size() - 1; i >= 0; i--) {
+			entry->at(i)->accept(this);
+			emit(Instruction(Opcode::StoreRet, popReg(), i));
+		}
+	}
+	void CodeGen::visitLeft(ParallelAssignEntry* entry) {
+		for (auto i = 0; i < entry->size(); i++) {
+			emit(Instruction(Opcode::LoadRet, i, findReg()));
+		}
+		for (int i = entry->size() - 1; i >= 0; i--) {
+			auto node = entry->at(i);
+			if (node->type() == Identifier().type()) {
+				auto& var = node->getToken();
+				if (!hasVar(var.tok)) {
+					createGlobal(var); // default globals
+				}
+
+
+				int rhs = popReg();
+				if (isGlobal(node->getToken().tok)) {
+					int addr = getGlobalAddress(node->getToken());
+					emit(Instruction(Opcode::StoreGlobal, rhs, addr));
+				}
+				else {
+					auto& v = getLocal(node->first()->getToken());
+					int addr = v.addr;
+					if (v.captured) {
+						emit(Instruction(Opcode::StoreUpvalue, popReg(), addr));
+					}
+					else {
+						emit(Instruction(Opcode::Move, rhs, addr));
+					}
+				}
+			}
+			else if (node->type() == Index().type()
+				|| node->type() == Colon().type()) {
+				auto idx = node;
+				auto t = idx->first();
+				auto i = idx->second();
+				t->accept(this);
+				i->accept(this);
+				int a, b;
+				b = popReg();
+				a = popReg();
+				int rhs = popReg();
+				emit(Instruction(Opcode::StoreValue, a, b, rhs));
+			}
+		}
+	}
+	void CodeGen::visit(ParallelAssign* assign) {
+		visitRight(dynamic_cast<ParallelAssignEntry*>(assign->second()));
+		visitLeft(dynamic_cast<ParallelAssignEntry*>(assign->first()));
+	}
 }

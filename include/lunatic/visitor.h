@@ -50,6 +50,10 @@ namespace  lunatic {
 
 		virtual void visit(KVPair*) = 0;
 
+		virtual void visit(ParallelAssign*) = 0;
+
+		virtual void visit(ParallelAssignEntry*) = 0;
+
 		virtual ~Visitor() = default;
 
 		virtual void pre(AST*) {}

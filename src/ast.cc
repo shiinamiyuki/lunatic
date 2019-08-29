@@ -61,4 +61,6 @@ namespace lunatic {
 	AST_ACCEPT(For);
 	AST_ACCEPT(Break);
 	AST_ACCEPT(KVPair);
+	AST_ACCEPT(ParallelAssign);
+	AST_ACCEPT(ParallelAssignEntry);
 }
