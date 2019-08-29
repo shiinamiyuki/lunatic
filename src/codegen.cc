@@ -34,6 +34,8 @@ namespace lunatic {
 		emit(Instruction(Opcode::LoadStr, findReg(), strConst[s]));
 	}
 
+	// This is shit
+	// refactor it
 	void CodeGen::assign(AST* node) {
 
 		auto first = node->first();
