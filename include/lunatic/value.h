@@ -189,7 +189,7 @@ namespace lunatic {
 		}
 		bool toBool()const;
 		std::string str() const;
-
+		std::string dump()const;
 		static void setMetaTable(Value* a, Value* v);
 
 		void setMetaTable(const Value&);
@@ -219,17 +219,17 @@ namespace lunatic {
 		const char* typeStr()const {
 			switch (type) {
 			case TTable:
-				return "Table";
+				return "table";
 			case TNil:
-				return "Nil";
+				return "nil";
 			case TString:
-				return "String";
+				return "string";
 			case TClosure:
-				return "Closure";
+				return "function";
 			case TInt:
-				return "Int";
+				return "int";
 			case TFloat:
-				return "Float";
+				return "float";
 			}
 		}
 	};

@@ -25,7 +25,7 @@ namespace lunatic {
 		if (iter != iMap.end())
 			return iter->second;
 		else if (!metatable) {
-			throw std::runtime_error("cannot find index");
+			return Value();
 		}
 		else {
 			return metatable->get(i);
@@ -36,7 +36,7 @@ namespace lunatic {
 		if (iter != sMap.end())
 			return iter->second;
 		else if (!metatable) {
-			throw std::runtime_error(std::string("cannot find index ").append(s));
+			return Value();
 		}
 		else {
 			return metatable->get(s);
@@ -44,7 +44,11 @@ namespace lunatic {
 	}
 	void Table::set(int i, const Value& v) {
 		if (i >= 0 && i < list.size()) {
-			list[i] = v;
+			if (v.isNil() && i == list.size() - 1) {
+				list.pop_back();
+			}
+			else
+				list[i] = v;
 		}
 		else if (i == list.size()) {
 			list.push_back(v);
@@ -63,10 +67,15 @@ namespace lunatic {
 	void Table::set(const std::string& s, const Value& v) {
 		auto iter = sMap.find(s);
 		if (iter == sMap.end()) {
-			sMap.insert(std::make_pair(s, v));
+			if (!v.isNil())
+				sMap.insert(std::make_pair(s, v));
 		}
 		else {
-			sMap[s] = v;
+			if (v.isNil()) {
+				sMap.erase(iter);
+			}
+			else
+				sMap[s] = v;
 		}
 	}
 

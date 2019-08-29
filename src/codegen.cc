@@ -53,7 +53,7 @@ namespace lunatic {
 				auto& v = getLocal(node->first()->getToken());
 				int addr = v.addr;
 				if (v.captured) {
-					emit(Instruction(Opcode::StoreUpvalue, popReg(), addr));
+					emit(Instruction(Opcode::StoreUpvalue, rhs, addr));
 				}
 				else {
 					emit(Instruction(Opcode::Move, rhs, addr));
@@ -72,6 +72,21 @@ namespace lunatic {
 			a = popReg();
 			int rhs = popReg();
 			emit(Instruction(Opcode::StoreValue, a, b, rhs));
+		}
+		else if (first->type() == Local().type()) {
+			auto& var = first->first()->getToken();
+			createLocal(var);
+
+			int rhs = popReg();
+			auto& v = getLocal(var);
+			int addr = v.addr;
+			if (v.captured) {
+				emit(Instruction(Opcode::StoreUpvalue, rhs, addr));
+			}
+			else {
+				emit(Instruction(Opcode::Move, rhs, addr));
+			}
+
 		}
 	}
 
@@ -408,18 +423,18 @@ namespace lunatic {
 			body = func->second();
 			i = 0;
 		}
-	
+
 		funcHelper(arg, body, i);
 		popScope();
 		assign(func);
-		
+
 		locals.decFuncLevel();
-		
+
 		callDepthStack.pop_back();
 	}
 
 	void CodeGen::funcHelper(AST* arg, AST* body, int i) {
-	
+
 		arg->accept(this);
 		auto jmpIdx = (unsigned int)program.size();
 		emit(Instruction(Opcode::BRC, 0, 0));
@@ -556,7 +571,7 @@ namespace lunatic {
 					auto& v = scope.dict[var.tok];
 					v.captured = true;
 					//println("captured {}", var.tok);
-					
+
 				}
 				return scope.dict[var.tok];
 			}
@@ -587,7 +602,7 @@ namespace lunatic {
 				}
 			}
 		}
-		
+
 	}
 
 	void CodeGen::pushScope() {

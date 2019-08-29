@@ -256,7 +256,7 @@ namespace lunatic {
 
 		int popReg() {
 			if (reg.size() == 0) {
-				throw std::runtime_error("reg underflow");
+				throw CompilerException("reg underflow",-1,-1);
 			}
 			int i = reg.back();
 			reg.pop_back();

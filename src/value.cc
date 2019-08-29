@@ -234,7 +234,7 @@ namespace lunatic {
 		}
 		return asTable;
 	}
-	std::string Value::str() const {
+	std::string Value::dump()const {
 		std::ostringstream out;
 		if (isInt()) {
 			out << getInt();
@@ -248,19 +248,44 @@ namespace lunatic {
 			if (!tab.getList()[0].isNil()) {
 				out << "{0:" << tab.getList()[0].str() << std::endl;
 			}
-			for (auto iter = tab.getList().begin() + 1; iter != tab.getList().end();iter++) {
-				out << iter->str() << ", ";
+			for (auto iter = tab.getList().begin() + 1; iter != tab.getList().end(); iter++) {
+				out << iter->dump() << ", ";
 			}
 			for (auto i : tab.iMap) {
-				out << "{" << i.first << ":" << i.second.str() << "},";
+				out << "[" << i.first << "]=" << i.second.dump() << ",";
 			}
 			for (auto i : tab.sMap) {
-				out << "{" << i.first << ":" << i.second.str() << "},";
+				out << "[" << i.first << "]=" << i.second.dump() << ",";
 			}
 			out << "}";
 		}
 		else if (isClosure()) {
 			out << "<closure at " << reinterpret_cast<long long>(asClosure) << ">";
+		}
+		else if (isString()) {
+			out << "\"" << getString()->str() << "\"";
+		}
+		else if (isNil()) {
+			out << "nil";
+		}
+		else {
+			out << "unsupported type " << (size_t)type << std::endl;
+		}
+		return out.str();
+	}
+	std::string Value::str() const {
+		std::ostringstream out;
+		if (isInt()) {
+			out << getInt();
+		}
+		else if (isFloat()) {
+			out << getFloat();
+		}
+		else if (isTable()) {
+			out << "table " << std::hex << (size_t)getTable() << std::endl;
+		}
+		else if (isClosure()) {
+			out << "function 0x" << std::hex << (size_t)getTable() << std::endl;
 		}
 		else if (isString()) {
 			out << getString()->str();
