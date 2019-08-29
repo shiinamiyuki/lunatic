@@ -69,7 +69,7 @@ namespace lunatic {
 		if (!i)
 			return;
 		if (i == 1) {
-			while (cur() != '\n')
+			while (cur() && cur() != '\n')
 				consume();
 		}
 		else if (i == 2) {
@@ -83,7 +83,7 @@ namespace lunatic {
 	}
 
 	int Scanner::isComment() {
-		if (cur() == '-' && peek() == '-' && peek2() != '[') {
+		if (cur() == '-' && peek() == '-') {
 			return 1;
 		}
 		if (cur() == '-' && peek() == '-' && peek2() == '[' && peek3() == '[') {
