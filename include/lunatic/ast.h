@@ -26,18 +26,18 @@ namespace lunatic {
 		virtual std::string str(int depth = 0) const;
 
 		virtual const std::string type() const { return std::string(); };
-		inline AST* at(int i) {
+		inline AST*& at(int i) {
 			return children.at(i);
 		}
-		inline AST* first() {
+		inline AST*& first() {
 			return children.at(0);
 		}
 
-		inline AST* second() {
+		inline AST*& second() {
 			return children.at(1);
 		}
 
-		inline AST* third() {
+		inline AST*& third() {
 			return children.at(2);
 		}
 
@@ -308,7 +308,7 @@ namespace lunatic {
 		Local() {}
 
 		const std::string type() const {
-			return S("Let");
+			return S("Local");
 		}
 
 		void accept(Visitor*);

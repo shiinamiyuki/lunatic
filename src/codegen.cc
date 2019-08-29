@@ -385,6 +385,11 @@ namespace lunatic {
 				createGlobal(name->getToken());
 				addFuncInfo(program.size(), name->getToken().tok);
 			}
+			else if (name->type() == Local().type()) {
+				auto f = name->first()->getToken();
+				createLocal(f);
+				addFuncInfo(program.size(), f.tok);
+			}
 			else {
 				auto c = name->first();
 				auto m = name->second();

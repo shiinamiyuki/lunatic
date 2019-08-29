@@ -50,6 +50,7 @@ namespace lunatic {
 		AST* parseReturn();
 		AST* parseNative();
 		AST* parseStmt();
+		AST* parseLambda();
 		AST* parseFunc();
 		AST* parseFuncArg();
 		AST* parseLocal();

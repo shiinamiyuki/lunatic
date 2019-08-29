@@ -213,7 +213,7 @@ namespace lunatic {
 		skip();
 		auto& next = peek();
 		if (has("function")) {
-			return parseFunc();
+			return parseLambda();
 		}
 		else if (next.type == Token::Type::Number) {
 			consume();
@@ -456,8 +456,7 @@ namespace lunatic {
 	void Parser::expect(const std::string& token) {
 		skip();
 		if (peek().tok != token) {
-			std::string msg(token);
-			msg.append(" expected ");
+			std::string msg = format("'{}' expected", token);
 			throw ParserException(msg, peek().line, peek().col);
 		}
 		else {
@@ -489,7 +488,15 @@ namespace lunatic {
 		while (peek().type == Token::Type::Terminator && peek().tok == "EOL")
 			consume();
 	}
-
+	AST* Parser::parseLambda() {
+		expect("function");
+		skip();
+		auto func = makeNode<Func>();
+		func->add(parseFuncArg());
+		func->add(parseBlock());
+		expect("end");
+		return func;
+	}
 	AST* Parser::parseFunc() {
 		expect("function");
 		skip();
@@ -515,9 +522,6 @@ namespace lunatic {
 			}
 			func = new Func();
 			func->add(f);
-		}
-		else if (has("(")) {//lambda
-			func = makeNode<Func>();
 		}
 		else {
 			std::string msg = "identifier or '(' expected after 'fn'";
@@ -550,15 +554,25 @@ namespace lunatic {
 	AST* Parser::parseLocal() {
 		expect("local");
 		skip();
-		AST* let = makeNode<Local>();
-		let->add(parseAtom());
-		if (let->first()->getToken().type != Token::Type::Identifier) {
-			auto& tok = let->first()->getToken();
-			throw ParserException("identifier expected in let expression", tok.line, tok.col);
+		if (peek().tok == "function") {
+			auto func = parseFunc();
+			Local* local = makeNode<Local>();
+			local->add(func->first());
+			func->first() = local;
+			return func;
 		}
-		expect("=");
-		let->add(parseExpr(1));
-		return let;
+		else {
+			AST* local = makeNode<Local>();
+			local->add(parseAtom());
+			if (local->first()->getToken().type != Token::Type::Identifier) {
+				auto& tok = local->first()->getToken();
+				throw ParserException("identifier expected in local expression", tok.line, tok.col);
+			}
+			expect("=");
+			local->add(parseExpr(1));
+			return local;
+		}
+		
 	}
 
 	SourcePos Parser::getPos() const {

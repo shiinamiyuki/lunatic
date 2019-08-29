@@ -226,7 +226,6 @@ namespace lunatic {
 			case Opcode::MakeClosure:
 				a = GetReg(i.getA()); {
 					auto closure = gc.alloc<Closure>(i.getInt(), 0);
-					//closure->setParent(getCurrentClosure());
 					closure->setParentUpValue(getCurrentClosure() ? getCurrentClosure()->getUpValue() : nullptr);
 					a->setClosure(closure);
 				}
