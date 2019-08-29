@@ -191,14 +191,7 @@ namespace lunatic {
 				*b = *a;
 				state->next();
 				break;
-			case Opcode::MakeClosure:
-				a = GetReg(i.getA()); {
-					auto closure = gc.alloc<Closure>(i.getInt(), 0);
-					closure->setParent(getCurrentClosure());
-					a->setClosure(closure);
-				}
-				state->next();
-				break;
+			
 			case Opcode::SetArgCount:
 				a = GetReg(i.getA());
 				a->setArgCount(i.getInt());
@@ -230,15 +223,20 @@ namespace lunatic {
 				state->next();
 				natives[i32](this);
 				break;
+			case Opcode::MakeClosure:
+				a = GetReg(i.getA()); {
+					auto closure = gc.alloc<Closure>(i.getInt(), 0);
+					//closure->setParent(getCurrentClosure());
+					closure->setParentUpValue(getCurrentClosure() ? getCurrentClosure()->getUpValue() : nullptr);
+					a->setClosure(closure);
+				}
+				state->next();
+				break;
 			case Opcode::MakeUpvalue:
 				{
 				auto closure = getCurrentClosure();
-				auto parent = closure->getParent();
-				UpValue* parentUp = nullptr;
-				if (parent) {
-					parentUp = parent->getUpValue();
-				}
-				auto up = gc.alloc<UpValue>(parentUp);
+				auto parent = closure->getParentUpValue();
+				auto up = gc.alloc<UpValue>(parent);
 				closure->setUpvalue(up);
 				}
 				state->next();

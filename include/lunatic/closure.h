@@ -10,12 +10,12 @@ namespace lunatic {
 		int argCount;
 		UpValue* upValue=nullptr;
 		//  std::unordered_map<unsigned int, Value> upValue;
-		Closure* parent = nullptr;
+		UpValue* parent= nullptr;
 	public:
-		void setParent(Closure* p) {
+		void setParentUpValue(UpValue* p) {
 			parent = p;
 		}
-		Closure* getParent() {
+		UpValue* getParentUpValue() {
 			return parent;
 		}
 		Closure(int a, int c);
