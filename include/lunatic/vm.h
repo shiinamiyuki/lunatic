@@ -9,9 +9,7 @@ namespace lunatic {
 	class VM;
 	class Table;
 	typedef std::function<void(VM*)> NativeHandle;
-	class VMException : public std::runtime_error {
 
-	};
 
 	struct CallInfo {
 		CallInfo* prev;

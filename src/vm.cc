@@ -3,6 +3,7 @@
 #include "value.h"
 #include "closure.h"
 #include "upvalue.h"
+#include "format.h"
 namespace lunatic {
 
 
@@ -273,7 +274,10 @@ namespace lunatic {
 	void VM::invokeMetaMethod(Value* a, Value* b, Value* c, const char* key, int n) {
 		if (a && b && c) {
 			//     std::cout << a->str() << std::endl;
-			a->checkTable();
+			if (!a->isTable()) {
+				auto msg = format("Attempt to perform operator {} between {} and {}", key, a->typeStr(), b->typeStr());
+				throw RuntimException(msg);
+			}
 			auto cur = getCurrentState();
 			cur->push(*a);
 			cur->push(*b);

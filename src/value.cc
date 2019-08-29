@@ -187,38 +187,38 @@ namespace lunatic {
 
 	void Value::checkArithmetic() const {
 		if (!isArithmetic())
-			throw std::runtime_error("arithmetic object expected!");
+			throw RuntimException("arithmetic object expected!");
 	}
 	void Value::checkInt() const {
 		if (!isInt())
-			throw std::runtime_error("int object expected!");
+			throw RuntimException("int object expected!");
 	}
 
 	void Value::checkFloat() const {
 		if (!isFloat() && !isInt()) {
-			throw std::runtime_error("float object expected!");
+			throw RuntimException("float object expected!");
 		}
 	}
 
 	void Value::checkClosure() const {
 		if (!isClosure()) {
-			throw std::runtime_error("closure object expected!");
+			throw RuntimException("closure object expected!");
 		}
 	}
 
 	void Value::checkTable() const {
 		if (!isTable()) {
-			throw std::runtime_error("table object expected!");
+			throw RuntimException("table object expected!");
 		}
 	}
 	void Value::checkString() const {
 		if (!isString()) {
-			throw std::runtime_error("string object expected!");
+			throw RuntimException("string object expected!");
 		}
 	}
 	void Value::checkUserData() const {
 		if (!isUserData()) {
-			throw std::runtime_error("user data expected!");
+			throw RuntimException("user data expected!");
 		}
 	}
 
@@ -281,12 +281,12 @@ namespace lunatic {
 			return getTable()->get(i);
 		}
 		else {
-			throw std::runtime_error("is not a table object");
+			throw RuntimException("is not a table object");
 		}
 	}
 	int Value::len() const {
 		if (isArithmetic()) {
-			throw std::runtime_error("attemp to get length of a number value");
+			throw RuntimException("attemp to get length of a number value");
 		}
 		else if (isTable()) {
 			return getTable()->len();
@@ -295,7 +295,7 @@ namespace lunatic {
 			return getString()->str().length();
 		}
 		else {
-			throw std::runtime_error("cannot get length of the value");
+			throw RuntimException("cannot get length of the value");
 		}
 	}
 	Value Value::get(const std::string& s) {
@@ -303,7 +303,7 @@ namespace lunatic {
 			return getTable()->get(s);
 		}
 		else {
-			throw std::runtime_error("is not a table object");
+			throw RuntimException("is not a table object");
 		}
 	}
 
@@ -312,7 +312,7 @@ namespace lunatic {
 			getTable()->set(i, v);
 		}
 		else {
-			throw std::runtime_error("is not a table object");
+			throw RuntimException("is not a table object");
 		}
 	}
 
@@ -321,7 +321,7 @@ namespace lunatic {
 			getTable()->set(s, v);
 		}
 		else {
-			throw std::runtime_error("is not a table object");
+			throw RuntimException("is not a table object");
 		}
 	}
 
@@ -333,7 +333,7 @@ namespace lunatic {
 			return get(k.getString()->str());
 		}
 		else {
-			throw std::runtime_error("invalid type of key");
+			throw RuntimException("invalid type of key");
 		}
 	}
 
@@ -345,7 +345,7 @@ namespace lunatic {
 			set(k.getString()->str(), v);
 		}
 		else {
-			throw std::runtime_error("invalid type of key");
+			throw RuntimException("invalid type of key");
 		}
 	}
 	void Value::setMetaTable(Value* a, Value* b) {
@@ -353,7 +353,7 @@ namespace lunatic {
 			b->getTable()->metatable = a->getTable();
 		}
 		else {
-			throw std::runtime_error("attemp to set the metatable of a non-table value");
+			throw RuntimException("attemp to set the metatable of a non-table value");
 		}
 	}
 
@@ -363,7 +363,7 @@ namespace lunatic {
 			getTable()->metatable = v.getTable();
 		}
 		else {
-			throw std::runtime_error("attemp to set the metatable of a non-table value");
+			throw RuntimException("attemp to set the metatable of a non-table value");
 		}
 	}
 
@@ -372,7 +372,7 @@ namespace lunatic {
 			return getTable()->metatable;
 		}
 		else {
-			throw std::runtime_error("attemp to get the metatable of a non-table value");
+			throw RuntimException("attemp to get the metatable of a non-table value");
 		}
 	}
 

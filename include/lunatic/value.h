@@ -215,6 +215,23 @@ namespace lunatic {
 		void store(const T& v, SerializeContext* ctx = nullptr) {
 			Serializer<T>::serialize(*this, v, ctx);
 		}
+
+		const char* typeStr()const {
+			switch (type) {
+			case TTable:
+				return "Table";
+			case TNil:
+				return "Nil";
+			case TString:
+				return "String";
+			case TClosure:
+				return "Closure";
+			case TInt:
+				return "Int";
+			case TFloat:
+				return "Float";
+			}
+		}
 	};
 
 	template<class T>

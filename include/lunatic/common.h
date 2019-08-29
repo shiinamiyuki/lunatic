@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -8,3 +9,11 @@
 #include <functional>
 #include <list>
 #include <memory>
+
+
+namespace lunatic {
+	class RuntimException : public std::runtime_error {
+	public:
+		using std::runtime_error::runtime_error;
+	};
+}
