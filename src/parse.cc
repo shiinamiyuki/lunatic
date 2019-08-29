@@ -68,6 +68,12 @@ namespace lunatic {
 			auto e = (parseReturn());
 			return e;
 		}
+		else if (has("do")) {
+			consume();
+			auto b = parseBlock();
+			expect("end");
+			return b;
+		}
 		else if (has("while")) {
 			return (parseWhile());
 		}
