@@ -196,7 +196,8 @@ namespace lunatic {
 
 		VarInfo& getGlobal(const Token& var);
 
-		void syncRegState();
+		void regCheck();
+		void forceBalanceReg();
 
 		void addString(const std::string&);
 
@@ -208,7 +209,9 @@ namespace lunatic {
 
 	public:
 		friend class ScriptEngine;
-
+		CodeGen() {
+			pushScope();
+		}
 		std::string getFuncName(int pc) {
 			while (pc >= 0) {
 				auto iter = funcInfoMap.find(pc);
@@ -245,6 +248,9 @@ namespace lunatic {
 		void print();
 
 		void emit(const Instruction& i) {
+			if (i.opcode == Opcode::Move && i.getA() == i.getBx()) {
+				return;
+			}
 			program.push_back(i);
 		}
 
@@ -262,8 +268,12 @@ namespace lunatic {
 			}
 			int i = reg.back();
 			reg.pop_back();
-			if (locals.size() > 0u && i > locals.back().offset + locals.back().dict.size())
+		/*	if (locals.size() > 0u && i >= locals.back().offset + locals.back().dict.size())
 				regState.free(i);
+			else if (locals.empty()) {
+				regState.free(i);
+			}*/
+			regState.free(i);
 			return i;
 		}
 
@@ -276,6 +286,8 @@ namespace lunatic {
 
 		void pushReg(int i) {
 			reg.push_back(i);
+			assert(regState.reg[i]);
+			regState.reg[i] = false;
 		}
 
 		void addNative(const std::string&, int i = -1);

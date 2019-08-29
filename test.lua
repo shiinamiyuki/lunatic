@@ -60,3 +60,15 @@ m = {}
 print(collectgarbage('count'))
 
 
+function object()
+	local o = {}
+	function o:print()
+		print(o.value)
+	end
+	return o
+end
+
+o = object()
+o.value= 3
+o.print()
+

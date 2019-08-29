@@ -218,7 +218,8 @@ namespace lunatic {
 		}
 		for (auto i = node->begin(); i != node->end(); i++) {
 			(*i)->accept(this);
-			syncRegState();
+			//	regCheck();
+			forceBalanceReg();
 		}
 	}
 
@@ -229,8 +230,10 @@ namespace lunatic {
 		if (flag)
 			pushScope();
 		for (auto i = node->begin(); i != node->end(); i++) {
+			regCheck();
 			(*i)->accept(this);
-			syncRegState();
+			regCheck();
+			//syncRegState();
 			//TODO:syncRegState()
 		}
 		if (flag)
@@ -260,11 +263,11 @@ namespace lunatic {
 	void CodeGen::visit(For* f) {
 		// for i = 0,100,1 do .. end
 		auto var = f->first()->getToken();
-	
+
 		auto init = f->second();
 		auto end = f->third();
 		auto step = f->at(3);
-		
+
 		end->accept(this);
 		int end_reg = reg.back();
 		step->accept(this);
@@ -379,6 +382,9 @@ namespace lunatic {
 		for (int i = 0; i < 1; i++) { //TODO: multiple returns
 			int r = findReg();
 			emit(Instruction(Opcode::LoadRet, i, r));
+		}
+		if (node->getParent()->type() == Block().type()) {
+			popReg();
 		}
 		callDepthStack[callDepthStack.size() - 1]--;
 	}
@@ -566,8 +572,10 @@ namespace lunatic {
 			error(std::string("local scope not initialized!"), var.line, var.col);
 		}
 		auto& dict = locals.back().dict;
-		dict.insert(std::make_pair(var.tok, VarInfo(locals.back().offset + dict.size())));
-		syncRegState();
+		auto v = VarInfo(locals.back().offset + dict.size());
+		dict.insert(std::make_pair(var.tok, v));
+		/*syncRegState();*/
+		regState.reg[v.addr] = false;
 	}
 
 	int CodeGen::getGlobalAddress(const Token& var) {
@@ -615,6 +623,10 @@ namespace lunatic {
 		if (locals.size() == 0) {
 			throw std::runtime_error("local scopes are empty!");
 		}
+		for (auto& i : locals.back().dict) {
+			auto& v = i.second;
+			regState.free(v.addr);
+		}
 		locals.pop_back();
 		if (!locals.empty()) {
 			for (auto& i : locals.back().dict) {
@@ -622,6 +634,7 @@ namespace lunatic {
 				if (v.captured) {
 					emit(Instruction(Opcode::StoreUpvalue, v.addr, v.addr));
 				}
+				regState.free(v.addr);
 			}
 		}
 
@@ -640,16 +653,24 @@ namespace lunatic {
 			v.functionLevel = locals.getFuncLevel();
 			locals.push_back(v);
 		}
-		syncRegState();
+		//	syncRegState();
 	}
-
-	void CodeGen::syncRegState() {
-		if (locals.size() > 0) {
-			for (int i = locals.back().offset + locals.back().dict.size(); i < REG_MAX; i++) {
-				if (!regState.reg[i]) {
-					std::cout << "fuck" << std::endl;
-				}
+	void CodeGen::regCheck() {
+		std::set<int> set;
+		for (auto& local : locals) {
+			for (auto& i : local.dict) {
+				set.insert(i.second.addr);
 			}
+		}
+		for (int i = locals.back().offset + locals.back().dict.size(); i < REG_MAX; i++) {
+			assert(!(!regState.reg[i] && set.find(i) == set.end()));
+			assert(!(regState.reg[i] && set.find(i) != set.end()));
+
+		}
+	}
+	void CodeGen::forceBalanceReg() {
+		if (locals.size() > 0) {
+			//	regCheck();
 			regState.reset(locals.back().offset + locals.back().dict.size());
 		}
 		else
