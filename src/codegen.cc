@@ -218,8 +218,8 @@ namespace lunatic {
 		}
 		for (auto i = node->begin(); i != node->end(); i++) {
 			(*i)->accept(this);
-			//	regCheck();
-			forceBalanceReg();
+				regCheck();
+			//forceBalanceReg();
 		}
 	}
 
@@ -383,7 +383,7 @@ namespace lunatic {
 			int r = findReg();
 			emit(Instruction(Opcode::LoadRet, i, r));
 		}
-		if (node->getParent()->type() == Block().type()) {
+		if (node->getParent()->type() == Block().type()|| node->getParent()->type() == Chunk().type()) {
 			popReg();
 		}
 		callDepthStack[callDepthStack.size() - 1]--;
