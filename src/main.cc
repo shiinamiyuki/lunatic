@@ -41,7 +41,7 @@ void Interactive() {
 
 			bool empty = false;
 			while (true) {
-				if (err.code == ErrorCode::RuntimeError) {
+				if (err.code == ErrorCode::RuntimeError||err.code == ErrorCode::CompilerError) {
 					std::cerr << err.message << std::endl;
 					break;
 				}
