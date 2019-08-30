@@ -72,3 +72,19 @@ o = object()
 o.value= 3
 o.print()
 
+function object()
+	local o = {}
+	o.print = function()
+		print(o.value)
+	end
+	print(o)
+	o.set = function(x)
+		o.value = x
+	end
+	print(o)
+	return o
+end
+
+o = object()
+o.value= 3
+o.print()

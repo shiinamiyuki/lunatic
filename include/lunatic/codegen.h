@@ -46,6 +46,7 @@ namespace lunatic {
 	struct VarInfo {
 		int addr;
 		bool captured;
+		bool loadedToUpValue = false;
 		VarInfo(int i) {
 			addr = i;
 			captured = false;
@@ -180,6 +181,7 @@ namespace lunatic {
 
 		void createGlobal(const Token& var);
 
+		void createLocal(const std::string& var);
 		void createLocal(const Token& var);
 
 		void error(const std::string& msg, int line, int col);
@@ -288,6 +290,10 @@ namespace lunatic {
 			reg.push_back(i);
 			assert(regState.reg[i]);
 			regState.reg[i] = false;
+		}
+
+		void freeReg(int i) {
+			assert(!regState.reg[i]);
 		}
 
 		void addNative(const std::string&, int i = -1);

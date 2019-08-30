@@ -218,7 +218,7 @@ namespace lunatic {
 		}
 		for (auto i = node->begin(); i != node->end(); i++) {
 			(*i)->accept(this);
-				regCheck();
+			regCheck();
 			//forceBalanceReg();
 		}
 	}
@@ -230,9 +230,9 @@ namespace lunatic {
 		if (flag)
 			pushScope();
 		for (auto i = node->begin(); i != node->end(); i++) {
-			regCheck();
+			//regCheck();
 			(*i)->accept(this);
-			regCheck();
+			//regCheck();
 			//syncRegState();
 			//TODO:syncRegState()
 		}
@@ -267,23 +267,29 @@ namespace lunatic {
 		auto init = f->second();
 		auto end = f->third();
 		auto step = f->at(3);
-
+		pushScope();
+		createLocal(var);
 		end->accept(this);
 		int end_reg = reg.back();
 		step->accept(this);
 		int step_reg = reg.back();
-		createLocal(var);
+		
 
 		init->accept(this);
 		int init_reg = popReg();
 		emit(Instruction(Opcode::Move, init_reg, getLocalAddress(var)));
 		int loopStart = program.size();
-		emit(Instruction(Opcode::LT, getLocalAddress(var), end_reg, findReg()));
+		emit(Instruction(Opcode::LE, getLocalAddress(var), end_reg, findReg()));
 		int jmpIdx = program.size();
-		emit(Instruction(Opcode::BZ, popReg(), 0));
+		int bzReg = popReg();
+		emit(Instruction(Opcode::BZ, bzReg, 0));
 		f->at(4)->accept(this);
-
-
+		emit(Instruction(Opcode::Add, getLocalAddress(var), getLocalAddress(var), step_reg));
+		emit(Instruction(Opcode::BRC, 0, loopStart));
+		program[jmpIdx] = Instruction(Opcode::BZ, bzReg, (int)program.size());
+		popScope();
+		popReg();
+		popReg();
 	}
 
 	void CodeGen::visit(GenericFor* f) {
@@ -379,12 +385,14 @@ namespace lunatic {
 		}
 		int n = arg->size();
 		emit(Instruction(Opcode::fCall, popReg(), n + c, 1));
-		for (int i = 0; i < 1; i++) { //TODO: multiple returns
-			int r = findReg();
-			emit(Instruction(Opcode::LoadRet, i, r));
+		if (node->getParent()->type() == Block().type() || node->getParent()->type() == Chunk().type()) {
+
 		}
-		if (node->getParent()->type() == Block().type()|| node->getParent()->type() == Chunk().type()) {
-			popReg();
+		else {
+			for (int i = 0; i < 1; i++) { //TODO: multiple returns
+				int r = findReg();
+				emit(Instruction(Opcode::LoadRet, i, r));
+			}
 		}
 		callDepthStack[callDepthStack.size() - 1]--;
 	}
@@ -567,15 +575,19 @@ namespace lunatic {
 		return globals.dict.find(var) != globals.dict.end();
 	}
 
+	void CodeGen::createLocal(const std::string& var) {
+
+		auto& dict = locals.back().dict;
+		auto v = VarInfo(locals.back().offset + dict.size());
+		dict.insert(std::make_pair(var, v));
+		/*syncRegState();*/
+		regState.reg[v.addr] = false;
+	}
 	void CodeGen::createLocal(const Token& var) {
 		if (locals.size() == 0) {
 			error(std::string("local scope not initialized!"), var.line, var.col);
 		}
-		auto& dict = locals.back().dict;
-		auto v = VarInfo(locals.back().offset + dict.size());
-		dict.insert(std::make_pair(var.tok, v));
-		/*syncRegState();*/
-		regState.reg[v.addr] = false;
+		createLocal(var.tok);
 	}
 
 	int CodeGen::getGlobalAddress(const Token& var) {
@@ -631,8 +643,9 @@ namespace lunatic {
 		if (!locals.empty()) {
 			for (auto& i : locals.back().dict) {
 				auto& v = i.second;
-				if (v.captured) {
+				if (v.captured && !v.loadedToUpValue) {
 					emit(Instruction(Opcode::StoreUpvalue, v.addr, v.addr));
+					v.loadedToUpValue = true;
 				}
 				regState.free(v.addr);
 			}
