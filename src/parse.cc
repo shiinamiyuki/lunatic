@@ -113,58 +113,26 @@ namespace lunatic {
 		}
 		return node;
 	}
-	std::vector<AST*> unrollComma(BinaryExpression* e) {
-		std::vector<AST*> result;
-		if (!dynamic_cast<BinaryExpression*>(e->first())) {
-			result.emplace_back(e->first());
+	std::vector<AST*> unrollComma(Expression* _e) {
+		if (!dynamic_cast<BinaryExpression*>(_e)) {
+			return std::vector<AST*>{ _e };
 		}
 		else {
-			auto t = std::move(unrollComma(dynamic_cast<BinaryExpression*>(e->first())));
-			result.insert(result.end(), t.begin(), t.end());
+			auto e = static_cast<BinaryExpression*>(_e);
+			std::vector<AST*> result;
+			if (!dynamic_cast<BinaryExpression*>(e->first())) {
+				result.emplace_back(e->first());
+			}
+			else {
+				auto t = std::move(unrollComma(dynamic_cast<BinaryExpression*>(e->first())));
+				result.insert(result.end(), t.begin(), t.end());
+			}
+			result.emplace_back(e->second());
+			return result;
 		}
-		result.emplace_back(e->second());
-		return result;
 	}
-	/*AST* Parser::hackParallelAssign(AST* _node) {
-		auto node = static_cast<BinaryExpression*>(_node);
-		if (_node->getToken().tok == "=" && node->first()->getToken().tok == ",") {
-			auto& tok = node->second()->getToken();
-			if (node->second()->getToken().tok != ",") {
-				throw ParserException("requires both sides having same number of arguments",
-					tok.line, tok.col);
-			}
-			auto left = unrollComma(static_cast<BinaryExpression*>(node->first()));
-			auto right = unrollComma(static_cast<BinaryExpression*>(node->second()));
-			if (left.size() != right.size()) {
-				throw ParserException("requires both sides having same number of arguments",
-					tok.line, tok.col);
-			}
-			int id = 0;
-			const char* prefix = "@tmp_";
-			auto block = makeNode<Block>();
-			for (int i = 0; i < left.size(); i++) {
-				auto iden = makeNode<Identifier>(Token(Token::Type::Identifier,
-					format("{}{}", prefix, i), tok.line, tok.col));
-				auto expr = makeNode<BinaryExpression>(Token(Token::Type::Symbol,
-					"=", tok.line, tok.col));
-				expr->add(iden);
-				expr->add(right.at(i));
-				block->add(expr);
-			}
-			for (int i = 0; i < left.size(); i++) {
-				auto iden = makeNode<Identifier>(Token(Token::Type::Identifier,
-					format("{}{}", prefix, i), tok.line, tok.col));
-				auto expr = makeNode<BinaryExpression>(Token(Token::Type::Symbol,
-					"=", tok.line, tok.col));
-				expr->add(left.at(i));
-				expr->add(iden);	
-				block->add(expr);
-			}
-			return block;
-		}
-		return node;
-	}*/
-	AST* Parser::hackParallelAssign(AST* _node) {
+
+	Expression* Parser::hackParallelAssign(Expression* _node) {
 		auto node = static_cast<BinaryExpression*>(_node);
 		if (_node->getToken().tok == "=" && node->first()->getToken().tok == ",") {
 			auto& tok = node->second()->getToken();
@@ -192,20 +160,20 @@ namespace lunatic {
 		}
 		return node;
 	}
-	AST* Parser::parseExpr(int lev, int maxLev) {
+	Expression* Parser::parseExpr(int lev, int maxLev) {
 		if (maxLev == -1) {
 			maxLev = 6;
 		}
 		skip();
-		AST* result = parseUnary();
+		Expression* result = parseUnary();
 		while (hasNext()) {
 			auto next = peek();
 			if (opPrec.find(next.tok) == opPrec.end())
 				break;
 			if (opPrec[next.tok] >= lev && opPrec[next.tok] <= maxLev) {
 				consume();
-				AST* rhs = parseExpr(opAssoc[next.tok] + opPrec[next.tok]);
-				AST* op = makeNode<BinaryExpression>(next);
+				Expression* rhs = parseExpr(opAssoc[next.tok] + opPrec[next.tok]);
+				Expression* op = makeNode<BinaryExpression>(next);
 				op->add(result);
 				op->add(rhs);
 				op = hackParallelAssign(op);
@@ -218,7 +186,7 @@ namespace lunatic {
 	}
 
 
-	AST* Parser::parseAtom() {
+	Expression* Parser::parseAtom() {
 		skip();
 		auto& next = peek();
 		if (has("function")) {
@@ -257,7 +225,7 @@ namespace lunatic {
 		}
 	}
 
-	AST* Parser::parseCall() {
+	Expression* Parser::parseCall() {
 		return nullptr;
 	}
 
@@ -287,10 +255,18 @@ namespace lunatic {
 		else {
 			auto pos = getPos();
 			auto f = makeNode<GenericFor>();
-			auto var = parseExpr(1, 1);
+			auto vars = unrollComma(parseExpr(1, 1));
+			auto var = makeNode<GenericForVarList>();
+			for (auto i : vars) {
+				var->add(i);
+			}
 			f->add(var);
 			expect("in");
-			auto expr = parseExpr(1);
+			auto exprs = unrollComma(parseExpr(1));
+			auto expr = makeNode<GenericForExprList>();
+			for (auto i : exprs) {
+				expr->add(i);
+			}
 			f->add(expr);
 			expect("do");
 			f->add(parseBlock());
@@ -301,7 +277,7 @@ namespace lunatic {
 	}
 
 
-	AST* Parser::parseExprList() {
+	Expression* Parser::parseExprList() {
 		skip();
 		expect("{");
 		auto list = makeNode<ExprList>();
@@ -359,7 +335,7 @@ namespace lunatic {
     node->add(parseUnary()); \
     return node;
 
-	AST* Parser::parseUnary() {
+	Expression* Parser::parseUnary() {
 		skip();
 		auto next = peek();
 		if (next.type == Token::Type::Symbol) {
@@ -381,7 +357,7 @@ namespace lunatic {
 		return parsePostfixExpr();
 	}
 
-	AST* Parser::parsePostfixExpr() {
+	Expression* Parser::parsePostfixExpr() {
 		skip();
 		auto node = parseAtom();
 		while (hasNext() && (has("[") || has("(") || has(".") || has(":"))) {
@@ -517,7 +493,7 @@ namespace lunatic {
 		while (peek().type == Token::Type::Terminator && peek().tok == "EOL")
 			consume();
 	}
-	AST* Parser::parseLambda() {
+	Expression* Parser::parseLambda() {
 		expect("function");
 		skip();
 		auto func = makeNode<Func>();

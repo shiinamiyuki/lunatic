@@ -218,7 +218,7 @@ namespace lunatic {
 		}
 		for (auto i = node->begin(); i != node->end(); i++) {
 			(*i)->accept(this);
-			regCheck();
+			//regCheck();
 			//forceBalanceReg();
 		}
 	}
@@ -273,7 +273,7 @@ namespace lunatic {
 		int end_reg = reg.back();
 		step->accept(this);
 		int step_reg = reg.back();
-		
+
 
 		init->accept(this);
 		int init_reg = popReg();
@@ -287,13 +287,74 @@ namespace lunatic {
 		emit(Instruction(Opcode::Add, getLocalAddress(var), step_reg, getLocalAddress(var)));
 		emit(Instruction(Opcode::BRC, 0, loopStart));
 		program[jmpIdx] = Instruction(Opcode::BZ, bzReg, (int)program.size());
+		for (int i = jmpIdx; i < program.size(); i++) {
+			if (program[i].opcode == Opcode::Break) {
+				program[i] = Instruction(Opcode::BRC, 0, (int)(program.size()));
+			}
+		}
+
 		popScope();
 		popReg();
 		popReg();
+
 	}
+	/*
 
+	for var_1, ..., var_n in explist do block end
+
+	do
+	  local _f, _s, _var = explist
+	  while true do
+		local var_1, ... , var_n = _f(_s, _var)
+		_var = var_1
+		if _var == nil then break end
+		block
+	  end
+	end
+	*/
 	void CodeGen::visit(GenericFor* f) {
-
+		pushScope();
+		int level = locals.size();
+		std::string _f = format("@_f{}", level),
+			_s = format("@_s{}", level),
+			_var = format("@_var{}", level);
+		createLocal(_f);
+		createLocal(_s);
+		createLocal(_var);
+		auto varList = static_cast<GenericForVarList*>(f->first());
+		auto exprList = static_cast<GenericForExprList*>(f->second());
+		auto block = f->third();
+		for (int i = 0; i < varList->size(); i++) {
+			exprList->at(i)->accept(this);
+			emit(Instruction(Opcode::StoreRet, popReg(), i));
+		}
+		emit(Instruction(Opcode::LoadRet, 0, getLocalAddress(_f)));
+		emit(Instruction(Opcode::LoadRet, 1, getLocalAddress(_s)));
+		emit(Instruction(Opcode::LoadRet, 2, getLocalAddress(_var)));
+		size_t loopStart = program.size();
+		pushScope();
+		for (auto i : *varList) {
+			createLocal(i->getToken());			
+		}
+		emit(Instruction(Opcode::Push, getLocalAddress(_s), 0));
+		emit(Instruction(Opcode::Push, getLocalAddress(_var), 0));
+		emit(Instruction(Opcode::fCall, getLocalAddress(_f), 2, 0));
+		for (int i = varList->size() - 1; i >= 0; i--) {
+			emit(Instruction(Opcode::LoadRet, i, getLocalAddress(varList->at(i)->getToken())));
+		}
+		emit(Instruction(Opcode::Move, getLocalAddress(varList->at(0)->getToken()),getLocalAddress(_var)));
+		int jmpIdx = program.size();
+		emit(Instruction(Opcode::BZ, 0, 0));
+		block->accept(this);
+		popScope();
+		emit(Instruction(Opcode::BRC, 0, (int)loopStart));
+		program[jmpIdx] = Instruction(Opcode::BZ, getLocalAddress(_var), (int)program.size());
+		for (int i = jmpIdx; i < program.size(); i++) {
+			if (program[i].opcode == Opcode::Break) {
+				program[i] = Instruction(Opcode::BRC, 0, (int)(program.size()));
+			}
+		}
+		popScope();
 	}
 
 	void CodeGen::visit(ExprList* list) {
@@ -385,13 +446,13 @@ namespace lunatic {
 			genArgsAndPushSelf(dynamic_cast<Arg*>(arg), i);
 
 
-			
+
 		}
 		else {
 			func->accept(this);
 			funcReg = reg.back();
 			arg->accept(this);
-			
+
 		}
 		int n = arg->size();
 		emit(Instruction(Opcode::fCall, funcReg, n + c, 1));
@@ -438,7 +499,12 @@ namespace lunatic {
 	void CodeGen::visit(Func* func) {
 		callDepthStack.emplace_back(0);
 		locals.incFuncLevel();
+		//createLocal("@func");
+		int funcReg = findReg();// getLocalAddress("@func");
+		auto regStackBackUp = reg;
 		RegState backup = regState;
+		regState.reset();
+		reg.clear();
 		pushScope();  locals.back().offset = 0;
 		AST* arg, * body;
 		int i;
@@ -474,19 +540,20 @@ namespace lunatic {
 			funcName = "lambda";
 		}
 
-		funcHelper(arg, body, i,funcName);
+		funcHelper(funcReg, arg, body, i, funcName);
 		popScope();
+		
 		assign(func);
-	
-		regState = backup;
-	
 
+		regState = backup;
+		reg = regStackBackUp;
+		reg.push_back(funcReg);
 		locals.decFuncLevel();
 
 		callDepthStack.pop_back();
 	}
 
-	void CodeGen::funcHelper(AST* arg, AST* body, int i, const std::string&name) {
+	void CodeGen::funcHelper(int funcReg, AST* arg, AST* body, int i, const std::string& name) {
 
 		arg->accept(this);
 		auto jmpIdx = (unsigned int)program.size();
@@ -498,9 +565,10 @@ namespace lunatic {
 		emit(Instruction(Opcode::Ret, 0, 0));
 		auto end = (unsigned int)program.size();
 		program[jmpIdx] = Instruction(Opcode::BRC, 0, (int)end);
-		emit(Instruction(Opcode::MakeClosure, findReg(), (int)jmpIdx + 1));
-		emit(Instruction(Opcode::SetArgCount, reg.back(), arg->size() + i));
+		emit(Instruction(Opcode::MakeClosure, funcReg, (int)jmpIdx + 1));
+		emit(Instruction(Opcode::SetArgCount, funcReg, arg->size() + i));
 		addFuncInfo(jmpIdx + 1, name);
+		reg.push_back(funcReg);
 	}
 
 	void CodeGen::visit(FuncArg* arg) {
@@ -597,7 +665,8 @@ namespace lunatic {
 
 		auto& dict = locals.back().dict;
 		auto v = VarInfo(locals.back().offset + dict.size());
-		dict.insert(std::make_pair(var, v));
+		//dict.insert(std::make_pair(var, v));
+		dict[var] = v;
 		/*syncRegState();*/
 		regState.reg[v.addr] = false;
 	}
@@ -621,7 +690,26 @@ namespace lunatic {
 	int CodeGen::getLocalAddress(const Token& var) {
 		return getLocal(var).addr;
 	}
+	int CodeGen::getLocalAddress(const std::string& var) {
+		return getLocal(var).addr;
+	}
 
+	VarInfo& CodeGen::getLocal(const std::string& var) {
+		int funcLevel = locals.rbegin()->functionLevel;
+		for (auto iter = locals.rbegin(); iter != locals.rend(); iter++) {
+			auto& scope = *iter;
+			if (scope.dict.find(var) != scope.dict.end()) {
+				if (scope.functionLevel != funcLevel && !scope.dict[var].captured) {
+					auto& v = scope.dict[var];
+					v.captured = true;
+					//println("captured {}", var.tok);
+
+				}
+				return scope.dict[var];
+			}
+		}
+		error("Internal Compiler Error", -1, -1);
+	}
 	VarInfo& CodeGen::getLocal(const Token& var) {
 		int funcLevel = locals.rbegin()->functionLevel;
 		for (auto iter = locals.rbegin(); iter != locals.rend(); iter++) {
@@ -656,7 +744,7 @@ namespace lunatic {
 		for (auto& i : locals.back().dict) {
 			auto& v = i.second;
 			regState.free(v.addr);
-			assert(std::find(reg.begin(), reg.end(), v.addr) == reg.end());
+			//assert(std::find(reg.begin(), reg.end(), v.addr) == reg.end());
 		}
 		locals.pop_back();
 		if (!locals.empty()) {
@@ -667,7 +755,7 @@ namespace lunatic {
 					v.loadedToUpValue = true;
 					regState.free(v.addr);
 				}
-				
+
 			}
 		}
 
@@ -809,13 +897,13 @@ namespace lunatic {
 
 	}
 	void CodeGen::visitRight(ParallelAssignEntry* entry) {
-		for (int i = entry->size() - 1; i >= 0; i--) {
+		for (auto i = 0; i < entry->size(); i++) {
 			entry->at(i)->accept(this);
 			emit(Instruction(Opcode::StoreRet, popReg(), i));
 		}
 	}
 	void CodeGen::visitLeft(ParallelAssignEntry* entry) {
-		for (auto i = 0; i < entry->size(); i++) {
+		for (int i = entry->size() - 1; i >= 0; i--) {
 			emit(Instruction(Opcode::LoadRet, i, findReg()));
 		}
 		for (int i = entry->size() - 1; i >= 0; i--) {

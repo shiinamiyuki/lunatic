@@ -49,7 +49,8 @@ namespace lunatic {
 		LoadUpvalue,//A B A: dest, Bx: index
 		StoreUpvalue,//A B A: upvalue, Bx : index
 		SetUpvalue,//A B , A: Closure, B: upvalue,
-
+		ForLoopPrep, //A    R[A], R[A+1], R[A+2] = Ret[0:3]
+		ForLoopAssign, //A, Bx   R[A:A+Bx] = Ret[0:Bx]
 	};
 
 	struct Instruction {

@@ -2,7 +2,7 @@
 
 #include <common.h>
 #include "lex.h"
-#include "parse.h"
+
 
 namespace lunatic {
 	class AST;
@@ -79,24 +79,11 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class ParallelAssign : public AST {
+	
+	class Expression : public AST {
 	public:
-		const std::string type() const {
-			return S("ParallelAssign");
-		}
-
-		void accept(Visitor*);
 	};
-
-	class ParallelAssignEntry : public AST {
-	public:
-		const std::string type() const {
-			return S("ParallelAssignEntry");
-		}
-
-		void accept(Visitor*);
-	};
-	class BinaryExpression : public AST {
+	class BinaryExpression : public Expression {
 	public:
 		BinaryExpression() {}
 
@@ -108,8 +95,24 @@ namespace lunatic {
 
 		void accept(Visitor*);
 	};
+	class ParallelAssign : public Expression {
+	public:
+		const std::string type() const {
+			return S("ParallelAssign");
+		}
 
-	class UnaryExpression : public AST {
+		void accept(Visitor*);
+	};
+
+	class ParallelAssignEntry : public Expression {
+	public:
+		const std::string type() const {
+			return S("ParallelAssignEntry");
+		}
+
+		void accept(Visitor*);
+	};
+	class UnaryExpression : public Expression {
 	public:
 		UnaryExpression() {
 		}
@@ -125,7 +128,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class StringLiteral : public AST {
+	class StringLiteral : public Expression {
 	public:
 		StringLiteral(const Token& t) {
 			this->content = t;
@@ -141,7 +144,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class Number : public AST {
+	class Number : public Expression {
 	public:
 		Number(const Token& t) {
 			this->content = t;
@@ -157,7 +160,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class BoolConstant : public AST {
+	class BoolConstant : public Expression {
 	public:
 		BoolConstant(const Token& t) {
 			content = t;
@@ -173,7 +176,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class Identifier : public AST {
+	class Identifier : public Expression {
 	public:
 		Identifier(const Token& t) {
 			content = t;
@@ -189,7 +192,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class Index : public AST {
+	class Index : public Expression {
 	public:
 		const std::string type() const {
 			return S("Index");
@@ -198,7 +201,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class Colon : public AST {
+	class Colon : public Expression {
 	public:
 		const std::string type() const {
 			return S("Colon");
@@ -207,7 +210,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class Call : public AST {
+	class Call : public Expression {
 	public:
 		const std::string type() const {
 			return S("Call");
@@ -216,7 +219,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class KVPair : public AST {
+	class KVPair : public Expression {
 	public:
 		const std::string type() const {
 			return S("KVPair");
@@ -225,7 +228,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class ExprList : public AST {
+	class ExprList : public Expression {
 	public:
 		const std::string type() const {
 			return S("ExprList");
@@ -279,7 +282,7 @@ namespace lunatic {
 		void accept(Visitor*);
 	};
 
-	class Func : public AST {
+	class Func : public Expression {
 	public:
 		Func(const Token& t) { content = t; }
 

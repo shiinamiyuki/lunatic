@@ -91,8 +91,11 @@ namespace lunatic {
 		if (a->isBoolInt()) {
 			b->setInt(-a->getInt());
 		}
-		else {
+		else if(a->isFloat()){
 			b->setFloat(-a->getFloat());
+		}
+		else {
+			throw RuntimException(format("attempt to perform __neg on {}", a->type));
 		}
 	}
 
@@ -145,7 +148,9 @@ namespace lunatic {
 	}
 
 	void Value::eq(Value* a, Value* b, Value* c) {
-		if (a->isArithmetic() && b->isArithmetic()) {
+		if (a->isNil() && b->isNil()) {
+			c->setBool(true);
+		}else if (a->isArithmetic() && b->isArithmetic()) {
 			if (a->isBoolInt() && b->isBoolInt()) {
 				c->setBool(a->getInt() == b->getInt());
 			}

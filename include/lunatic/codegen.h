@@ -4,6 +4,7 @@
 #include "opcode.h"
 #include "visitor.h"
 #include "format.h"
+#include "parse.h"
 
 namespace lunatic {
 	class AST;
@@ -185,12 +186,12 @@ namespace lunatic {
 
 		void pre(AST*) override;
 
-		void funcHelper(AST* arg, AST* body, int i, const std::string&name);
+		void funcHelper(int funcReg, AST* arg, AST* body, int i, const std::string&name);
 
 		void assign(AST*);
 
 		int getLocalAddress(const Token& var);
-
+		int getLocalAddress(const std::string&);
 		void createGlobal(const Token& var);
 
 		void createLocal(const std::string& var);
@@ -207,6 +208,7 @@ namespace lunatic {
 		void popScope();
 
 		VarInfo& getLocal(const Token& var);
+		VarInfo& getLocal(const std::string& var);
 
 		VarInfo& getGlobal(const Token& var);
 

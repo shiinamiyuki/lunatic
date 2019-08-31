@@ -2,7 +2,6 @@
 #include "ast.h"
 #include "lex.h"
 namespace lunatic {
-	class AST;
 	class Parser {
 		std::vector<Token> tokenStream;
 		std::unordered_map<std::string, int> opPrec;
@@ -36,25 +35,25 @@ namespace lunatic {
 		inline bool hasNext() const {
 			return pos + 1 < (int)tokenStream.size();
 		}
-		AST* hackParallelAssign(AST*);
+		Expression* hackParallelAssign(Expression*);
 		//all of the followings will call consume() themselves
 		AST* parseBlock();
-		AST* parseExpr(int lev = 0, int maxLex = -1);
-		AST* parsePostfixExpr();
-		AST* parseAtom();
-		AST* parseCall();
+		Expression* parseExpr(int lev = 0, int maxLex = -1);
+		Expression* parsePostfixExpr();
+		Expression* parseAtom();
+		Expression* parseCall();
 		AST* parseArg();
-		AST* parseUnary();
+		Expression* parseUnary();
 		AST* parseCond();
 		AST* parseWhile();
 		AST* parseReturn();
 		AST* parseNative();
 		AST* parseStmt();
-		AST* parseLambda();
+		Expression* parseLambda();
 		AST* parseFunc();
 		AST* parseFuncArg();
 		AST* parseLocal();
-		AST* parseExprList();
+		Expression* parseExprList();
 		AST* parseFor();
 		void expect(const std::string& token);
 		bool has(const std::string& token);
