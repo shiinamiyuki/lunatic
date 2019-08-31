@@ -31,6 +31,7 @@ namespace lunatic {
 					return i;
 				}
 			}
+			assert(false);
 			return -1;
 		}
 
@@ -93,6 +94,17 @@ namespace lunatic {
 		void decFuncLevel() {
 			funcLevel--;
 			assert(funcLevel >= 0);
+		}
+
+		bool isAddressOfVar(int i) {
+			for (auto iter = rbegin(); iter != rend() && iter->functionLevel == funcLevel; iter++) {
+				for (auto& pair : iter->dict) {
+					if (pair.second.addr == i) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 	};
 
@@ -250,6 +262,7 @@ namespace lunatic {
 		void print();
 
 		void emit(const Instruction& i) {
+	
 			if (i.opcode == Opcode::Move && i.getA() == i.getBx()) {
 				return;
 			}
@@ -270,30 +283,38 @@ namespace lunatic {
 			}
 			int i = reg.back();
 			reg.pop_back();
-		/*	if (locals.size() > 0u && i >= locals.back().offset + locals.back().dict.size())
+			/*if (locals.size() > 0u && i >= locals.back().offset + locals.back().dict.size())
 				regState.free(i);
 			else if (locals.empty()) {
 				regState.free(i);
 			}*/
-			regState.free(i);
+			if (!locals.isAddressOfVar(i))
+				regState.free(i);
+			//regState.free(i);
 			return i;
 		}
 
 		int findReg() {
-			int i = regState.find();
-			//std::cout<< "found reg "<< i << std::endl;
+			int i;
+			do {
+				i = regState.find();
+				//std::cout<< "found reg "<< i << std::endl;
+				//assert(std::find(reg.begin(),reg.end(), i)== reg.end());
+			} while (std::find(reg.begin(), reg.end(), i) != reg.end());
 			reg.push_back(i);
 			return i;
 		}
 
 		void pushReg(int i) {
+			assert(std::find(reg.begin(), reg.end(), i) == reg.end());
 			reg.push_back(i);
 			assert(regState.reg[i]);
-			regState.reg[i] = false;
+			regState.set(i);
 		}
 
 		void freeReg(int i) {
 			assert(!regState.reg[i]);
+			assert(std::find(reg.begin(), reg.end(), i) == reg.end());
 		}
 
 		void addNative(const std::string&, int i = -1);

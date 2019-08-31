@@ -77,14 +77,16 @@ function object()
 	o.print = function()
 		print(o.value)
 	end
-	print(o)
-	o.set = function(x)
-		o.value = x
-	end
-	print(o)
 	return o
 end
 
 o = object()
 o.value= 3
 o.print()
+
+for i=0,10 do
+	print(i)
+end
+
+function add(x) return function (y) return x+y end end 
+print(add(3)(4))

@@ -38,7 +38,7 @@ namespace lunatic {
 				gcCycle = 0;
 				collect();
 			}
-			std::cout << state->pc << " " <<i.str() <<std::endl;
+			// std::cout << state->pc << " " <<i.str() <<std::endl;
 			//	system("pause");
 			switch (i.opcode) {
 			case Opcode::LoadNil:
@@ -136,7 +136,7 @@ namespace lunatic {
 			case Opcode::LoadStr:
 				a = GetReg(i.getA());
 				i32 = i.getBx();
-				a->setString(&stringPool[i32]);
+				a->setString(stringPool[i32]);
 				state->next();
 				break;
 			case Opcode::LoadGlobal:
@@ -321,7 +321,7 @@ namespace lunatic {
 	void VM::loadStringPool(const std::vector<std::string>& p) {
 		while (p.size() > stringPool.size()) {
 			//stringPool.push_back(p[stringPool.size()]);
-			stringPool.emplace_back(p[stringPool.size()]);
+			stringPool.emplace_back(gc.alloc<String>(p[stringPool.size()]));
 		}
 	}
 
@@ -345,6 +345,9 @@ namespace lunatic {
 	void VM::collect() {
 		gc.prepareForCollect();
 		auto s = getCurrentState();
+		for (auto i : stringPool) {
+			gc.mark(i);
+		}
 		for (int i = 0; i < s->bp + REG_MAX; i++) {
 			gc.mark(s->locals[i]);
 		}

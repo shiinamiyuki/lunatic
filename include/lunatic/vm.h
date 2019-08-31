@@ -130,7 +130,7 @@ namespace lunatic {
 	};
 	class ScriptEngine;
 	class VM {
-		std::vector<String> stringPool;
+		std::vector<String*> stringPool;
 		std::vector<Value> globals;
 		std::vector<Instruction> program;
 		std::vector<NativeHandle> natives;
@@ -183,6 +183,7 @@ namespace lunatic {
 		inline bool checkArithmetic(Value* a, Value* b) {
 			return Value::checkArithmetic(a, b);
 		}
+
 		inline int getArgCount() {
 			return getCurrentState()->getArgCount();
 		}

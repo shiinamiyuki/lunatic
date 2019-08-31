@@ -284,7 +284,7 @@ namespace lunatic {
 		int bzReg = popReg();
 		emit(Instruction(Opcode::BZ, bzReg, 0));
 		f->at(4)->accept(this);
-		emit(Instruction(Opcode::Add, getLocalAddress(var), getLocalAddress(var), step_reg));
+		emit(Instruction(Opcode::Add, getLocalAddress(var), step_reg, getLocalAddress(var)));
 		emit(Instruction(Opcode::BRC, 0, loopStart));
 		program[jmpIdx] = Instruction(Opcode::BZ, bzReg, (int)program.size());
 		popScope();
@@ -366,11 +366,9 @@ namespace lunatic {
 		auto arg = node->second();
 		auto func = node->first();
 		int c = 0;
+		int funcReg;
 		if (func->type() == Colon().type()) {
-			auto self = func->first();
-			self->accept(this);
-			int i = reg.back();
-			genArgsAndPushSelf(dynamic_cast<Arg*>(arg), i);
+
 			auto idx = func->second();
 			idx->accept(this);
 			int a, b;
@@ -378,13 +376,26 @@ namespace lunatic {
 			a = popReg();
 			emit(Instruction(Opcode::GetValue, a, b, findReg()));
 			c = 1;
+			funcReg = reg.back();
+
+
+			auto self = func->first();
+			self->accept(this);
+			int i = reg.back();
+			genArgsAndPushSelf(dynamic_cast<Arg*>(arg), i);
+
+
+			
 		}
 		else {
-			arg->accept(this);
 			func->accept(this);
+			funcReg = reg.back();
+			arg->accept(this);
+			
 		}
 		int n = arg->size();
-		emit(Instruction(Opcode::fCall, popReg(), n + c, 1));
+		emit(Instruction(Opcode::fCall, funcReg, n + c, 1));
+		popReg();
 		if (node->getParent()->type() == Block().type() || node->getParent()->type() == Chunk().type()) {
 
 		}
@@ -427,7 +438,8 @@ namespace lunatic {
 	void CodeGen::visit(Func* func) {
 		callDepthStack.emplace_back(0);
 		locals.incFuncLevel();
-		pushScope();
+		RegState backup = regState;
+		pushScope();  locals.back().offset = 0;
 		AST* arg, * body;
 		int i;
 		if (func->size() == 3) {
@@ -463,6 +475,9 @@ namespace lunatic {
 		funcHelper(arg, body, i);
 		popScope();
 		assign(func);
+	
+		regState = backup;
+	
 
 		locals.decFuncLevel();
 
@@ -638,6 +653,7 @@ namespace lunatic {
 		for (auto& i : locals.back().dict) {
 			auto& v = i.second;
 			regState.free(v.addr);
+			assert(std::find(reg.begin(), reg.end(), v.addr) == reg.end());
 		}
 		locals.pop_back();
 		if (!locals.empty()) {
@@ -646,8 +662,9 @@ namespace lunatic {
 				if (v.captured && !v.loadedToUpValue) {
 					emit(Instruction(Opcode::StoreUpvalue, v.addr, v.addr));
 					v.loadedToUpValue = true;
+					regState.free(v.addr);
 				}
-				regState.free(v.addr);
+				
 			}
 		}
 
