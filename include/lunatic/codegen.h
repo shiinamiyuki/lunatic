@@ -185,7 +185,7 @@ namespace lunatic {
 
 		void pre(AST*) override;
 
-		void funcHelper(AST* arg, AST* body, int i);
+		void funcHelper(AST* arg, AST* body, int i, const std::string&name);
 
 		void assign(AST*);
 
@@ -226,17 +226,6 @@ namespace lunatic {
 		CodeGen() {
 			pushScope();
 		}
-		std::string getFuncName(int pc) {
-			while (pc >= 0) {
-				auto iter = funcInfoMap.find(pc);
-				if (iter != funcInfoMap.end())
-					return iter->second;
-				pc--;
-
-			}
-			return "main";
-		}
-
 		SourcePos getSourcePos(int i) {
 			int t = i;
 			while (i > 0) {

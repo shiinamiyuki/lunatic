@@ -127,6 +127,7 @@ namespace lunatic {
 		inline int getArgCount()const {
 			return callStack.back().argCount;
 		}
+
 	};
 	class ScriptEngine;
 	class VM {

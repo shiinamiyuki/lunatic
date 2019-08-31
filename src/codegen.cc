@@ -442,6 +442,7 @@ namespace lunatic {
 		pushScope();  locals.back().offset = 0;
 		AST* arg, * body;
 		int i;
+		std::string funcName;
 		if (func->size() == 3) {
 			auto name = func->first();
 			if (name->type() == Colon().type()) {
@@ -449,17 +450,17 @@ namespace lunatic {
 			}
 			if (name->type() == Identifier().type()) {
 				createGlobal(name->getToken());
-				addFuncInfo(program.size(), name->getToken().tok);
+				funcName = name->getToken().tok;
 			}
 			else if (name->type() == Local().type()) {
 				auto f = name->first()->getToken();
 				createLocal(f);
-				addFuncInfo(program.size(), f.tok);
+				funcName = f.tok;
 			}
 			else {
 				auto c = name->first();
 				auto m = name->second();
-				addFuncInfo(program.size(), format("{}.{}", c->getToken().tok, m->getToken().tok));
+				funcName = format("{}.{}", c->getToken().tok, m->getToken().tok);
 			}
 			arg = func->second();
 			i = arg->type() == Colon().type() ? 1 : 0;
@@ -470,9 +471,10 @@ namespace lunatic {
 			arg = func->first();
 			body = func->second();
 			i = 0;
+			funcName = "lambda";
 		}
 
-		funcHelper(arg, body, i);
+		funcHelper(arg, body, i,funcName);
 		popScope();
 		assign(func);
 	
@@ -484,7 +486,7 @@ namespace lunatic {
 		callDepthStack.pop_back();
 	}
 
-	void CodeGen::funcHelper(AST* arg, AST* body, int i) {
+	void CodeGen::funcHelper(AST* arg, AST* body, int i, const std::string&name) {
 
 		arg->accept(this);
 		auto jmpIdx = (unsigned int)program.size();
@@ -498,6 +500,7 @@ namespace lunatic {
 		program[jmpIdx] = Instruction(Opcode::BRC, 0, (int)end);
 		emit(Instruction(Opcode::MakeClosure, findReg(), (int)jmpIdx + 1));
 		emit(Instruction(Opcode::SetArgCount, reg.back(), arg->size() + i));
+		addFuncInfo(jmpIdx + 1, name);
 	}
 
 	void CodeGen::visit(FuncArg* arg) {

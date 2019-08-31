@@ -53,9 +53,8 @@ namespace lunatic {
 		catch (std::runtime_error& e) {
 			auto pc = vm.getCurrentState()->pc;
 			auto pos = gen.getSourcePos(pc);
-			auto msg = format("\033[31merror: {} in <{}> at {}:{}:{} with stack trace:{}\033[0m",
+			auto msg = format("\033[31merror: {} at {}:{}:{} with stack trace:{}\033[0m",
 				e.what(),
-				gen.getFuncName(pc),
 				pos.filename, pos.line, pos.col,
 				dumpStackTrace());
 			vm.getCurrentState()->reset();
@@ -155,7 +154,8 @@ namespace lunatic {
 		auto stack = state->callStack;
 		for (auto iter = stack.rbegin(); iter != stack.rend(); iter++) {
 			auto pos = gen.getSourcePos(iter->pc - 1);
-			dump.append(format("\n\t in  <{}> at {}:{}:{}", gen.getFuncName(iter->pc - 1), pos.filename, pos.line, pos.col));
+			auto funcName = gen.funcInfoMap[iter->closure->getAddress()];
+			dump.append(format("\n\t in  <{}> at {}:{}:{}", funcName, pos.filename, pos.line, pos.col));
 		}
 		dump.append("\n");
 		return dump;
