@@ -9,7 +9,7 @@
 #include <functional>
 #include <list>
 #include <memory>
-
+#include <algorithm>
 
 namespace lunatic {
 	class RuntimException : public std::runtime_error {
