@@ -2,7 +2,30 @@
 #include "table.h"
 #include "lstring.h"
 #include "closure.h"
+#include "format.h"
 namespace lunatic {
+	const char* printstr(Value::Type type) {
+		switch (type) {
+		case Value::TTable:
+			return "table";
+		case Value::TNil:
+			return "nil";
+		case Value::TString:
+			return "string";
+		case Value::TClosure:
+			return "function";
+		case Value::TInt:
+			return "int";
+		case Value::TFloat:
+			return "float";
+		case Value::TBool:
+			return "bool";
+		case Value::TUserData:
+			return "userdata";
+		}
+		return "unkown";
+	}
+
 	bool Value::operator==(const Value& rhs) {
 		if (rhs.type != type) {
 			return false;
@@ -16,7 +39,7 @@ namespace lunatic {
 	}
 
 	void Value::add(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
+		if (a->isBoolInt() && b->isBoolInt()) {
 			c->setInt(a->getInt() + b->getInt());
 		}
 		else {
@@ -25,7 +48,7 @@ namespace lunatic {
 	}
 
 	void Value::sub(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
+		if (a->isBoolInt() && b->isBoolInt()) {
 			c->setInt(a->getInt() - b->getInt());
 		}
 		else {
@@ -34,7 +57,7 @@ namespace lunatic {
 	}
 
 	void Value::mul(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
+		if (a->isBoolInt() && b->isBoolInt()) {
 			c->setInt(a->getInt() * b->getInt());
 		}
 		else {
@@ -51,21 +74,21 @@ namespace lunatic {
 	}
 
 	void Value::logicAnd(Value* a, Value* b, Value* c) {
-		if (!a->toBool())
+		if (!a->isTrue())
 			* c = *a;
 		else
 			*c = *b;
 	}
 
 	void Value::logicOr(Value* a, Value* b, Value* c) {
-		if (a->toBool())
+		if (a->isTrue())
 			* c = *a;
 		else
 			*c = *b;
 	}
 
 	void Value::neg(Value* a, Value* b) {
-		if (a->isInt()) {
+		if (a->isBoolInt()) {
 			b->setInt(-a->getInt());
 		}
 		else {
@@ -74,60 +97,60 @@ namespace lunatic {
 	}
 
 	void Value::logicNot(Value* a, Value* b) {
-		b->setInt(!a->toBool());
+		b->setBool(!a->getBool());
 	}
 
 	void Value::idiv(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
-			c->setInt(a->getInt() / b->getInt());
+		if (a->isBoolInt() && b->isBoolInt()) {
+			c->setBool(a->getInt() / b->getInt());
 		}
 		else {
-			c->setInt(a->getFloat() / b->getFloat());
+			c->setBool(a->getFloat() / b->getFloat());
 		}
 	}
 	void Value::lt(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
-			c->setInt(a->getInt() < b->getInt());
+		if (a->isBoolInt() && b->isBoolInt()) {
+			c->setBool(a->getInt() < b->getInt());
 		}
 		else {
-			c->setInt(a->getFloat() < b->getFloat());
+			c->setBool(a->getFloat() < b->getFloat());
 		}
 	}
 
 	void Value::gt(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
-			c->setInt(a->getInt() > b->getInt());
+		if (a->isBoolInt() && b->isBoolInt()) {
+			c->setBool(a->getInt() > b->getInt());
 		}
 		else {
-			c->setInt(a->getFloat() > b->getFloat());
+			c->setBool(a->getFloat() > b->getFloat());
 		}
 	}
 
 	void Value::le(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
-			c->setInt(a->getInt() <= b->getInt());
+		if (a->isBoolInt() && b->isBoolInt()) {
+			c->setBool(a->getInt() <= b->getInt());
 		}
 		else {
-			c->setInt(a->getFloat() <= b->getFloat());
+			c->setBool(a->getFloat() <= b->getFloat());
 		}
 	}
 
 	void Value::ge(Value* a, Value* b, Value* c) {
-		if (a->isInt() && b->isInt()) {
-			c->setInt(a->getInt() >= b->getInt());
+		if (a->isBoolInt() && b->isBoolInt()) {
+			c->setBool(a->getInt() >= b->getInt());
 		}
 		else {
-			c->setInt(a->getFloat() >= b->getFloat());
+			c->setBool(a->getFloat() >= b->getFloat());
 		}
 	}
 
 	void Value::eq(Value* a, Value* b, Value* c) {
 		if (a->isArithmetic() && b->isArithmetic()) {
-			if (a->isInt() && b->isInt()) {
-				c->setInt(a->getInt() == b->getInt());
+			if (a->isBoolInt() && b->isBoolInt()) {
+				c->setBool(a->getInt() == b->getInt());
 			}
 			else {
-				c->setInt(a->getFloat() == b->getFloat());
+				c->setBool(a->getFloat() == b->getFloat());
 			}
 		}
 		else if (a->type != b->type) {
@@ -140,11 +163,11 @@ namespace lunatic {
 
 	void Value::ne(Value* a, Value* b, Value* c) {
 		if (a->isArithmetic() && b->isArithmetic()) {
-			if (a->isInt() && b->isInt()) {
-				c->setInt(a->getInt() != b->getInt());
+			if (a->isBoolInt() && b->isBoolInt()) {
+				c->setBool(a->getInt() != b->getInt());
 			}
 			else {
-				c->setInt(a->getFloat() != b->getFloat());
+				c->setBool(a->getFloat() != b->getFloat());
 			}
 		}
 		else if (a->type != b->type) {
@@ -156,7 +179,7 @@ namespace lunatic {
 	}
 
 	Value::Value() :type(TNil) {}
-	
+
 	void Value::setNil() {
 
 		type = TNil;
@@ -183,19 +206,19 @@ namespace lunatic {
 
 		type = TClosure;
 		asClosure = val;
-	
+
 	}
 
 	void Value::setBool(bool val) {
 
-		type = TInt;
+		type = TBool;
 		asInt = val;
 	}
-	void Value::setString(String * s){
+	void Value::setString(String* s) {
 
 		asString = s;
 		type = TString;
-			
+
 	}
 	void Value::setString(const std::string&) {
 		type = TString;
@@ -206,12 +229,12 @@ namespace lunatic {
 			throw RuntimException("arithmetic object expected!");
 	}
 	void Value::checkInt() const {
-		if (!isInt())
+		if (!isBoolInt())
 			throw RuntimException("int object expected!");
 	}
 
 	void Value::checkFloat() const {
-		if (!isFloat() && !isInt()) {
+		if (!isFloat() && !isBoolInt()) {
 			throw RuntimException("float object expected!");
 		}
 	}
@@ -238,8 +261,8 @@ namespace lunatic {
 		}
 	}
 
-	bool Value::toBool() const {
-		if (isInt()) {
+	bool Value::getBool() const {
+		if (isBoolInt()) {
 			return getInt();
 		}
 		else if (isFloat()) {
@@ -252,7 +275,7 @@ namespace lunatic {
 	}
 	std::string Value::dump()const {
 		std::ostringstream out;
-		if (isInt()) {
+		if (isBoolInt()) {
 			out << getInt();
 		}
 		else if (isFloat()) {
@@ -294,6 +317,9 @@ namespace lunatic {
 		if (isInt()) {
 			out << getInt();
 		}
+		else if (isBool()) {
+			out << (asInt ? "true" : "false");
+		}
 		else if (isFloat()) {
 			out << getFloat();
 		}
@@ -322,7 +348,7 @@ namespace lunatic {
 			return getTable()->get(i);
 		}
 		else {
-			throw RuntimException("is not a table object");
+			throw RuntimException(format("attempt to get item of {}", type));
 		}
 	}
 	int Value::len() const {
@@ -336,7 +362,7 @@ namespace lunatic {
 			return getString()->str().length();
 		}
 		else {
-			throw RuntimException("cannot get length of the value");
+			throw RuntimException(format("attempt to get length of {}", type));
 		}
 	}
 	Value Value::get(const std::string& s) {
@@ -344,7 +370,7 @@ namespace lunatic {
 			return getTable()->get(s);
 		}
 		else {
-			throw RuntimException("is not a table object");
+			throw RuntimException(format("attempt to get item of {}", type));
 		}
 	}
 
@@ -353,7 +379,7 @@ namespace lunatic {
 			getTable()->set(i, v);
 		}
 		else {
-			throw RuntimException("is not a table object");
+			throw RuntimException(format("attempt to set item of {}", type));
 		}
 	}
 
@@ -362,7 +388,7 @@ namespace lunatic {
 			getTable()->set(s, v);
 		}
 		else {
-			throw RuntimException("is not a table object");
+			throw RuntimException(format("attempt to set item of {}", type));
 		}
 	}
 
@@ -391,33 +417,29 @@ namespace lunatic {
 	}
 	void Value::setMetaTable(Value* a, Value* b) {
 		if (a->isTable()) {
-			b->getTable()->metatable = a->getTable();
+			b->metatable = a->getTable();
 		}
 		else {
-			throw RuntimException("attemp to set the metatable of a non-table value");
+			throw RuntimException(format("{} expected but found when setting metatable", TTable, a->type));
 		}
 	}
 
 
 	void Value::setMetaTable(const Value& v) {
-		if (isTable()) {
-			getTable()->metatable = v.getTable();
+		if (v.isTable()) {
+			metatable = v.getTable();
 		}
 		else {
-			throw RuntimException("attemp to set the metatable of a non-table value");
+			throw RuntimException(format("{} expected but found setting metatable", TTable, v.type));
 		}
 	}
+
 
 	Table* Value::getMetatable() const {
-		if (isTable()) {
-			return getTable()->metatable;
-		}
-		else {
-			throw RuntimException("attemp to get the metatable of a non-table value");
-		}
+		return metatable;
 	}
 
-	void Value::clone(GC&gc,Value* a, Value* b) {
+	void Value::clone(GC& gc, Value* a, Value* b) {
 		if (a->isTable()) {
 			b->setTable(gc.alloc<Table>(*a->getTable()));//TODO: set proto instead of direct copy
 			//	b->asObject.get<Table>()->proto = a->asObject;
@@ -430,5 +452,14 @@ namespace lunatic {
 
 	void Value::setArgCount(int i) {
 		getClosure()->setArgCount(i);
+	}
+
+	bool Value::isTrue() {
+		if (isBool()) {
+			return asInt != 0;
+		}
+		else {
+			return !isNil();
+		}
 	}
 }

@@ -569,10 +569,10 @@ namespace lunatic {
 
 	void CodeGen::visit(BoolConstant* boolConstant) {
 		if (boolConstant->getToken().tok == "true") {
-			emit(Instruction(Opcode::LoadInt, findReg(), 1));
+			emit(Instruction(Opcode::LoadBool, findReg(), 1));
 		}
 		else if (boolConstant->getToken().tok == "false") {
-			emit(Instruction(Opcode::LoadInt, findReg(), 0));
+			emit(Instruction(Opcode::LoadBool, findReg(), 0));
 		}
 		else {
 			emit(Instruction(Opcode::LoadNil, findReg(), 0));

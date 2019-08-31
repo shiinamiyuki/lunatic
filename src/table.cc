@@ -13,9 +13,6 @@ namespace lunatic {
 				gc->mark(i.getTable());
 			}
 		}
-		if (metatable) {
-			gc->mark(metatable);
-		}
 	}
 	Value Table::get(int i) {
 		if (i >= 0 && i < list.size()) {
@@ -24,23 +21,19 @@ namespace lunatic {
 		auto iter = iMap.find(i);
 		if (iter != iMap.end())
 			return iter->second;
-		else if (!metatable) {
+		else{
 			return Value();
 		}
-		else {
-			return metatable->get(i);
-		}
+
 	}
 	Value Table::get(const std::string& s) {
 		auto iter = sMap.find(s);
 		if (iter != sMap.end())
 			return iter->second;
-		else if (!metatable) {
+		else {
 			return Value();
 		}
-		else {
-			return metatable->get(s);
-		}
+		
 	}
 	void Table::set(int i, const Value& v) {
 		if (i >= 0 && i < list.size()) {

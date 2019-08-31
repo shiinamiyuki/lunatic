@@ -21,6 +21,7 @@ namespace lunatic {
 	public:
 		enum Type {
 			TNil,
+			TBool,
 			TFloat,
 			TInt,
 			TTable,
@@ -39,7 +40,7 @@ namespace lunatic {
 			double asFloat;
 			void* asUserData;
 		};
-		
+		Table* metatable = nullptr;
 	public:
 		void setNil();
 
@@ -72,7 +73,9 @@ namespace lunatic {
 		bool isInt() const {
 			return type == TInt;
 		}
-
+		bool isBool()const {
+			return type == TBool;
+		}
 		bool isFloat() const {
 			return type == TFloat;
 		}
@@ -80,7 +83,7 @@ namespace lunatic {
 			return type == TUserData;
 		}
 		bool isArithmetic() const {
-			return isInt() || isFloat();
+			return isInt() || isFloat() || isBool();
 		}
 
 		bool isManaged()const {
@@ -91,7 +94,7 @@ namespace lunatic {
 			return type == TTable;
 		}
 
-		bool isNil()const{return type == TNil;}
+		bool isNil()const { return type == TNil; }
 		void checkInt() const;
 
 		void checkFloat() const;
@@ -157,9 +160,11 @@ namespace lunatic {
 
 		void set(const std::string&, const Value&);
 		int len() const;
-
+		inline bool isBoolInt()const {
+			return isInt() || isBool();
+		}
 		inline int64_t getInt() const {
-			if (isInt()) {
+			if (isInt() || isBool()) {
 				return asInt;
 			}
 			else {
@@ -168,7 +173,7 @@ namespace lunatic {
 		}
 
 		inline double getFloat() const {
-			if (isInt()) {
+			if (isInt() || isBool()) {
 				return asInt;
 			}
 			else {
@@ -187,7 +192,7 @@ namespace lunatic {
 		void* getUserData()const {
 			return asUserData;
 		}
-		bool toBool()const;
+		bool getBool()const;
 		std::string str() const;
 		std::string dump()const;
 		static void setMetaTable(Value* a, Value* v);
@@ -218,25 +223,30 @@ namespace lunatic {
 
 		const char* typeStr()const {
 			switch (type) {
-			case TTable:
+			case Value::TTable:
 				return "table";
-			case TNil:
+			case Value::TNil:
 				return "nil";
-			case TString:
+			case Value::TString:
 				return "string";
-			case TClosure:
+			case Value::TClosure:
 				return "function";
-			case TInt:
+			case Value::TInt:
 				return "int";
-			case TFloat:
+			case Value::TFloat:
 				return "float";
+			case Value::TBool:
+				return "bool";
+			case Value::TUserData:
+				return "userdata";
 			}
 		}
+		bool isTrue();
 	};
 
 	template<class T>
 	struct Serializer {
-		static void serialize( Value& v, const T& out, SerializeContext* ctx) {
+		static void serialize(Value& v, const T& out, SerializeContext* ctx) {
 			toLuaValue(v, out, ctx);
 		}
 		static void deserialize(const Value& v, T& out, SerializeContext* ctx) {
@@ -270,8 +280,11 @@ namespace lunatic {
 		v.checkFloat();
 		f = v.getFloat();
 	}
-	void fromLuaValue(const Value& v, std::string& ,SerializeContext* ctx);
-	void fromLuaValue(const Value& v, const char*& , SerializeContext* ctx);
-	void toLuaValue(Value& v, const std::string& ,SerializeContext* ctx);
-	void toLuaValue(Value& v, const char* , SerializeContext* ctx);
+	void fromLuaValue(const Value& v, std::string&, SerializeContext* ctx);
+	void fromLuaValue(const Value& v, const char*&, SerializeContext* ctx);
+	void toLuaValue(Value& v, const std::string&, SerializeContext* ctx);
+	void toLuaValue(Value& v, const char*, SerializeContext* ctx);
+
+
+
 }

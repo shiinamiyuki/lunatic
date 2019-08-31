@@ -22,7 +22,8 @@ namespace lunatic {
 		W_AB(Opcode::SetArgCount);
 		W_AB(Opcode::LoadGlobal);
 		W_AB(Opcode::LoadRet);
-		W_AB(Opcode::LoadInt);
+		W_AB(Opcode::LoadInt)
+		W_AB(Opcode::LoadBool);
 		W_F(Opcode::LoadFloat);
 		W_ABC(Opcode::fCall);
 		W_AB(Opcode::Ret);

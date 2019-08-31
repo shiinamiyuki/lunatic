@@ -19,6 +19,9 @@ namespace lunatic {
 	invokeMetaMethod(a,b,c,meta);\
 }else{ op(a,b,c);/*std::cout <<"op result :"<<c->str()<<std::endl;*/ }
 #define DO_ARITH(op,meta) state->next();GetABC(i);DO_OP(op,meta)
+
+#define DO_OP_REL(op,meta)  op(a,b,c);
+#define DO_REL(op,meta) state->next();GetABC(i);DO_OP_REL(op,meta)
 #define PRT(x) std::cout <<(x)->str()<<std::endl
 	void VM::eval(State * state) {
 		Value* a = nullptr;
@@ -50,6 +53,12 @@ namespace lunatic {
 				a = GetReg(i.getA());
 				i32 = i.getInt();
 				a->setInt(i32);
+				state->next();
+				break;
+			case Opcode::LoadBool:
+				a = GetReg(i.getA());
+				i32 = i.getInt();
+				a->setBool(i32);
 				state->next();
 				break;
 			case Opcode::LoadFloat:
@@ -95,10 +104,10 @@ namespace lunatic {
 				state->next();
 				break;
 			case Opcode::And:
-				DO_ARITH(Value::logicAnd, "__and")
+				DO_REL(Value::logicAnd, "__and")
 					break;
 			case Opcode::Or:
-				DO_ARITH(Value::logicOr, "__or")
+				DO_REL(Value::logicOr, "__or")
 					break;
 			case Opcode::LT:
 				DO_ARITH(Value::lt, "__lt")
@@ -113,10 +122,10 @@ namespace lunatic {
 				DO_ARITH(Value::ge, "__ge")
 					break;
 			case Opcode::EQ:
-				DO_ARITH(Value::eq, "__eq")
+				DO_REL(Value::eq, "__eq")
 					break;
 			case Opcode::NE:
-				DO_ARITH(Value::ne, "__ne")
+				DO_REL(Value::ne, "__ne")
 					break;
 			case Opcode::NewTable:
 				a = GetReg(i.getA());
@@ -174,11 +183,11 @@ namespace lunatic {
 				break;
 			case Opcode::BZ:
 				a = GetReg(i.getA());
-				state->pc = a->toBool() ? state->pc + 1 : i.getInt();
+				state->pc = a->isTrue() ? state->pc + 1 : i.getInt();
 				break;
 			case Opcode::BNZ:
 				a = GetReg(i.getA());
-				state->pc = !a->toBool() ? state->pc + 1 : i.getInt();
+				state->pc = !a->isTrue() ? state->pc + 1 : i.getInt();
 				break;
 			case Opcode::StoreRet:
 				a = GetReg(i.getA());
@@ -192,7 +201,7 @@ namespace lunatic {
 				*b = *a;
 				state->next();
 				break;
-			
+
 			case Opcode::SetArgCount:
 				a = GetReg(i.getA());
 				a->setArgCount(i.getInt());
@@ -209,11 +218,9 @@ namespace lunatic {
 				a = GetReg(i.getA());
 				state->next();
 				if (!a->isClosure()) {
-					invokeMetaMethod(a, nullptr, nullptr, "__call", i.getB());
+					throw RuntimException(format("attemp to call {} ", a->typeStr()));
 				}
-				else {
-					state->call(a->getClosure(), i.getB());
-				}
+				state->call(a->getClosure(), i.getB());				
 				break;
 			case Opcode::Ret:
 				state->ret();
@@ -233,14 +240,14 @@ namespace lunatic {
 				state->next();
 				break;
 			case Opcode::MakeUpvalue:
-				{
+			{
 				auto closure = getCurrentClosure();
 				auto parent = closure->getParentUpValue();
 				auto up = gc.alloc<UpValue>(parent);
 				closure->setUpvalue(up);
-				}
-				state->next();
-				break;
+			}
+			state->next();
+			break;
 			case Opcode::LoadUpvalue:
 			{
 				a = GetReg(i.getA());
@@ -255,7 +262,7 @@ namespace lunatic {
 			{
 				auto closure = getCurrentClosure();
 				UpValue* up = closure->getUpValue();
-	
+
 				a = GetReg(i.getA());
 				i32 = i.getInt();
 				up->set(i32, *a);
@@ -263,7 +270,7 @@ namespace lunatic {
 				break;
 			}
 			default:
-				std::cerr << "unknown opcode "<<i.str() << std::endl;
+				std::cerr << "unknown opcode " << i.str() << std::endl;
 				state->next();
 				break;
 			}
@@ -357,7 +364,7 @@ namespace lunatic {
 		for (auto& i : s->retReg) {
 			gc.mark(i);
 		}
-		for (auto& i :s->callStack) {
+		for (auto& i : s->callStack) {
 			gc.mark(i.closure);
 		}
 		gc.sweep();

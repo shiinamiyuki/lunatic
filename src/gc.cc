@@ -5,6 +5,7 @@
 #include "format.h"
 namespace lunatic {
 	void GC::mark(GCObject* object) {
+		if (!object)return;
 		if(visited.find(object)!=visited.end())return;
 		visited.insert(object);
 		object->marked = true;
@@ -23,6 +24,7 @@ namespace lunatic {
 		}else if(v.isClosure()){
 			mark(v.getClosure());
 		}
+		mark(v.getMetatable());
 	}
 	void GC::prepareForCollect(){
 		visited.clear();

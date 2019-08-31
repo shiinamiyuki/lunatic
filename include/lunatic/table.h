@@ -10,7 +10,6 @@ namespace lunatic {
 		std::unordered_map<std::string, Value> sMap;
 		std::unordered_map<int, Value> iMap;
 		std::vector<Value> list;
-		Table* metatable=nullptr;
 	public:
 		friend class Value;
 
