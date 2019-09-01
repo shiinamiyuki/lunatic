@@ -115,14 +115,15 @@ namespace lunatic {
 	}
 
 	void CodeGen::visit(Local* node) {
-		if (locals.size()) {
-			createLocal(node->first()->getToken());
+		createLocal(node->first()->getToken());
+		if (node->size() == 2) {
+			node->second()->accept(this);
+			assign(node);
 		}
 		else {
-			createGlobal(node->first()->getToken());
+			emit(Instruction(Opcode::LoadNil, getLocalAddress(node->first()->getToken()), 0, 0));
 		}
-		node->second()->accept(this);
-		assign(node);
+
 	}
 
 	void CodeGen::visit(BinaryExpression* node) {
@@ -334,7 +335,7 @@ namespace lunatic {
 		size_t loopStart = program.size();
 		pushScope();
 		for (auto i : *varList) {
-			createLocal(i->getToken());			
+			createLocal(i->getToken());
 		}
 		emit(Instruction(Opcode::Push, getLocalAddress(_s), 0));
 		emit(Instruction(Opcode::Push, getLocalAddress(_var), 0));
@@ -342,7 +343,7 @@ namespace lunatic {
 		for (int i = varList->size() - 1; i >= 0; i--) {
 			emit(Instruction(Opcode::LoadRet, i, getLocalAddress(varList->at(i)->getToken())));
 		}
-		emit(Instruction(Opcode::Move, getLocalAddress(varList->at(0)->getToken()),getLocalAddress(_var)));
+		emit(Instruction(Opcode::Move, getLocalAddress(varList->at(0)->getToken()), getLocalAddress(_var)));
 		int jmpIdx = program.size();
 		emit(Instruction(Opcode::BZ, 0, 0));
 		block->accept(this);
@@ -542,7 +543,7 @@ namespace lunatic {
 
 		funcHelper(funcReg, arg, body, i, funcName);
 		popScope();
-		
+
 		assign(func);
 
 		regState = backup;

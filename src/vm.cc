@@ -41,7 +41,7 @@ namespace lunatic {
 				gcCycle = 0;
 				collect();
 			}
-			// std::cout << state->pc << " " <<i.str() <<std::endl;
+			//std::cout << state->pc << " " <<i.str() <<std::endl;
 			//	system("pause");
 			switch (i.opcode) {
 			case Opcode::LoadNil:

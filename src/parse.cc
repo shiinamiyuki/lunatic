@@ -144,7 +144,7 @@ namespace lunatic {
 				right = unrollComma(static_cast<BinaryExpression*>(node->second()));
 			}
 			left = unrollComma(static_cast<BinaryExpression*>(node->first()));
-			
+
 			auto assign = makeNode<ParallelAssign>();
 			auto L = makeNode<ParallelAssignEntry>();
 			auto R = makeNode<ParallelAssignEntry>();
@@ -232,7 +232,7 @@ namespace lunatic {
 	AST* Parser::parseFor() {
 		skip();
 		expect("for");
-		
+
 		if (at(pos + 2).tok == "=") {
 			auto f = makeNode<For>();
 			f->add(parseAtom());
@@ -245,7 +245,7 @@ namespace lunatic {
 				f->add(parseExpr(2));
 			}
 			else {
-				f->add(makeNode<Number>(Token(Token::Type::Number,"1",getPos().line, getPos().col)));
+				f->add(makeNode<Number>(Token(Token::Type::Number, "1", getPos().line, getPos().col)));
 			}
 			expect("do");
 			f->add(parseBlock());
@@ -271,7 +271,7 @@ namespace lunatic {
 			expect("do");
 			f->add(parseBlock());
 			expect("end");
-			
+
 			return f;
 		}
 	}
@@ -440,7 +440,7 @@ namespace lunatic {
 				auto v = unrollComma(r);
 				for (auto i : v) {
 					node->add(i);
-					
+
 				}
 				return node;
 			}
@@ -573,11 +573,13 @@ namespace lunatic {
 				auto& tok = local->first()->getToken();
 				throw ParserException("identifier expected in local expression", tok.line, tok.col);
 			}
-			expect("=");
-			local->add(parseExpr(1));
+			if (has("=")) {
+				consume();
+				local->add(parseExpr(1));
+			}
 			return local;
 		}
-		
+
 	}
 
 	SourcePos Parser::getPos() const {
