@@ -27,12 +27,12 @@ namespace lunatic {
 		Value* a = nullptr;
 		Value* b = nullptr;
 		Value* c = nullptr;
+		ScopedAssigenment<State*> _a(cur);
 		cur = state;
 		int i32;
 		double f64;
 		size_t gcCycle = 0;
 		int size = program.size();
-		int callsize = cur->callStack.size();
 		while (state->pc < size && state->ok) {
 			auto& i = program[state->pc];
 			gcCycle++;
@@ -41,7 +41,7 @@ namespace lunatic {
 				gcCycle = 0;
 				collect();
 			}
-			//std::cout << state->pc << " " <<i.str() <<std::endl;
+			// std::cout << state->pc << " " <<i.str() <<std::endl;
 			//	system("pause");
 			switch (i.opcode) {
 			case Opcode::LoadNil:
@@ -220,11 +220,10 @@ namespace lunatic {
 				if (!a->isClosure()) {
 					throw RuntimException(format("attemp to call {} ", a->typeStr()));
 				}
-				state->call(a->getClosure(), i.getB());				
+				state->call(a->getClosure(), i.getB());
 				break;
 			case Opcode::Ret:
 				state->ret();
-				state->ok = state->ok && callsize <= cur->callStack.size();
 				break;
 			case Opcode::invoke:
 				i32 = i.getInt();
@@ -234,14 +233,14 @@ namespace lunatic {
 			case Opcode::MakeClosure:
 				a = GetReg(i.getA()); {
 					auto closure = gc.alloc<Closure>(i.getInt(), 0);
-					closure->setParentUpValue(getCurrentClosure() ? getCurrentClosure()->getUpValue() : nullptr);
+					closure->setParentUpValue(cur->getCurrentClosure() ? cur->getCurrentClosure()->getUpValue() : nullptr);
 					a->setClosure(closure);
 				}
 				state->next();
 				break;
 			case Opcode::MakeUpvalue:
 			{
-				auto closure = getCurrentClosure();
+				auto closure = cur->getCurrentClosure();
 				auto parent = closure->getParentUpValue();
 				auto up = gc.alloc<UpValue>(parent);
 				closure->setUpvalue(up);
@@ -252,7 +251,7 @@ namespace lunatic {
 			{
 				a = GetReg(i.getA());
 				i32 = i.getInt();
-				auto closure = getCurrentClosure();
+				auto closure = cur->getCurrentClosure();
 				UpValue* up = closure->getUpValue();
 				*a = up->get(i32);
 				state->next();
@@ -260,7 +259,7 @@ namespace lunatic {
 			}
 			case Opcode::StoreUpvalue:
 			{
-				auto closure = getCurrentClosure();
+				auto closure = cur->getCurrentClosure();
 				UpValue* up = closure->getUpValue();
 
 				a = GetReg(i.getA());
@@ -289,10 +288,11 @@ namespace lunatic {
 			cur->push(*a);
 			cur->push(*b);
 			auto meta = a->get(key);
-			meta.checkClosure();
+			if (!meta.isClosure()) {
+				auto msg = format("Attempt to perform operator {} between {} and {}", key, a->typeStr(), b->typeStr());
+				throw RuntimException(msg);
+			}
 			call(meta.getClosure(), 2);
-			eval(cur);
-			cur->ok = true;
 			*c = cur->retReg[0];
 			//   std::cout << "done"<<std::endl;
 		}
@@ -302,8 +302,6 @@ namespace lunatic {
 			auto meta = a->get(key);
 			meta.checkClosure();
 			call(meta.getClosure(), 2);
-			eval(cur);
-			cur->ok = true;
 		}
 	}
 
@@ -344,28 +342,39 @@ namespace lunatic {
 	}
 
 	void VM::call(Closure* closure, int n) {
-		auto state = getCurrentState();
-		state->call(closure, n);
+		State newFrame(closure);
+		newFrame.parent = getCurrentState();
+		for (int i = 0; i < n; i++) {
+			newFrame.registers[i] = getCurrentState()->registers[REG_MAX + i];
+		}
+		newFrame.pc = closure->getAddress();
+		eval(&newFrame);
+		std::swap(getCurrentState()->retReg, newFrame.retReg);
 	}
 
-
-	void VM::collect() {
-		gc.prepareForCollect();
-		auto s = getCurrentState();
-		for (auto i : stringPool) {
-			gc.mark(i);
-		}
+	void VM::mark(State* s) {
 		for (int i = 0; i < s->bp + REG_MAX; i++) {
 			gc.mark(s->locals[i]);
-		}
-		for (auto& i : globals) {
-			gc.mark(i);
 		}
 		for (auto& i : s->retReg) {
 			gc.mark(i);
 		}
 		for (auto& i : s->callStack) {
 			gc.mark(i.closure);
+		}
+	}
+	void VM::collect() {
+		gc.prepareForCollect();
+		auto s = getCurrentState();
+		for (auto i : stringPool) {
+			gc.mark(i);
+		}
+		while (s) {
+			mark(s);
+			s = s->parent;
+		}
+		for (auto& i : globals) {
+			gc.mark(i);
 		}
 		gc.sweep();
 	}

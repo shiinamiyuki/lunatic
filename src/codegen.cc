@@ -907,7 +907,7 @@ namespace lunatic {
 		for (int i = entry->size() - 1; i >= 0; i--) {
 			emit(Instruction(Opcode::LoadRet, i, findReg()));
 		}
-		for (int i = entry->size() - 1; i >= 0; i--) {
+		for (int i = 0; i < entry->size(); i++) {
 			auto node = entry->at(i);
 			if (node->type() == Identifier().type()) {
 				auto& var = node->getToken();

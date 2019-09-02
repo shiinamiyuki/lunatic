@@ -115,7 +115,7 @@ function test()
 		end
 	end
 
-	N = 16
+	N = 4
 	print('----no cycles----')
 	tree = build(N)
 
@@ -156,8 +156,9 @@ function test()
 		end
 		f()
 	end
-	if pcall(t_error) then
-		print('failed to catch error')
+	ret,msg =pcall(t_error)
+	if  ret then
+		print('failed to catch error',ret,msg)
 	else
 
 	end
@@ -184,7 +185,12 @@ function test()
 	print(add(3)(4))
 end
 
-err, msg = pcall(test)
-if not err then
-	print('test failed ', msg)
+
+ret, msg = pcall(test)
+if not ret then
+	print('test failed ', ret, msg)
+else
+	print('test completed')
 end 
+
+

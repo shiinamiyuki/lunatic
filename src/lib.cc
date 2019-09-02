@@ -192,19 +192,17 @@ namespace lunatic {
 		auto info = vm->getCurrentState()->save();
 		try {
 			vm->call(func.getClosure(), 0);
-			vm->forceRecurse();
 			Value ret;
 			ret.setBool(true);
 			vm->storeReturn(0, ret);
 		}
-		catch (std::runtime_error& e) {
+		catch (RuntimException& e) {
 			Value ret;
 			vm->storeReturn(0, ret);
 			Value msg;
 			SerializeContext ctx(vm);
 			msg.store(e.what(), &ctx);
 			vm->storeReturn(1, msg);
-			vm->getCurrentState()->restoreFrom(info);
 		}
 	}
 }

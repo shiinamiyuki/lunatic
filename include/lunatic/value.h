@@ -18,6 +18,7 @@ namespace lunatic {
 	template<class T>
 	struct Serializer;
 	class Value {
+		friend class VM;
 	public:
 		enum Type {
 			TNil,
@@ -286,5 +287,24 @@ namespace lunatic {
 	void toLuaValue(Value& v, const char*, SerializeContext* ctx);
 
 
+	struct Optional {
+		Optional(const Value& v) :value(v), valid(true) {}
+		Optional() {}
+		bool has()const {
+			return valid;
+		}
+		template<class F>
+		Optional flatMap(F&& f) {
+			if (has()) {
+				return f(value);
+			}
+			else {
+				return Optional();
+			}
+		}
+	private:
+		Value value;
+		bool valid = false;
+	};
 
 }

@@ -16,4 +16,15 @@ namespace lunatic {
 	public:
 		using std::runtime_error::runtime_error;
 	};
+
+	template<class T>
+	struct ScopedAssigenment {
+		ScopedAssigenment(T& value) :backup(value), ptr(&value) {	}
+		~ScopedAssigenment() {
+			*ptr = backup;
+		}
+	private:
+		T* ptr;
+		T backup;
+	};
 }
