@@ -567,8 +567,9 @@ namespace lunatic {
 			return func;
 		}
 		else {
+			auto tok = cur();
 			AST* local = makeNode<Local>();
-			local->add(parseAtom());
+		/*	local->add(parseAtom());
 			if (local->first()->getToken().type != Token::Type::Identifier) {
 				auto& tok = local->first()->getToken();
 				throw ParserException("identifier expected in local expression", tok.line, tok.col);
@@ -576,6 +577,15 @@ namespace lunatic {
 			if (has("=")) {
 				consume();
 				local->add(parseExpr(1));
+			}*/
+			auto assign = parseExpr();
+			local->add(assign);
+			if (!dynamic_cast<Identifier*>(assign) && !dynamic_cast<ParallelAssign*>(assign)
+				&& !dynamic_cast<BinaryExpression*>(assign)) {
+				throw ParserException("assignment or identifier expected after local", tok.line, tok.col);
+			}
+			if (dynamic_cast<BinaryExpression*>(assign)&& dynamic_cast<BinaryExpression*>(assign)->getToken().tok != "=") {
+				throw ParserException("assignment expected after local", tok.line, tok.col);
 			}
 			return local;
 		}

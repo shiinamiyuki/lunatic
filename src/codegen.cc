@@ -115,12 +115,21 @@ namespace lunatic {
 	}
 
 	void CodeGen::visit(Local* node) {
-		createLocal(node->first()->getToken());
-		if (node->size() == 2) {
-			node->second()->accept(this);
-			assign(node);
+		
+		if (dynamic_cast<BinaryExpression*>(node->first())) {
+			createLocal(node->first()->first()->getToken());
+			node->first()->accept(this);
 		}
-		else {
+		else if (dynamic_cast<ParallelAssign*>(node->first()))
+		{
+			auto para = dynamic_cast<ParallelAssign*>(node->first());
+			for (auto i : *para->first()) {
+				createLocal(i->getToken());
+			}
+			para->accept(this);
+		}
+		else {//identifier
+			createLocal(node->first()->getToken());
 			emit(Instruction(Opcode::LoadNil, getLocalAddress(node->first()->getToken()), 0, 0));
 		}
 
@@ -922,7 +931,7 @@ namespace lunatic {
 					emit(Instruction(Opcode::StoreGlobal, rhs, addr));
 				}
 				else {
-					auto& v = getLocal(node->first()->getToken());
+					auto& v = getLocal(node->getToken());
 					int addr = v.addr;
 					if (v.captured) {
 						emit(Instruction(Opcode::StoreUpvalue, popReg(), addr));

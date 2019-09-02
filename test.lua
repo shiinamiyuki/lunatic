@@ -156,11 +156,11 @@ function test()
 		end
 		f()
 	end
-	ret,msg =pcall(t_error)
+	local ret,msg =pcall(t_error)
 	if  ret then
 		print('failed to catch error',ret,msg)
 	else
-
+		print('successfully caugth error',msg)
 	end
 
 	function range(n)
