@@ -67,7 +67,7 @@ namespace lunatic {
 
 	void ScriptEngine::addNative(const std::string& s, NativeHandle f) {
 		gen.addNative(s);
-		vm.addNative(f);
+		vm.addNative(std::unique_ptr<Callable>(new LightFunction(f)));
 	}
 
 	void ScriptEngine::addLib(const std::string& s) {
@@ -79,7 +79,7 @@ namespace lunatic {
 		NativeHandle f) {
 		try {
 			gen.addLibMethod(lib, m);
-			vm.addNative(std::move(f));
+			vm.addNative(std::unique_ptr<Callable>(new LightFunction(f)));
 		}
 		catch (CompilerException& e) {
 			std::cerr << e.what() << std::endl;
@@ -154,7 +154,8 @@ namespace lunatic {
 		auto stack = state->callStack;
 		for (auto iter = stack.rbegin(); iter != stack.rend(); iter++) {
 			auto pos = gen.getSourcePos(iter->pc - 1);
-			auto funcName = gen.funcInfoMap[iter->closure->getAddress()];
+			auto funcName = iter->closure ? gen.funcInfoMap[iter->closure->getAddress()]
+				: "top level";
 			dump.append(format("\n\t in  <{}> at {}:{}:{}", funcName, pos.filename, pos.line, pos.col));
 		}
 		dump.append("\n");

@@ -109,9 +109,8 @@ namespace lunatic {
 		return c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 	}
 	static std::set<std::string> keywords = { "and", "break", "do", "else",
-											"elseif", "end", "false", "for", "function", "goto", "if", "in",
-											"let", "const", "nil", "not", "or", "repeat", "return", "then", "true",
-											"until", "while", "new", "finalize", "import" };
+											"elseif", "end", "false", "for", "function", "goto", "if", "nil", "not", "or", "repeat", "return", "then", "true",
+											"until", "while", "new"};
 	static std::vector<std::set<std::string>> operators = { {"::=", ">>=", "<<="},
 														   {"<=",  ">=",  "==",
 																			   "<<", ">>", "..", "~=", "..", "::", "//"},

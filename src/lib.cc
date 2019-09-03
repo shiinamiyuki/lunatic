@@ -3,15 +3,17 @@
 #include "table.h"
 #include "lstring.h"
 namespace lunatic {
-	void print(VM* vm) {
-		int cnt = vm->getArgCount();
+	void print(const CallContext&ctx) {
+		auto vm = ctx.vm;
+		int cnt = ctx.nArgs;
 		for (int i = 0; i < cnt; i++) {
 			auto v = vm->getLocal(i);
 			std::cout << v.str() << " ";
 		}
 		std::cout << std::endl;
 	}
-	void tonumber(VM* vm) {
+	void tonumber(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto x = vm->getLocal(0);
 		Value ret;
 		if (x.isString()) {
@@ -22,7 +24,8 @@ namespace lunatic {
 		}
 		vm->storeReturn(0, ret);
 	}
-	void tostring(VM* vm) {
+	void tostring(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto x = vm->getLocal(0);
 		Value ret;
 		if (x.isInt()) {
@@ -41,8 +44,9 @@ namespace lunatic {
 		vm->storeReturn(0, ret);
 	}
 
-	void TableLib::clone(VM* vm)
+	void TableLib::clone(const CallContext& ctx)
 	{
+		auto vm = ctx.vm;
 		auto arg = vm->getLocal(0);
 		arg.checkTable();
 		Value v;
@@ -50,15 +54,17 @@ namespace lunatic {
 		vm->storeReturn(0, v);
 	}
 
-	void setmetatable(VM* vm)
+	void setmetatable(const CallContext& ctx)
 	{
+		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		auto arg2 = vm->getLocal(1);
 		arg1.checkTable();
 		arg2.checkTable();
 		arg1.setMetaTable(arg2);
 	}
-	void getmetatable(VM* vm) {
+	void getmetatable(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkTable();
 		Value v;
@@ -66,8 +72,9 @@ namespace lunatic {
 		vm->storeReturn(0, v);
 	}
 
-	void _getline(VM* vm)
+	void _getline(const CallContext& ctx)
 	{
+		auto vm = ctx.vm;
 		Value v;
 		std::string s;
 		std::getline(std::cin, s);
@@ -75,7 +82,8 @@ namespace lunatic {
 		vm->storeReturn(0, v);
 	}
 
-	void StringLib::length(VM* vm) {
+	void StringLib::length(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkString();
 		Value v;
@@ -83,7 +91,8 @@ namespace lunatic {
 		vm->storeReturn(0, v);
 	}
 
-	void StringLib::sub(VM* vm) {
+	void StringLib::sub(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		int c = vm->getArgCount();
 		auto arg1 = vm->getLocal(0);
 		arg1.checkString();
@@ -103,7 +112,8 @@ namespace lunatic {
 		vm->storeReturn(0, v);
 	}
 
-	void StringLib::Char(VM* vm) {
+	void StringLib::Char(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkInt();
 		Value v;
@@ -113,7 +123,8 @@ namespace lunatic {
 		vm->storeReturn(0, v);
 	}
 
-	void StringLib::byte(VM* vm) {
+	void StringLib::byte(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		/*	auto arg1 = vm->getLocal(0);
 			arg1.checkString();
 			Value v;
@@ -121,7 +132,8 @@ namespace lunatic {
 			vm->storeReturn(0, v);*/
 	}
 
-	void FileLib::open(VM* vm) {
+	void FileLib::open(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkString();
 		auto arg2 = vm->getLocal(1);
@@ -135,7 +147,8 @@ namespace lunatic {
 		vm->storeReturn(0, v);
 	}
 
-	void FileLib::read(VM* vm) {
+	void FileLib::read(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkTable();
 		auto file = arg1.get("fp");
@@ -152,7 +165,8 @@ namespace lunatic {
 		vm->storeReturn(0, v);
 	}
 
-	void FileLib::write(VM* vm) {
+	void FileLib::write(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkTable();
 		auto file = arg1.get("fp");
@@ -163,7 +177,8 @@ namespace lunatic {
 		fprintf(f, "%s", s.c_str());
 	}
 
-	void FileLib::close(VM* vm) {
+	void FileLib::close(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkTable();
 		auto file = arg1.get("fp");
@@ -171,7 +186,8 @@ namespace lunatic {
 		FILE* f = static_cast<FILE*>(file.getUserData());
 		fclose(f);
 	}
-	void collectGarbage(VM* vm) {
+	void collectGarbage(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto _opt = vm->getLocal(0);
 		std::string opt = "collect";
 		if (!_opt.isNil()) {
@@ -186,7 +202,8 @@ namespace lunatic {
 			vm->collect();
 		}
 	}
-	void pCall(VM* vm) {
+	void pCall(const CallContext& ctx) {
+		auto vm = ctx.vm;
 		auto func = vm->getLocal(0);
 		func.checkClosure();
 		auto info = vm->getCurrentState()->save();

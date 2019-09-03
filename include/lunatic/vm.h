@@ -8,9 +8,7 @@
 namespace lunatic {
 	class VM;
 	class Table;
-	typedef std::function<void(VM*)> NativeHandle;
-
-
+	typedef std::function<void(const CallContext&)> NativeHandle;
 	struct CallInfo {
 		Closure* closure = nullptr;
 		int pc;
@@ -128,7 +126,7 @@ namespace lunatic {
 		std::vector<String*> stringPool;
 		std::vector<Value> globals;
 		std::vector<Instruction> program;
-		std::vector<NativeHandle> natives;
+		std::vector<std::unique_ptr<Callable>> natives;
 		std::list<State> states;
 		State* cur;
 		State _state;
@@ -157,7 +155,7 @@ namespace lunatic {
 
 		void invokeMetaMethod(Value* a, Value* b, Value* c, const char* key, int n = 0);
 
-		void addNative(NativeHandle);
+		void addNative(std::unique_ptr<Callable>&&);
 		Value& getLocal(int i);
 		void storeReturn(int i, const Value&);
 

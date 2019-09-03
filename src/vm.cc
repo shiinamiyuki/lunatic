@@ -228,7 +228,8 @@ namespace lunatic {
 			case Opcode::invoke:
 				i32 = i.getInt();
 				state->next();
-				natives[i32](this);
+
+				natives[i32]->call(CallContext(this, cur->getArgCount()));
 				break;
 			case Opcode::MakeClosure:
 				a = GetReg(i.getA()); {
@@ -313,8 +314,8 @@ namespace lunatic {
 		registers = locals.data();
 	}
 
-	void VM::addNative(NativeHandle h) {
-		natives.push_back(h);
+	void VM::addNative(std::unique_ptr<Callable>&& callable) {
+		natives.emplace_back(std::move(callable));
 	}
 
 	void VM::loadProgram(const std::vector<Instruction>& p) {

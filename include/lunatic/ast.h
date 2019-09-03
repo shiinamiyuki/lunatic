@@ -263,7 +263,14 @@ namespace lunatic {
 
 		void accept(Visitor*);
 	};
+	class Repeat : public AST {
+	public:
+		const std::string type() const {
+			return S("Repeat");
+		}
 
+		void accept(Visitor*);
+	};
 	class WhileLoop : public AST {
 	public:
 		const std::string type() const {

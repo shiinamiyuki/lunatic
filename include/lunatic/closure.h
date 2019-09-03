@@ -5,7 +5,18 @@
 namespace lunatic {
 	class Value;
 	class UpValue;
-	class Closure : public GCObject {
+	class VM;
+	struct CallContext {
+		VM* vm;
+		size_t nArgs;
+		CallContext(VM* vm, size_t n) :vm(vm), nArgs(n) {}
+	};
+	class Callable : public GCObject {
+	public:
+		virtual void call(const CallContext&) = 0;
+	};
+
+	class Closure : public Callable {
 		int addr;
 		int argCount;
 		UpValue* upValue=nullptr;
@@ -35,6 +46,22 @@ namespace lunatic {
 		//  inline Value& getUpValue(unsigned int i)const{return upValue[i];}
 	   //   inline void setUpValue(unsigned int i, const Value &v){upValue[i] = v;}
 		virtual size_t nBytes()const{
+			return sizeof(*this);
+		}
+
+		// this creates new native stack frame (larger overhead)
+		void call(const CallContext&)override;
+	};
+
+	class LightFunction : public Callable{
+		std::function<void(const CallContext&)> func;
+	public:
+		LightFunction(std::function<void(const CallContext&)> f):func(std::move(f)){}
+		void call(const CallContext&ctx)override {
+			func(ctx);
+		}
+		void markReferences(GC* gc)const override {}
+		virtual size_t nBytes()const {
 			return sizeof(*this);
 		}
 	};

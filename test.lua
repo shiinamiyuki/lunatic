@@ -183,6 +183,11 @@ function test()
 
 	function add(x)return function (y)return x+y end end
 	print(add(3)(4))
+
+	local i = 0
+	repeat print(i)
+		i = i + 1
+	until i > 10
 end
 
 

@@ -115,7 +115,7 @@ namespace lunatic {
 	}
 
 	void CodeGen::visit(Local* node) {
-		
+
 		if (dynamic_cast<BinaryExpression*>(node->first())) {
 			createLocal(node->first()->first()->getToken());
 			node->first()->accept(this);
@@ -489,7 +489,18 @@ namespace lunatic {
 		a = popReg();
 		emit(Instruction(Opcode::GetValue, a, b, findReg()));
 	}
-
+	void CodeGen::visit(Repeat* node) {
+		int loopStart = program.size();
+		node->first()->accept(this);
+		node->second()->accept(this);
+		emit(Instruction(Opcode::BNZ, popReg(), (int)(program.size()) + 2));
+		emit(Instruction(Opcode::BRC, 0, (int)loopStart));
+		for (int i = loopStart; i < program.size(); i++) {
+			if (program[i].opcode == Opcode::Break) {
+				program[i] = Instruction(Opcode::BRC, 0, (int)(program.size()));
+			}
+		}
+	}
 	void CodeGen::visit(WhileLoop* node) {
 		int jmpIdx = program.size();
 		node->first()->accept(this);
@@ -509,8 +520,7 @@ namespace lunatic {
 	void CodeGen::visit(Func* func) {
 		callDepthStack.emplace_back(0);
 		locals.incFuncLevel();
-		//createLocal("@func");
-		int funcReg = findReg();// getLocalAddress("@func");
+		int funcReg = findReg();
 		auto regStackBackUp = reg;
 		RegState backup = regState;
 		regState.reset();

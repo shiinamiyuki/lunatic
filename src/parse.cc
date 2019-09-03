@@ -77,6 +77,9 @@ namespace lunatic {
 		else if (has("while")) {
 			return (parseWhile());
 		}
+		else if (has("repeat")) {
+			return parseRepeat();
+		}
 		else if (has("break")) {
 			consume();
 			return makeNode<Break>();
@@ -90,7 +93,7 @@ namespace lunatic {
 		else if (has("local")) {
 			return parseLocal();
 		}
-		else if (has("native")) {
+		else if (has("__native")) {
 			return parseNative();
 		}
 		else if (has(";")) {
@@ -103,7 +106,7 @@ namespace lunatic {
 		}
 	}
 
-#define BLOCK_END (has("end")||has("else")||has("elseif"))
+#define BLOCK_END (has("end")||has("else")||has("elseif")||has("until"))
 
 	AST* Parser::parseBlock() {
 		skip();
@@ -451,7 +454,7 @@ namespace lunatic {
 
 	AST* Parser::parseNative() {
 		skip();
-		expect("native");
+		expect("__native");
 		auto n = makeNode<Native>(peek());
 		consume();
 		expect(";");
@@ -473,7 +476,15 @@ namespace lunatic {
 		skip();
 		return peek().tok == token;
 	}
-
+	AST* Parser::parseRepeat() {
+		expect("repeat");
+		skip();
+		auto node = makeNode<Repeat>();
+		node->add(parseBlock());
+		expect("until");
+		node->add(parseExpr(2));
+		return node;
+	}
 	AST* Parser::parseWhile() {
 		expect("while");
 		skip();
@@ -569,22 +580,22 @@ namespace lunatic {
 		else {
 			auto tok = cur();
 			AST* local = makeNode<Local>();
-		/*	local->add(parseAtom());
-			if (local->first()->getToken().type != Token::Type::Identifier) {
-				auto& tok = local->first()->getToken();
-				throw ParserException("identifier expected in local expression", tok.line, tok.col);
-			}
-			if (has("=")) {
-				consume();
-				local->add(parseExpr(1));
-			}*/
+			/*	local->add(parseAtom());
+				if (local->first()->getToken().type != Token::Type::Identifier) {
+					auto& tok = local->first()->getToken();
+					throw ParserException("identifier expected in local expression", tok.line, tok.col);
+				}
+				if (has("=")) {
+					consume();
+					local->add(parseExpr(1));
+				}*/
 			auto assign = parseExpr();
 			local->add(assign);
 			if (!dynamic_cast<Identifier*>(assign) && !dynamic_cast<ParallelAssign*>(assign)
 				&& !dynamic_cast<BinaryExpression*>(assign)) {
 				throw ParserException("assignment or identifier expected after local", tok.line, tok.col);
 			}
-			if (dynamic_cast<BinaryExpression*>(assign)&& dynamic_cast<BinaryExpression*>(assign)->getToken().tok != "=") {
+			if (dynamic_cast<BinaryExpression*>(assign) && dynamic_cast<BinaryExpression*>(assign)->getToken().tok != "=") {
 				throw ParserException("assignment expected after local", tok.line, tok.col);
 			}
 			return local;

@@ -150,6 +150,8 @@ namespace lunatic {
 
 		void visit(WhileLoop*) override;
 
+		void visit(Repeat*)override;
+
 		void visit(Return*) override;
 
 		void visit(BoolConstant*) override;
@@ -186,7 +188,7 @@ namespace lunatic {
 
 		void pre(AST*) override;
 
-		void funcHelper(int funcReg, AST* arg, AST* body, int i, const std::string&name);
+		void funcHelper(int funcReg, AST* arg, AST* body, int i, const std::string& name);
 
 		void assign(AST*);
 
@@ -253,7 +255,7 @@ namespace lunatic {
 		void print();
 
 		void emit(const Instruction& i) {
-	
+
 			if (i.opcode == Opcode::Move && i.getA() == i.getBx()) {
 				return;
 			}

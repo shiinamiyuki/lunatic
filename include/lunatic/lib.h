@@ -5,31 +5,31 @@ namespace lunatic {
 	class StringLib
 	{
 	public:
-		static void length(VM* vm);
-		static void sub(VM* vm);
-		static void Char(VM* vm);
-		static void byte(VM* vm);
+		static void length(const CallContext&);
+		static void sub(const CallContext&);
+		static void Char(const CallContext&);
+		static void byte(const CallContext&);
 	};
 
 	class FileLib {
 	public:
-		static void open(VM* vm);
-		static void read(VM* vm);
-		static void write(VM* vm);
-		static void close(VM* vm);
+		static void open(const CallContext&);
+		static void read(const CallContext&);
+		static void write(const CallContext&);
+		static void close(const CallContext&);
 	};
 	class TableLib {
 	public:
-		static void clone(VM* vm);
+		static void clone(const CallContext&);
 	};
 
-	void print(VM* vm);
-	void run(VM* vm);
-	void tonumber(VM*);
-	void tostring(VM*);
-	void setmetatable(VM* vm);
-	void getmetatable(VM* vm);
-	void _getline(VM* vm);
-	void collectGarbage(VM*vm);
-	void pCall(VM* vm);
+	void print(const CallContext&);
+	void run(const CallContext&);
+	void tonumber(const CallContext&);
+	void tostring(const CallContext&);
+	void setmetatable(const CallContext&);
+	void getmetatable(const CallContext&);
+	void _getline(const CallContext&);
+	void collectGarbage(const CallContext&);
+	void pCall(const CallContext&);
 }

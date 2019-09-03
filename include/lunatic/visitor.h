@@ -28,6 +28,8 @@ namespace  lunatic {
 
 		virtual void visit(WhileLoop*) = 0;
 
+		virtual void visit(Repeat*) = 0;
+
 		virtual void visit(Return*) = 0;
 
 		virtual void visit(BoolConstant*) = 0;

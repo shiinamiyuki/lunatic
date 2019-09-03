@@ -44,6 +44,7 @@ namespace lunatic {
 	AST_ACCEPT(UnaryExpression);
 	AST_ACCEPT(Cond);
 	AST_ACCEPT(WhileLoop);
+	AST_ACCEPT(Repeat);
 	AST_ACCEPT(Call);
 	AST_ACCEPT(Index);
 	AST_ACCEPT(Block);

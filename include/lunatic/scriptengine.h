@@ -72,9 +72,9 @@ namespace lunatic {
 	template<typename Ret, typename... Args>
 	NativeHandle bind(const std::string&, Ret(*f)(Args... args)) {
 		auto func = toStdFunction(f);
-		auto handle = [=](VM* vm) {
-			auto helper = bindHelper(vm, 0, func);
-			handleReturnValue(vm, helper, 0);
+		auto handle = [=](const CallContext& ctx) {
+			auto helper = bindHelper(ctx.vm, 0, func);
+			handleReturnValue(ctx.vm, helper, 0);
 		};
 		return handle;
 	}
