@@ -342,10 +342,10 @@ namespace lunatic {
 			out << getFloat();
 		}
 		else if (isTable()) {
-			out << "table " << std::hex << (size_t)getTable() << std::endl;
+			out << "table " << std::hex << (size_t)getTable() << std::ends;
 		}
 		else if (isClosure()) {
-			out << "function 0x" << std::hex << (size_t)getTable() << std::endl;
+			out << "function 0x" << std::hex << (size_t)getTable() << std::ends;
 		}
 		else if (isString()) {
 			out << getString()->str();
@@ -354,7 +354,7 @@ namespace lunatic {
 			out << "nil";
 		}
 		else {
-			out << "unsupported type " << (size_t)type << std::endl;
+			out << "unsupported type " << (size_t)type << std::ends;
 		}
 		return out.str();
 	}

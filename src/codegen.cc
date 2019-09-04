@@ -230,6 +230,7 @@ namespace lunatic {
 			(*i)->accept(this);
 			//regCheck();
 			//forceBalanceReg();
+			popAllReg();
 		}
 	}
 
@@ -242,6 +243,7 @@ namespace lunatic {
 		for (auto i = node->begin(); i != node->end(); i++) {
 			//regCheck();
 			(*i)->accept(this);
+			//popAllReg();
 			//regCheck();
 			//syncRegState();
 			//TODO:syncRegState()
@@ -525,7 +527,7 @@ namespace lunatic {
 		RegState backup = regState;
 		regState.reset();
 		reg.clear();
-		pushScope();  locals.back().offset = 0;
+	
 		AST* arg, * body;
 		int i;
 		std::string funcName;
@@ -559,7 +561,7 @@ namespace lunatic {
 			i = 0;
 			funcName = "lambda";
 		}
-
+		pushScope();  locals.back().offset = 0;
 		funcHelper(funcReg, arg, body, i, funcName);
 		popScope();
 
@@ -567,7 +569,8 @@ namespace lunatic {
 
 		regState = backup;
 		reg = regStackBackUp;
-		reg.push_back(funcReg);
+		//if(func->getParent()->type() != Chunk().type() && func->getParent()->type() != Block().type())
+			reg.push_back(funcReg);
 		locals.decFuncLevel();
 
 		callDepthStack.pop_back();

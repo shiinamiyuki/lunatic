@@ -168,11 +168,11 @@ function test()
 		return function(a,b)
 			print(a,b)
 			if i > n then
-				return nil, i
+				return nil
 			else
 				local r = i
 				i = i + 1
-				return r, i
+				return r
 			end
 		end
 	end
@@ -190,20 +190,13 @@ function test()
 		i = i + 1
 	until i > 10
 
-	local _f = next(tab)
-	local k, v = _f()
-	print(k,v)
-	k, v = _f()
-	print(k, v)
-	k, v = _f()
-	print(k, v)
-	k, v = _f()
-	print(k, v)
-	k, v = _f()
-	print(k, v)
-
-	for k, v in next(tab) do 
+	for k, v in pairs(math) do 
 		print(k,v)
+	end
+
+	local m = {1,2,3,4,3,21}
+	for i, v in ipairs(m) do
+		print(i, v)
 	end
 end
 

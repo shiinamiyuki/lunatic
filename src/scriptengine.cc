@@ -17,6 +17,24 @@ void readFile(const char* filename, std::string& s) {
 }
 
 namespace lunatic {
+	static const std::string libSource = R"(
+	function pairs(t)
+		return next, t, nil
+	end
+	
+    function ipairs (a)
+		local function iter (a, i)
+			i = i + 1
+			local v = a[i]
+			if v then
+				return i, v
+			end
+			return nil
+		end
+		return iter, a, 0
+    end
+	)";
+
 	Error ScriptEngine::execString(const std::string& s, const char* filename) {
 		return compileAndRunString(s, filename);
 	}
@@ -131,6 +149,7 @@ namespace lunatic {
 		// addFunc(GetTickCount);
 
 		addFunc(exit);
+		execString(libSource, "lunatic.lib");
 	}
 
 

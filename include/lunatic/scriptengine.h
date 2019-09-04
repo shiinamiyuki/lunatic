@@ -109,7 +109,7 @@ namespace lunatic {
 
 	public:
 		ScriptEngine();
-
+		
 		Error execString(const std::string&, const char* filename = "");
 
 		Error execFile(const std::string&);

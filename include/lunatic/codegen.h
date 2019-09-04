@@ -286,7 +286,9 @@ namespace lunatic {
 			//regState.free(i);
 			return i;
 		}
-
+		void popAllReg(){
+			while(!reg.empty())popReg();
+		}
 		int findReg() {
 			int i;
 			do {
