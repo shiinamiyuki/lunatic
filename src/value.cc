@@ -2,7 +2,7 @@
 #include "table.h"
 #include "lstring.h"
 #include "closure.h"
-#include "format.h"
+#include "lformat.h"
 #include "vm.h"
 namespace lunatic {
 	size_t Value::Hash::operator()(const Value& v)const{

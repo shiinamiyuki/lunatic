@@ -3,7 +3,7 @@
 #include "ast.h"
 #include "opcode.h"
 #include "visitor.h"
-#include "format.h"
+#include "lformat.h"
 #include "parse.h"
 
 namespace lunatic {

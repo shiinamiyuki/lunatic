@@ -1,5 +1,5 @@
 #include "parse.h"
-#include "format.h"
+#include "lformat.h"
 namespace lunatic {
 	Parser::Parser(Scanner& lex) {
 		filename = lex.filename;

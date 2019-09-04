@@ -2,7 +2,7 @@
 #include "lstring.h"
 #include "table.h"
 #include "closure.h"
-#include "format.h"
+#include "lformat.h"
 namespace lunatic {
 	void GC::mark(GCObject* object) {
 		if (!object)return;

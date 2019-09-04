@@ -3,7 +3,7 @@
 #include "value.h"
 #include "closure.h"
 #include "upvalue.h"
-#include "format.h"
+#include "lformat.h"
 namespace lunatic {
 
 
