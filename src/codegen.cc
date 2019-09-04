@@ -334,7 +334,7 @@ namespace lunatic {
 		auto varList = static_cast<GenericForVarList*>(f->first());
 		auto exprList = static_cast<GenericForExprList*>(f->second());
 		auto block = f->third();
-		for (int i = 0; i < varList->size(); i++) {
+		for (int i = 0; i < exprList->size(); i++) {
 			exprList->at(i)->accept(this);
 			emit(Instruction(Opcode::StoreRet, popReg(), i));
 		}

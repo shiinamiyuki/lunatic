@@ -165,13 +165,14 @@ function test()
 
 	function range(n)
 		local i = 1
-		return function()
+		return function(a,b)
+			print(a,b)
 			if i > n then
-				return nil
+				return nil, i
 			else
 				local r = i
 				i = i + 1
-				return r
+				return r, i
 			end
 		end
 	end
@@ -179,7 +180,7 @@ function test()
 	r = range(10)
 	print(r())
 
-	for i in range(10) do print(i) end
+	for i ,j in range(10) do print(i,j) end
 
 	function add(x)return function (y)return x+y end end
 	print(add(3)(4))
@@ -188,6 +189,22 @@ function test()
 	repeat print(i)
 		i = i + 1
 	until i > 10
+
+	local _f = next(tab)
+	local k, v = _f()
+	print(k,v)
+	k, v = _f()
+	print(k, v)
+	k, v = _f()
+	print(k, v)
+	k, v = _f()
+	print(k, v)
+	k, v = _f()
+	print(k, v)
+
+	for k, v in next(tab) do 
+		print(k,v)
+	end
 end
 
 

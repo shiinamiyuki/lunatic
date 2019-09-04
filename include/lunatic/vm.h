@@ -63,7 +63,7 @@ namespace lunatic {
 		}
 		inline void nextStackFrame() {
 			bp += REG_MAX;
-
+			//printf("sp:%d\n",sp);
 			if (bp + REG_MAX >= locals.size()) {
 				locals.resize(2 * locals.size());
 			}

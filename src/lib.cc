@@ -233,7 +233,9 @@ namespace lunatic {
 			Table* table;
 			Table::iterator iter;
 		public:
-			Next(Table* table) :table(table),iter(table) {}
+			Next(Table* table) :table(table),iter(table) {
+				
+			}
 			void call(const CallContext& ctx) {
 				auto vm = ctx.vm;
 				auto pair = iter.get(vm);

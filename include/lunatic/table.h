@@ -21,10 +21,9 @@ namespace lunatic {
 
 		void set(const std::string&, const Value&);
 
-		Table() : sMap(), iMap() { list.push_back(Value()); }
+		Table() : sMap(), iMap() { }
 
-		inline int len() const { return list.size() - 1; }
-
+		inline int len() const { return list.size();}
 		inline std::vector<Value>& getList() { return list; }
 		inline bool isNil()const {
 			return len() == 0 && sMap.size() == 0;

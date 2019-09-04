@@ -221,9 +221,11 @@ namespace lunatic {
 					state->call(a->getClosure(), i.getB());
 				}
 				else if (a->isNativeFunction()) {
+					state->sp=0;
 					state->nextStackFrame();
 					a->asNativeFunction->call(CallContext(this, i.getB()));
 					state->prevStackFrame();
+					//println("native ret: {} {}",state->retReg[0].str(),state->retReg[1].str());
 				}
 				else {
 					throw RuntimException(format("attemp to call {}", a->typeStr()));

@@ -15,8 +15,8 @@ namespace lunatic {
 		}
 	}
 	Value Table::get(int i) {
-		if (i >= 0 && i < list.size()) {
-			return list[i];
+		if (i >= 1 && i <=list.size()) {
+			return list[i-1];
 		}
 		auto iter = iMap.find(i);
 		if (iter != iMap.end())
@@ -36,14 +36,14 @@ namespace lunatic {
 		
 	}
 	void Table::set(int i, const Value& v) {
-		if (i >= 0 && i < list.size()) {
-			if (v.isNil() && i == list.size() - 1) {
+		if (i >= 1 && i <= list.size()) {
+			if (v.isNil() && i == list.size()) {
 				list.pop_back();
 			}
 			else
-				list[i] = v;
+				list[i-1] = v;
 		}
-		else if (i == list.size()) {
+		else if (i == list.size()+1) {
 			list.push_back(v);
 		}
 		else {
