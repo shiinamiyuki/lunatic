@@ -217,10 +217,18 @@ namespace lunatic {
 			case Opcode::fCall:
 				a = GetReg(i.getA());
 				state->next();
-				if (!a->isClosure()) {
-					throw RuntimException(format("attemp to call {} ", a->typeStr()));
+				if (a->isClosure()) {
+					state->call(a->getClosure(), i.getB());
 				}
-				state->call(a->getClosure(), i.getB());
+				else if (a->isNativeFunction()) {
+					state->nextStackFrame();
+					a->asNativeFunction->call(CallContext(this, i.getB()));
+					state->prevStackFrame();
+				}
+				else {
+					throw RuntimException(format("attemp to call {}", a->typeStr()));
+				}
+			
 				break;
 			case Opcode::Ret:
 				state->ret();

@@ -122,6 +122,7 @@ namespace lunatic {
 		addNative("getline", _getline);
 		addNative("collectgarbage", collectGarbage);
 		addNative("pcall", pCall);
+		addNative("next", next);
 		addLibMethod("string", "char", StringLib::Char);
 		addLibMethod("string", "byte", StringLib::byte);
 		addLibMethod("string", "length", StringLib::length);

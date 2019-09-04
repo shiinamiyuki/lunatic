@@ -32,4 +32,5 @@ namespace lunatic {
 	void _getline(const CallContext&);
 	void collectGarbage(const CallContext&);
 	void pCall(const CallContext&);
+	void next(const CallContext&);
 }

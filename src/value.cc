@@ -207,6 +207,10 @@ namespace lunatic {
 
 	}
 
+	void Value::setNativeFunction(Callable* callable) {
+		type = TNativeFunction;
+		asNativeFunction = callable;
+	}
 	void Value::setClosure(Closure* val) {
 
 		type = TClosure;
@@ -305,6 +309,9 @@ namespace lunatic {
 		}
 		else if (isClosure()) {
 			out << "<closure at " << reinterpret_cast<long long>(asClosure) << ">";
+		}
+		else if (isNativeFunction()) {
+			out << "<closure at " << reinterpret_cast<long long>(getNativeFunction()) << ">";
 		}
 		else if (isString()) {
 			out << "\"" << getString()->str() << "\"";

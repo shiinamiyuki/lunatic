@@ -2,8 +2,9 @@
 #include "value.h"
 #include "table.h"
 #include "lstring.h"
+#include "gc.h"
 namespace lunatic {
-	void print(const CallContext&ctx) {
+	void print(const CallContext& ctx) {
 		auto vm = ctx.vm;
 		int cnt = ctx.nArgs;
 		for (int i = 0; i < cnt; i++) {
@@ -93,7 +94,7 @@ namespace lunatic {
 
 	void StringLib::sub(const CallContext& ctx) {
 		auto vm = ctx.vm;
-		int c = vm->getArgCount();
+		int c = ctx.nArgs;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkString();
 		auto arg2 = vm->getLocal(2);
@@ -221,5 +222,35 @@ namespace lunatic {
 			msg.store(e.what(), &ctx);
 			vm->storeReturn(1, msg);
 		}
+	}
+	void next(const CallContext& ctx) {
+		auto vm = ctx.vm;
+		auto table = vm->getLocal(0);
+		if (!table.isTable()) {
+			throw RuntimException("table object expected in next()");
+		}
+		class Next : public Callable {
+			Table* table;
+			Table::iterator iter;
+		public:
+			Next(Table* table) :table(table),iter(table) {}
+			void call(const CallContext& ctx) {
+				auto vm = ctx.vm;
+				auto pair = iter.get(vm);
+				vm->storeReturn(0, pair.first);
+				vm->storeReturn(1, pair.second);
+				iter.next();
+			}
+			void markReferences(GC* gc)const {
+				gc->mark(table);
+			}
+			size_t nBytes()const override {
+				return sizeof(*this);
+			}
+		};
+		auto next = ctx.vm->alloc<Next>(table.getTable());
+		Value v;
+		v.setNativeFunction(next);
+		vm->storeReturn(0, v);
 	}
 }

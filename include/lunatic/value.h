@@ -4,6 +4,7 @@
 namespace lunatic {
 	class Table;
 	class Closure;
+	class Callable;
 	class GC;
 	class String;
 	class VM;
@@ -28,6 +29,7 @@ namespace lunatic {
 			TTable,
 			TString,
 			TClosure,
+			TNativeFunction,
 			TUserData
 		};
 		Value();
@@ -36,6 +38,7 @@ namespace lunatic {
 		union {
 			Table* asTable;
 			Closure* asClosure;
+			Callable* asNativeFunction;
 			String* asString;
 			int64_t asInt;
 			double asFloat;
@@ -54,6 +57,8 @@ namespace lunatic {
 		void setClosure(Closure*);
 
 		void setBool(bool);
+
+		void setNativeFunction(Callable* callable);
 
 		void setUserData(void* p) {
 			type = TUserData;
@@ -94,7 +99,9 @@ namespace lunatic {
 		bool isTable() const {
 			return type == TTable;
 		}
-
+		bool isNativeFunction()const {
+			return type == TNativeFunction;
+		}
 		bool isNil()const { return type == TNil; }
 		void checkInt() const;
 
@@ -192,6 +199,9 @@ namespace lunatic {
 		}
 		void* getUserData()const {
 			return asUserData;
+		}
+		Callable* getNativeFunction()const {
+			return asNativeFunction;
 		}
 		bool getBool()const;
 		std::string str() const;

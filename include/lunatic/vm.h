@@ -61,18 +61,27 @@ namespace lunatic {
 		inline void push() {
 			sp++;
 		}
+		inline void nextStackFrame() {
+			bp += REG_MAX;
+
+			if (bp + REG_MAX >= locals.size()) {
+				locals.resize(2 * locals.size());
+			}
+			updateReg();
+		}
+		inline void prevStackFrame() {
+			bp -= REG_MAX;
+			updateReg();
+		}
 		inline void call(Closure* closure, int n) {
 			int addr = closure->getAddress();
 			callStack.push_back(CallInfo(this->closure, pc, bp, sp - n, n));
 			//	CallInfo* info = new CallInfo(callInfo,pc,bp,sp - n);//TODO : sp- number of args
 			this->closure = closure;
 			pc = addr;
-			bp += REG_MAX;
 			sp = 0;
-			if (bp + REG_MAX >= locals.size()) {
-				locals.resize(2 * locals.size());
-			}
-			updateReg();
+			
+			nextStackFrame();
 			//callInfo = info;
 			for (auto& i : retReg) {
 				i.setNil();
@@ -163,10 +172,6 @@ namespace lunatic {
 		inline State* getCurrentState()const { return cur; }
 		inline bool checkArithmetic(Value* a, Value* b) {
 			return Value::checkArithmetic(a, b);
-		}
-
-		inline int getArgCount() {
-			return getCurrentState()->getArgCount();
 		}
 		void exec();
 

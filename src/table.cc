@@ -1,5 +1,5 @@
 #include "table.h"
-
+#include "vm.h"
 namespace lunatic {
 	void Table::markReferences(GC* gc)const {
 		for (const auto& pair : iMap) {
@@ -72,5 +72,23 @@ namespace lunatic {
 		}
 	}
 
-
+	std::pair<Value, Value> Table::iterator::get(VM* vm)const {
+		if (state == init || state == end) {
+			return std::make_pair(Value(), Value());
+		}
+		if (state == list) {
+			Value key;
+			key.store(0);
+			return std::make_pair(key, table->list[listIter]);
+		}
+		if (state == iMap) {
+			Value key;
+			key.store(iMapIter->first);
+			return std::make_pair(key, iMapIter->second);
+		}
+		Value key;
+		SerializeContext ctx(vm);
+		key.store(sMapIter->first, &ctx);
+		return std::make_pair(key, sMapIter->second);
+	}
 }
