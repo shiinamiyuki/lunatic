@@ -1,7 +1,7 @@
 #pragma once
 
 #include <common.h>
-#include "lex.h"
+#include <lex.h>
 
 
 namespace lunatic {

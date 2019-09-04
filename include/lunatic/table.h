@@ -1,7 +1,7 @@
 #pragma once
-#include "common.h"
-#include "value.h"
-#include "gc.h"
+#include <common.h>
+#include <value.h>
+#include <gc.h>
 namespace lunatic {
 	class Value;
 	class Table;

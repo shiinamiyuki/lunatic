@@ -1,6 +1,6 @@
 #pragma once
-#include "ast.h"
-#include "lex.h"
+#include <ast.h>
+#include <lex.h>
 namespace lunatic {
 	class Parser {
 		std::vector<Token> tokenStream;

@@ -1,5 +1,5 @@
 #pragma once
-#include "common.h"
+#include <common.h>
 namespace lunatic {
 	constexpr size_t REG_MAX = 256;
 	enum class Opcode {

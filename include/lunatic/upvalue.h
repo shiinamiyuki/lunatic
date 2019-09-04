@@ -1,6 +1,6 @@
 #pragma once
-#include "gc.h"
-#include "common.h"
+#include <gc.h>
+#include <common.h>
 namespace lunatic {
 	class UpValue : public GCObject {
 		std::unordered_map<int, Value> values;
