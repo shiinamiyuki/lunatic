@@ -123,6 +123,19 @@ lunatic/fast:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/build
 .PHONY : lunatic/fast
 
+#=============================================================================
+# Target rules for targets named liblunatic
+
+# Build rule for target.
+liblunatic: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 liblunatic
+.PHONY : liblunatic
+
+# fast build rule for target.
+liblunatic/fast:
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/build
+.PHONY : liblunatic/fast
+
 src/ast.o: src/ast.cc.o
 
 .PHONY : src/ast.o
@@ -130,6 +143,7 @@ src/ast.o: src/ast.cc.o
 # target to build an object file
 src/ast.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/ast.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/ast.cc.o
 .PHONY : src/ast.cc.o
 
 src/ast.i: src/ast.cc.i
@@ -139,6 +153,7 @@ src/ast.i: src/ast.cc.i
 # target to preprocess a source file
 src/ast.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/ast.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/ast.cc.i
 .PHONY : src/ast.cc.i
 
 src/ast.s: src/ast.cc.s
@@ -148,6 +163,7 @@ src/ast.s: src/ast.cc.s
 # target to generate assembly for a file
 src/ast.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/ast.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/ast.cc.s
 .PHONY : src/ast.cc.s
 
 src/closure.o: src/closure.cc.o
@@ -157,6 +173,7 @@ src/closure.o: src/closure.cc.o
 # target to build an object file
 src/closure.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/closure.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/closure.cc.o
 .PHONY : src/closure.cc.o
 
 src/closure.i: src/closure.cc.i
@@ -166,6 +183,7 @@ src/closure.i: src/closure.cc.i
 # target to preprocess a source file
 src/closure.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/closure.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/closure.cc.i
 .PHONY : src/closure.cc.i
 
 src/closure.s: src/closure.cc.s
@@ -175,6 +193,7 @@ src/closure.s: src/closure.cc.s
 # target to generate assembly for a file
 src/closure.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/closure.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/closure.cc.s
 .PHONY : src/closure.cc.s
 
 src/codegen.o: src/codegen.cc.o
@@ -184,6 +203,7 @@ src/codegen.o: src/codegen.cc.o
 # target to build an object file
 src/codegen.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/codegen.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/codegen.cc.o
 .PHONY : src/codegen.cc.o
 
 src/codegen.i: src/codegen.cc.i
@@ -193,6 +213,7 @@ src/codegen.i: src/codegen.cc.i
 # target to preprocess a source file
 src/codegen.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/codegen.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/codegen.cc.i
 .PHONY : src/codegen.cc.i
 
 src/codegen.s: src/codegen.cc.s
@@ -202,6 +223,7 @@ src/codegen.s: src/codegen.cc.s
 # target to generate assembly for a file
 src/codegen.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/codegen.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/codegen.cc.s
 .PHONY : src/codegen.cc.s
 
 src/format.o: src/format.cc.o
@@ -211,6 +233,7 @@ src/format.o: src/format.cc.o
 # target to build an object file
 src/format.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/format.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/format.cc.o
 .PHONY : src/format.cc.o
 
 src/format.i: src/format.cc.i
@@ -220,6 +243,7 @@ src/format.i: src/format.cc.i
 # target to preprocess a source file
 src/format.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/format.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/format.cc.i
 .PHONY : src/format.cc.i
 
 src/format.s: src/format.cc.s
@@ -229,6 +253,7 @@ src/format.s: src/format.cc.s
 # target to generate assembly for a file
 src/format.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/format.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/format.cc.s
 .PHONY : src/format.cc.s
 
 src/gc.o: src/gc.cc.o
@@ -238,6 +263,7 @@ src/gc.o: src/gc.cc.o
 # target to build an object file
 src/gc.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/gc.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/gc.cc.o
 .PHONY : src/gc.cc.o
 
 src/gc.i: src/gc.cc.i
@@ -247,6 +273,7 @@ src/gc.i: src/gc.cc.i
 # target to preprocess a source file
 src/gc.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/gc.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/gc.cc.i
 .PHONY : src/gc.cc.i
 
 src/gc.s: src/gc.cc.s
@@ -256,6 +283,7 @@ src/gc.s: src/gc.cc.s
 # target to generate assembly for a file
 src/gc.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/gc.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/gc.cc.s
 .PHONY : src/gc.cc.s
 
 src/lex.o: src/lex.cc.o
@@ -265,6 +293,7 @@ src/lex.o: src/lex.cc.o
 # target to build an object file
 src/lex.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/lex.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/lex.cc.o
 .PHONY : src/lex.cc.o
 
 src/lex.i: src/lex.cc.i
@@ -274,6 +303,7 @@ src/lex.i: src/lex.cc.i
 # target to preprocess a source file
 src/lex.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/lex.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/lex.cc.i
 .PHONY : src/lex.cc.i
 
 src/lex.s: src/lex.cc.s
@@ -283,6 +313,7 @@ src/lex.s: src/lex.cc.s
 # target to generate assembly for a file
 src/lex.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/lex.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/lex.cc.s
 .PHONY : src/lex.cc.s
 
 src/lib.o: src/lib.cc.o
@@ -292,6 +323,7 @@ src/lib.o: src/lib.cc.o
 # target to build an object file
 src/lib.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/lib.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/lib.cc.o
 .PHONY : src/lib.cc.o
 
 src/lib.i: src/lib.cc.i
@@ -301,6 +333,7 @@ src/lib.i: src/lib.cc.i
 # target to preprocess a source file
 src/lib.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/lib.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/lib.cc.i
 .PHONY : src/lib.cc.i
 
 src/lib.s: src/lib.cc.s
@@ -310,6 +343,7 @@ src/lib.s: src/lib.cc.s
 # target to generate assembly for a file
 src/lib.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/lib.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/lib.cc.s
 .PHONY : src/lib.cc.s
 
 src/main.o: src/main.cc.o
@@ -319,6 +353,7 @@ src/main.o: src/main.cc.o
 # target to build an object file
 src/main.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/main.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/main.cc.o
 .PHONY : src/main.cc.o
 
 src/main.i: src/main.cc.i
@@ -328,6 +363,7 @@ src/main.i: src/main.cc.i
 # target to preprocess a source file
 src/main.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/main.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/main.cc.i
 .PHONY : src/main.cc.i
 
 src/main.s: src/main.cc.s
@@ -337,6 +373,7 @@ src/main.s: src/main.cc.s
 # target to generate assembly for a file
 src/main.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/main.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/main.cc.s
 .PHONY : src/main.cc.s
 
 src/opcode.o: src/opcode.cc.o
@@ -346,6 +383,7 @@ src/opcode.o: src/opcode.cc.o
 # target to build an object file
 src/opcode.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/opcode.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/opcode.cc.o
 .PHONY : src/opcode.cc.o
 
 src/opcode.i: src/opcode.cc.i
@@ -355,6 +393,7 @@ src/opcode.i: src/opcode.cc.i
 # target to preprocess a source file
 src/opcode.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/opcode.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/opcode.cc.i
 .PHONY : src/opcode.cc.i
 
 src/opcode.s: src/opcode.cc.s
@@ -364,6 +403,7 @@ src/opcode.s: src/opcode.cc.s
 # target to generate assembly for a file
 src/opcode.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/opcode.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/opcode.cc.s
 .PHONY : src/opcode.cc.s
 
 src/parse.o: src/parse.cc.o
@@ -373,6 +413,7 @@ src/parse.o: src/parse.cc.o
 # target to build an object file
 src/parse.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/parse.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/parse.cc.o
 .PHONY : src/parse.cc.o
 
 src/parse.i: src/parse.cc.i
@@ -382,6 +423,7 @@ src/parse.i: src/parse.cc.i
 # target to preprocess a source file
 src/parse.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/parse.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/parse.cc.i
 .PHONY : src/parse.cc.i
 
 src/parse.s: src/parse.cc.s
@@ -391,6 +433,7 @@ src/parse.s: src/parse.cc.s
 # target to generate assembly for a file
 src/parse.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/parse.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/parse.cc.s
 .PHONY : src/parse.cc.s
 
 src/scriptengine.o: src/scriptengine.cc.o
@@ -400,6 +443,7 @@ src/scriptengine.o: src/scriptengine.cc.o
 # target to build an object file
 src/scriptengine.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/scriptengine.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/scriptengine.cc.o
 .PHONY : src/scriptengine.cc.o
 
 src/scriptengine.i: src/scriptengine.cc.i
@@ -409,6 +453,7 @@ src/scriptengine.i: src/scriptengine.cc.i
 # target to preprocess a source file
 src/scriptengine.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/scriptengine.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/scriptengine.cc.i
 .PHONY : src/scriptengine.cc.i
 
 src/scriptengine.s: src/scriptengine.cc.s
@@ -418,6 +463,7 @@ src/scriptengine.s: src/scriptengine.cc.s
 # target to generate assembly for a file
 src/scriptengine.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/scriptengine.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/scriptengine.cc.s
 .PHONY : src/scriptengine.cc.s
 
 src/serialize.o: src/serialize.cc.o
@@ -427,6 +473,7 @@ src/serialize.o: src/serialize.cc.o
 # target to build an object file
 src/serialize.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/serialize.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/serialize.cc.o
 .PHONY : src/serialize.cc.o
 
 src/serialize.i: src/serialize.cc.i
@@ -436,6 +483,7 @@ src/serialize.i: src/serialize.cc.i
 # target to preprocess a source file
 src/serialize.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/serialize.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/serialize.cc.i
 .PHONY : src/serialize.cc.i
 
 src/serialize.s: src/serialize.cc.s
@@ -445,6 +493,7 @@ src/serialize.s: src/serialize.cc.s
 # target to generate assembly for a file
 src/serialize.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/serialize.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/serialize.cc.s
 .PHONY : src/serialize.cc.s
 
 src/table.o: src/table.cc.o
@@ -454,6 +503,7 @@ src/table.o: src/table.cc.o
 # target to build an object file
 src/table.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/table.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/table.cc.o
 .PHONY : src/table.cc.o
 
 src/table.i: src/table.cc.i
@@ -463,6 +513,7 @@ src/table.i: src/table.cc.i
 # target to preprocess a source file
 src/table.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/table.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/table.cc.i
 .PHONY : src/table.cc.i
 
 src/table.s: src/table.cc.s
@@ -472,6 +523,7 @@ src/table.s: src/table.cc.s
 # target to generate assembly for a file
 src/table.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/table.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/table.cc.s
 .PHONY : src/table.cc.s
 
 src/value.o: src/value.cc.o
@@ -481,6 +533,7 @@ src/value.o: src/value.cc.o
 # target to build an object file
 src/value.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/value.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/value.cc.o
 .PHONY : src/value.cc.o
 
 src/value.i: src/value.cc.i
@@ -490,6 +543,7 @@ src/value.i: src/value.cc.i
 # target to preprocess a source file
 src/value.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/value.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/value.cc.i
 .PHONY : src/value.cc.i
 
 src/value.s: src/value.cc.s
@@ -499,6 +553,7 @@ src/value.s: src/value.cc.s
 # target to generate assembly for a file
 src/value.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/value.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/value.cc.s
 .PHONY : src/value.cc.s
 
 src/vm.o: src/vm.cc.o
@@ -508,6 +563,7 @@ src/vm.o: src/vm.cc.o
 # target to build an object file
 src/vm.cc.o:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/vm.cc.o
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/vm.cc.o
 .PHONY : src/vm.cc.o
 
 src/vm.i: src/vm.cc.i
@@ -517,6 +573,7 @@ src/vm.i: src/vm.cc.i
 # target to preprocess a source file
 src/vm.cc.i:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/vm.cc.i
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/vm.cc.i
 .PHONY : src/vm.cc.i
 
 src/vm.s: src/vm.cc.s
@@ -526,6 +583,7 @@ src/vm.s: src/vm.cc.s
 # target to generate assembly for a file
 src/vm.cc.s:
 	$(MAKE) -f CMakeFiles/lunatic.dir/build.make CMakeFiles/lunatic.dir/src/vm.cc.s
+	$(MAKE) -f CMakeFiles/liblunatic.dir/build.make CMakeFiles/liblunatic.dir/src/vm.cc.s
 .PHONY : src/vm.cc.s
 
 # Help Target
@@ -535,8 +593,9 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... lunatic"
 	@echo "... edit_cache"
+	@echo "... lunatic"
+	@echo "... liblunatic"
 	@echo "... src/ast.o"
 	@echo "... src/ast.i"
 	@echo "... src/ast.s"

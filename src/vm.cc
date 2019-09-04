@@ -291,7 +291,6 @@ namespace lunatic {
 				break;
 			}
 		}
-		//	std::cout << globals[0].str()<<std::endl;
 	}
 
 	void VM::invokeMetaMethod(Value* a, Value* b, Value* c, const char* key, int n) {
