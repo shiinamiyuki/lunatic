@@ -65,6 +65,7 @@ namespace lunatic {
 					}
 				}
 				else if (state == list) {
+					listIter++;
 					if (listIter >= table->list.size()) {
 						state = iMap;
 						iMapIter = table->iMap.begin();
@@ -76,11 +77,9 @@ namespace lunatic {
 							}
 						}
 					}
-					else {
-						listIter++;
-					}
 				}
 				else if (state == iMap) {
+					iMapIter++;
 					if (iMapIter == table->iMap.end()) {
 						state = sMap;
 						sMapIter = table->sMap.begin();
@@ -88,16 +87,11 @@ namespace lunatic {
 							state = end;
 						}
 					}
-					else {
-						iMapIter++;
-					}
 				}
 				else if (state == sMap) {
+					sMapIter++;
 					if (sMapIter == table->sMap.end()) {
 						state = end;
-					}
-					else {
-						sMapIter++;
 					}
 				}
 			}
