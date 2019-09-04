@@ -1,9 +1,9 @@
 #pragma once
-#include <common.h>
-#include <codegen.h>
-#include <vm.h>
-#include <type_traits>
-#include <error.h>
+#include <lunatic/common.h>
+#include <lunatic/codegen.h>
+#include <lunatic/vm.h>
+#include <lunatic/type_traits>
+#include <lunatic/error.h>
 
 
 namespace lunatic {

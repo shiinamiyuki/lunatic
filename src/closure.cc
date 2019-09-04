@@ -1,9 +1,9 @@
-#include "gc.h"
-#include "closure.h"
+#include <lunatic/gc.h>
+#include <lunatic/closure.h>
 
-#include "value.h"
-#include "upvalue.h"
-#include "vm.h"
+#include <lunatic/value.h>
+#include <lunatic/upvalue.h>
+#include <lunatic/vm.h>
 
 namespace lunatic {
 	class UpValue;

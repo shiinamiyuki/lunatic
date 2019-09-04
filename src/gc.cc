@@ -1,5 +1,5 @@
-#include "gc.h"
-#include "lstring.h"
+#include <lunatic/gc.h>
+#include <lunatic/lstring.h>
 #include "table.h"
 #include "closure.h"
 #include "lformat.h"

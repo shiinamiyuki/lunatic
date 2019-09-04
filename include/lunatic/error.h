@@ -1,5 +1,5 @@
 #pragma once
-#include <common.h>
+#include <lunatic/common.h>
 namespace lunatic {
 	enum class ErrorCode {
 		None,

@@ -1,4 +1,4 @@
-#include "codegen.h"
+#include <lunatic/codegen.h>
 
 namespace lunatic {
 

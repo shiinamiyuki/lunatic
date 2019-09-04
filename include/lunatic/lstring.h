@@ -1,6 +1,6 @@
 #pragma once
-#include <common.h>
-#include <gc.h>
+#include <lunatic/common.h>
+#include <lunatic/gc.h>
 namespace lunatic {
 	class String : public GCObject{
 		std::string data;

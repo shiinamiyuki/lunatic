@@ -1,6 +1,6 @@
 #pragma once
-#include <common.h>
-#include <vm.h>
+#include <lunatic/common.h>
+#include <lunatic/vm.h>
 namespace lunatic {
 	class StringLib
 	{

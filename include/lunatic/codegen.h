@@ -1,10 +1,10 @@
 #pragma once
-#include <common.h>
-#include <ast.h>
-#include <opcode.h>
-#include <visitor.h>
-#include <lformat.h>
-#include <parse.h>
+#include <lunatic/common.h>
+#include <lunatic/ast.h>
+#include <lunatic/opcode.h>
+#include <lunatic/visitor.h>
+#include <lunatic/lformat.h>
+#include <lunatic/parse.h>
 
 namespace lunatic {
 	class AST;

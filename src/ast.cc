@@ -1,5 +1,5 @@
-#include "ast.h"
-#include "visitor.h"
+#include <lunatic/ast.h>
+#include <lunatic/visitor.h>
 namespace lunatic {
 	AST::AST() {
 	}

@@ -1,10 +1,10 @@
 #pragma once
-#include <common.h>
-#include <opcode.h>
-#include <value.h>
-#include <table.h>
-#include <lstring.h>
-#include <closure.h>
+#include <lunatic/common.h>
+#include <lunatic/opcode.h>
+#include <lunatic/value.h>
+#include <lunatic/table.h>
+#include <lunatic/lstring.h>
+#include <lunatic/closure.h>
 namespace lunatic {
 	class VM;
 	class Table;
