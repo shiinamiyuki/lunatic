@@ -46,6 +46,9 @@ namespace lunatic {
 		};
 		Table* metatable = nullptr;
 	public:
+		struct Hash{
+			size_t operator ()(const Value &v)const;
+		};
 		void setNil();
 
 		void setInt(int64_t);
@@ -156,17 +159,12 @@ namespace lunatic {
 		}
 		static void len(Value* a, Value* b);
 		static void clone(GC&, Value* a, Value* b);
+
+		bool operator == (const Value&rhs)const;
 		Value get(Value&);
-
+		Value get(const std::string& k, VM  * vm);
 		void set(Value&, const Value&);
-
-		Value get(int i);
-
-		Value get(const std::string&);
-
-		void set(int i, const Value&);
-
-		void set(const std::string&, const Value&);
+		void set(const std::string&, const Value&, VM  * vm);
 		int len() const;
 		inline bool isBoolInt()const {
 			return isInt() || isBool();

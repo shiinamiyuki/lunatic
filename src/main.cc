@@ -18,7 +18,7 @@ std::string get() {
 void Interactive() {
 	ScriptEngine engine;
 	std::string source;
-	std::cout << "lunatic v0.1 REPL" << std::endl;
+	println("lunatic 0.1  (build at {} {})", __DATE__,__TIME__);
 	while (!feof(stdin)) {
 		std::cout << "< ";
 		std::getline(std::cin, source);

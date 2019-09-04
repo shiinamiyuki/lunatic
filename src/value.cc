@@ -3,7 +3,27 @@
 #include "lstring.h"
 #include "closure.h"
 #include "format.h"
+#include "vm.h"
 namespace lunatic {
+	size_t Value::Hash::operator()(const Value& v)const{
+		switch (v.type) {
+		case Value::TTable:
+		case Value::TClosure:
+		case Value::TUserData:
+		case Value::TNativeFunction:
+			return std::hash<void*>()(v.getTable());
+		case Value::TNil:
+			return -1;
+		case Value::TString:
+			return std::hash<std::string>()(v.getString()->str());
+		case Value::TInt:
+		case Value::TBool:
+			return std::hash<std::int64_t>()(v.asInt);
+		case Value::TFloat:
+			return std::hash<double>()(v.asFloat);
+		}
+		return -1;
+	}
 	const char* printstr(Value::Type type) {
 		switch (type) {
 		case Value::TTable:
@@ -146,41 +166,30 @@ namespace lunatic {
 			c->setBool(a->getFloat() >= b->getFloat());
 		}
 	}
-
-	void Value::eq(Value* a, Value* b, Value* c) {
-		if (a->isNil() && b->isNil()) {
-			c->setBool(true);
-		}else if (a->isArithmetic() && b->isArithmetic()) {
-			if (a->isBoolInt() && b->isBoolInt()) {
-				c->setBool(a->getInt() == b->getInt());
+	bool Value::operator == (const Value&rhs)const{
+		if (isNil() && rhs.isNil()) {
+			return true;
+		}else if (isArithmetic() &&rhs.isArithmetic()) {
+			if (isBoolInt() && rhs.isBoolInt()) {
+				return getInt() == rhs.getInt();
 			}
 			else {
-				c->setBool(a->getFloat() == b->getFloat());
+				return getFloat() == rhs.getFloat();
 			}
 		}
-		else if (a->type != b->type) {
-			c->setBool(false);
+		else if (type != rhs.type) {
+			return false;
 		}
 		else {
-			c->setBool(a->getTable() == b->getTable());
+			return getTable() == rhs.getTable();
 		}
+	}
+	void Value::eq(Value* a, Value* b, Value* c) {
+		c->setBool((*a) == *b);
 	}
 
 	void Value::ne(Value* a, Value* b, Value* c) {
-		if (a->isArithmetic() && b->isArithmetic()) {
-			if (a->isBoolInt() && b->isBoolInt()) {
-				c->setBool(a->getInt() != b->getInt());
-			}
-			else {
-				c->setBool(a->getFloat() != b->getFloat());
-			}
-		}
-		else if (a->type != b->type) {
-			c->setBool(true);
-		}
-		else {
-			c->setBool(a->getTable() != b->getTable());
-		}
+		c->setBool(!((*a) == *b));
 	}
 
 	Value::Value() :type(TNil) {}
@@ -299,11 +308,8 @@ namespace lunatic {
 			for (auto iter = tab.getList().begin() + 1; iter != tab.getList().end(); iter++) {
 				out << iter->dump() << ", ";
 			}
-			for (auto i : tab.iMap) {
-				out << "[" << i.first << "]=" << i.second.dump() << ",";
-			}
-			for (auto i : tab.sMap) {
-				out << "[" << i.first << "]=" << i.second.dump() << ",";
+			for (auto i : tab.map) {
+				out << "[" << i.first.dump() << "]=" << i.second.dump() << ",";
 			}
 			out << "}";
 		}
@@ -355,13 +361,15 @@ namespace lunatic {
 	void Value::len(Value* a, Value* b) {
 		b->setInt(a->len());
 	}
-	Value Value::get(int i) {
-		if (isTable()) {
-			return getTable()->get(i);
-		}
-		else {
-			throw RuntimException(format("attempt to get item of {}", type));
-		}
+	Value Value::get(const std::string& k, VM * vm){
+		Value v;
+		v.setString(vm->alloc<String>(k));
+		return getTable()->get(v);
+	}
+	void Value::set(const std::string&k, const Value& v, VM * vm){
+		Value key;
+		key.setString(vm->alloc<String>(k));
+		getTable()->set(key, v);
 	}
 	int Value::len() const {
 		if (isArithmetic()) {
@@ -377,55 +385,13 @@ namespace lunatic {
 			throw RuntimException(format("attempt to get length of {}", type));
 		}
 	}
-	Value Value::get(const std::string& s) {
-		if (isTable()) {
-			return getTable()->get(s);
-		}
-		else {
-			throw RuntimException(format("attempt to get item of {}", type));
-		}
-	}
-
-	void Value::set(int i, const Value& v) {
-		if (isTable()) {
-			getTable()->set(i, v);
-		}
-		else {
-			throw RuntimException(format("attempt to set item of {}", type));
-		}
-	}
-
-	void Value::set(const std::string& s, const Value& v) {
-		if (isTable()) {
-			getTable()->set(s, v);
-		}
-		else {
-			throw RuntimException(format("attempt to set item of {}", type));
-		}
-	}
 
 	Value Value::get(Value& k) {
-		if (k.isArithmetic()) {
-			return get(k.getInt());
-		}
-		else if (k.isString()) {
-			return get(k.getString()->str());
-		}
-		else {
-			throw RuntimException("invalid type of key");
-		}
+		return getTable()->get(k);
 	}
 
 	void Value::set(Value& k, const Value& v) {
-		if (k.isArithmetic()) {
-			set(k.getInt(), v);
-		}
-		else if (k.isString()) {
-			set(k.getString()->str(), v);
-		}
-		else {
-			throw RuntimException("invalid type of key");
-		}
+		getTable()->set(k, v);
 	}
 	void Value::setMetaTable(Value* a, Value* b) {
 		if (a->isTable()) {

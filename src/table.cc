@@ -2,10 +2,8 @@
 #include "vm.h"
 namespace lunatic {
 	void Table::markReferences(GC* gc)const {
-		for (const auto& pair : iMap) {
-			gc->mark(pair.second);
-		}
-		for (const auto& pair : sMap) {
+		for (const auto& pair : map) {
+			gc->mark(pair.first);
 			gc->mark(pair.second);
 		}
 		for (const auto& i : list) {
@@ -14,81 +12,81 @@ namespace lunatic {
 			}
 		}
 	}
-	Value Table::get(int i) {
-		if (i >= 1 && i <=list.size()) {
-			return list[i-1];
+	Value Table::get(const Value & v) {
+		if(v.isInt()){
+			auto i = v.getInt();
+			if (i >= 1 && i <=list.size()) {
+				return list[i-1];
+			}
 		}
-		auto iter = iMap.find(i);
-		if (iter != iMap.end())
+		auto iter = map.find(v);
+		if (iter != map.end())
 			return iter->second;
 		else{
 			return Value();
 		}
 
 	}
-	Value Table::get(const std::string& s) {
-		auto iter = sMap.find(s);
-		if (iter != sMap.end())
-			return iter->second;
-		else {
-			return Value();
-		}
-		
-	}
-	void Table::set(int i, const Value& v) {
-		if (i >= 1 && i <= list.size()) {
-			if (v.isNil() && i == list.size()) {
-				list.pop_back();
-			}
-			else
-				list[i-1] = v;
-		}
-		else if (i == list.size()+1) {
-			list.push_back(v);
-		}
-		else {
-			auto iter = iMap.find(i);
-			if (iter == iMap.end()) {
-				iMap.insert(std::make_pair(i, v));
-			}
-			else {
-				iMap[i] = v;
-			}
-		}
-	}
 
-	void Table::set(const std::string& s, const Value& v) {
-		auto iter = sMap.find(s);
-		if (iter == sMap.end()) {
-			if (!v.isNil())
-				sMap.insert(std::make_pair(s, v));
+	void Table::set(const Value & k, const Value& v) {
+		if(k.isInt()){
+			auto i = k.getInt();
+			if (i >= 1 && i <= list.size()) {
+				if (v.isNil() && i == list.size()) {
+					list.pop_back();
+				}
+				else
+					list[i-1] = v;
+			}
+			else if (i == list.size()+1) {
+				list.push_back(v);
+			}else{
+				map[k] = v;
+			}
 		}
 		else {
-			if (v.isNil()) {
-				sMap.erase(iter);
-			}
-			else
-				sMap[s] = v;
+			map[k] = v;
 		}
 	}
-
-	std::pair<Value, Value> Table::iterator::get(VM* vm)const {
-		if (state == init || state == end) {
-			return std::make_pair(Value(), Value());
+	std::pair<Value, Value> Table::next(const Value &k, VM * vm)const{
+		if(k.isNil()){
+			if(list.empty()){
+				if(map.empty()){
+					return std::make_pair(k,k);
+				}else{
+					auto iter = map.begin();
+					return std::make_pair(iter->first, iter->second);
+				}
+			}else{
+				Value v;
+				v.setInt(1);
+				return std::make_pair(v, list[0]);
+			}
 		}
-		if (state == list) {
-			Value key;
-			key.store(0);
-			return std::make_pair(key, table->list[listIter]);
+		if(k.isInt()){
+			auto i = k.getInt();
+			if (i >= 1 && i < list.size()) {
+				Value v;
+				v.setInt(i+1);
+				return std::make_pair(v, list[i]);
+			}else{
+				if(map.empty()){
+					return std::make_pair(k,k);
+				}else{
+					auto iter = map.begin();
+					return std::make_pair(iter->first, iter->second);
+				}
+			}
 		}
-		if (state == iMap) {
-			Value key;
-			key.store(iMapIter->first);
-			return std::make_pair(key, iMapIter->second);
+		auto iter = map.find(k);
+		if (iter != map.end()){
+			iter++;
+			if (iter != map.end())
+				return std::make_pair(iter->first, iter->second);
+			else
+				return std::make_pair(Value(),Value());
+		}else{
+			return std::make_pair(Value(),Value());
 		}
-		Value key;
-		SerializeContext ctx(vm);
-		key.store(sMapIter->first, &ctx);
-		return std::make_pair(key, sMapIter->second);
 	}
 }

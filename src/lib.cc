@@ -144,7 +144,7 @@ namespace lunatic {
 		file.setUserData(f);
 		Value v;
 		v.setTable(vm->alloc<Table>());
-		v.set("fp", file);
+		v.set("fp", file, vm);
 		vm->storeReturn(0, v);
 	}
 
@@ -152,7 +152,7 @@ namespace lunatic {
 		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkTable();
-		auto file = arg1.get("fp");
+		auto file = arg1.get("fp", vm);
 		file.checkUserData();
 		FILE* f = static_cast<FILE*>(file.getUserData());
 		std::string s;
@@ -170,7 +170,7 @@ namespace lunatic {
 		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkTable();
-		auto file = arg1.get("fp");
+		auto file = arg1.get("fp", vm);
 		file.checkUserData();
 		FILE* f = static_cast<FILE*>(file.getUserData());
 		auto arg2 = vm->getLocal(1);
@@ -182,7 +182,7 @@ namespace lunatic {
 		auto vm = ctx.vm;
 		auto arg1 = vm->getLocal(0);
 		arg1.checkTable();
-		auto file = arg1.get("fp");
+		auto file = arg1.get("fp",vm);
 		file.checkUserData();
 		FILE* f = static_cast<FILE*>(file.getUserData());
 		fclose(f);
@@ -229,30 +229,8 @@ namespace lunatic {
 		if (!table.isTable()) {
 			throw RuntimException("table object expected in next()");
 		}
-		class Next : public Callable {
-			Table* table;
-			Table::iterator iter;
-		public:
-			Next(Table* table) :table(table),iter(table) {
-				
-			}
-			void call(const CallContext& ctx) {
-				auto vm = ctx.vm;
-				auto pair = iter.get(vm);
-				vm->storeReturn(0, pair.first);
-				vm->storeReturn(1, pair.second);
-				iter.next();
-			}
-			void markReferences(GC* gc)const {
-				gc->mark(table);
-			}
-			size_t nBytes()const override {
-				return sizeof(*this);
-			}
-		};
-		auto next = ctx.vm->alloc<Next>(table.getTable());
-		Value v;
-		v.setNativeFunction(next);
-		vm->storeReturn(0, v);
+		auto ret = table.getTable()->next(vm->getLocal(1), vm);
+		vm->storeReturn(0, ret.first);
+		vm->storeReturn(1, ret.second);
 	}
 }

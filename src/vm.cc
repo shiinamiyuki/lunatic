@@ -134,11 +134,17 @@ namespace lunatic {
 				break;
 			case Opcode::GetValue:
 				GetABC(i);
+				if(!a->isTable()){
+					throw RuntimException("table object expected in when getting item");
+				}
 				*c = a->get(*b);
 				state->next();
 				break;
 			case Opcode::StoreValue:
 				GetABC(i);
+				if(!a->isTable()){
+					throw RuntimException("table object expected in when setting item");
+				}
 				a->set(*b, *c);
 				state->next();
 				break;
@@ -298,7 +304,7 @@ namespace lunatic {
 			auto cur = getCurrentState();
 			cur->push(*a);
 			cur->push(*b);
-			auto meta = a->get(key);
+			auto meta = a->get(key,this);
 			if (!meta.isClosure()) {
 				auto msg = format("Attempt to perform operator {} between {} and {}", key, a->typeStr(), b->typeStr());
 				throw RuntimException(msg);
@@ -310,7 +316,7 @@ namespace lunatic {
 		else {
 			a->checkTable();
 			auto cur = getCurrentState();
-			auto meta = a->get(key);
+			auto meta = a->get(key, this);
 			meta.checkClosure();
 			call(meta.getClosure(), 2);
 		}
