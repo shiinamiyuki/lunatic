@@ -204,7 +204,9 @@ namespace lunatic {
 			}
 			else if (op == "//") {
 				o = Opcode::iDiv;
-			}
+			}else if (op == "..") {
+                o = Opcode::Concat;
+            }
 			else {
 				error("unsupported operator", node->getToken().line,
 					node->getToken().col);

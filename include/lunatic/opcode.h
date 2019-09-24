@@ -8,7 +8,8 @@ namespace lunatic {
 		Mul, //ABC
 		Div, //ABC
 		Mod,//ABC
-		iDiv, //ABC
+		iDiv, //ABC,
+		Concat, //ABC
 		And,
 		Or,
 		Not,

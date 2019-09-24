@@ -154,6 +154,8 @@ namespace lunatic {
 
 		static void logicNot(Value* a, Value* b);
 
+        static void concat(Value* a, Value* b, Value* c, VM*vm);
+
 		static bool checkArithmetic(Value* a, Value* b) {
 			return a->isArithmetic() && b->isArithmetic();
 		}

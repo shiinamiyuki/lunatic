@@ -2,7 +2,7 @@
 #include <lunatic/common.h>
 #include <lunatic/codegen.h>
 #include <lunatic/vm.h>
-#include <lunatic/type_traits>
+#include <type_traits>
 #include <lunatic/error.h>
 
 

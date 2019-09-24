@@ -1,6 +1,6 @@
 #pragma once
 #include <lunatic/value.h>
-#include <lunatic/atomic>
+#include <atomic>
 namespace lunatic {
 	class GC;
 
